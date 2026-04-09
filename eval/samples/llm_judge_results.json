@@ -9,7 +9,7 @@
     "detail": "grounded=3/3 actionable=3/3 hallucinated=[]",
     "prompt_tokens": 2034,
     "output_tokens": 48,
-    "elapsed_ms": 1216.4725829934468,
+    "elapsed_ms": 1460.853833006695,
     "response_preview": "[\n  \"https://getsession.org/donate\",\n  \"https://cssstudio.ai\",\n  \"https://obdev.at/products/littlesnitch-linux/index.html\"\n]"
   },
   {
@@ -22,7 +22,7 @@
     "detail": "grounded=3/3 actionable=3/3 hallucinated=[]",
     "prompt_tokens": 2085,
     "output_tokens": 48,
-    "elapsed_ms": 1244.3231670040404,
+    "elapsed_ms": 1187.1208749944344,
     "response_preview": "[\n  \"https://getsession.org/donate\",\n  \"https://cssstudio.ai\",\n  \"https://obdev.at/products/littlesnitch-linux/index.html\"\n]"
   },
   {
@@ -35,7 +35,7 @@
     "detail": "grounded=3/3 actionable=0/3 hallucinated=[]",
     "prompt_tokens": 1624,
     "output_tokens": 27,
-    "elapsed_ms": 1762.3029999958817,
+    "elapsed_ms": 1214.5388749922859,
     "response_preview": "[\n  \"getsession.org\",\n  \"cssstudio.ai\",\n  \"obdev.at\"\n]"
   },
   {
@@ -48,7 +48,7 @@
     "detail": "grounded=3/3 actionable=0/3 hallucinated=[]",
     "prompt_tokens": 1501,
     "output_tokens": 27,
-    "elapsed_ms": 3171.522124990588,
+    "elapsed_ms": 867.1482920035487,
     "response_preview": "[\n  \"getsession.org\",\n  \"cssstudio.ai\",\n  \"obdev.at\"\n]"
   },
   {
@@ -61,7 +61,7 @@
     "detail": "Correctly reported MISSING",
     "prompt_tokens": 2030,
     "output_tokens": 2,
-    "elapsed_ms": 913.7999579979805,
+    "elapsed_ms": 1076.680166006554,
     "response_preview": "MISSING"
   },
   {
@@ -74,7 +74,7 @@
     "detail": "Correctly reported MISSING",
     "prompt_tokens": 2081,
     "output_tokens": 2,
-    "elapsed_ms": 1212.4251249915687,
+    "elapsed_ms": 761.9714169995859,
     "response_preview": "MISSING"
   },
   {
@@ -87,7 +87,7 @@
     "detail": "Correctly reported MISSING",
     "prompt_tokens": 1620,
     "output_tokens": 2,
-    "elapsed_ms": 1076.6052920080256,
+    "elapsed_ms": 846.9383750052657,
     "response_preview": "MISSING"
   },
   {
@@ -100,21 +100,21 @@
     "detail": "Correctly reported MISSING",
     "prompt_tokens": 1497,
     "output_tokens": 2,
-    "elapsed_ms": 1188.2541670056526,
+    "elapsed_ms": 864.9745839938987,
     "response_preview": "MISSING"
   },
   {
     "test": "Example: Summarize page",
     "tool": "our_scraper",
-    "task_pass": false,
-    "faithfulness": 0.5,
+    "task_pass": true,
+    "faithfulness": 1.0,
     "hallucination": false,
     "actionability": 0.0,
-    "detail": "Missing key terms",
+    "detail": "Summary contains key terms",
     "prompt_tokens": 49,
-    "output_tokens": 15,
-    "elapsed_ms": 1386.2902499968186,
-    "response_preview": "This website serves as a reserved domain intended strictly for illustrative purposes in documentation."
+    "output_tokens": 16,
+    "elapsed_ms": 1043.2184169912944,
+    "response_preview": "This website serves as a reserved domain intended specifically for use in illustrative documentation examples."
   },
   {
     "test": "Example: Summarize page",
@@ -125,9 +125,9 @@
     "actionability": 0.0,
     "detail": "Summary contains key terms",
     "prompt_tokens": 49,
-    "output_tokens": 21,
-    "elapsed_ms": 973.4918750036741,
-    "response_preview": "This webpage serves as an example domain intended for use in documentation and should not be used for actual operations."
+    "output_tokens": 17,
+    "elapsed_ms": 978.6403749894816,
+    "response_preview": "This website serves as a reserved domain intended exclusively for illustrative purposes in documentation and examples."
   },
   {
     "test": "Example: Summarize page",
@@ -138,9 +138,9 @@
     "actionability": 0.0,
     "detail": "Summary contains key terms",
     "prompt_tokens": 33,
-    "output_tokens": 17,
-    "elapsed_ms": 1415.541915994254,
-    "response_preview": "This domain is reserved specifically for use in documentation examples to avoid the need for permission."
+    "output_tokens": 15,
+    "elapsed_ms": 1089.5973750011763,
+    "response_preview": "This domain is reserved exclusively for documentation examples to avoid the need for permission."
   },
   {
     "test": "Example: Summarize page",
@@ -152,46 +152,46 @@
     "detail": "Summary contains key terms",
     "prompt_tokens": 36,
     "output_tokens": 18,
-    "elapsed_ms": 1011.7481249908451,
-    "response_preview": "This domain is reserved for use in documentation examples and should not be used for operational purposes."
+    "elapsed_ms": 1112.2685839945916,
+    "response_preview": "This domain is reserved for use in documentation examples and should not be utilized for operational purposes."
   },
   {
     "test": "GitHub: Extract repo info",
     "tool": "our_scraper",
     "task_pass": true,
-    "faithfulness": 0.6666666666666666,
+    "faithfulness": 1.0,
     "hallucination": false,
     "actionability": 0.0,
     "detail": "json=True nickel=True",
     "prompt_tokens": 705,
     "output_tokens": 48,
-    "elapsed_ms": 1346.5489999944111,
+    "elapsed_ms": 1138.119708004524,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
     "test": "GitHub: Extract repo info",
     "tool": "our_lol_html",
     "task_pass": true,
-    "faithfulness": 0.6666666666666666,
+    "faithfulness": 1.0,
     "hallucination": false,
     "actionability": 0.0,
     "detail": "json=True nickel=True",
     "prompt_tokens": 1708,
     "output_tokens": 48,
-    "elapsed_ms": 1409.3011660006596,
+    "elapsed_ms": 1213.9381250017323,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
     "test": "GitHub: Extract repo info",
     "tool": "trafilatura",
     "task_pass": true,
-    "faithfulness": 0.6666666666666666,
+    "faithfulness": 1.0,
     "hallucination": false,
     "actionability": 0.0,
     "detail": "json=True nickel=True",
     "prompt_tokens": 672,
     "output_tokens": 48,
-    "elapsed_ms": 3465.609457998653,
+    "elapsed_ms": 889.61699999345,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
@@ -204,7 +204,7 @@
     "detail": "json=True nickel=True",
     "prompt_tokens": 1456,
     "output_tokens": 48,
-    "elapsed_ms": 1506.2784999900032,
+    "elapsed_ms": 1063.9484169951174,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
@@ -216,9 +216,9 @@
     "actionability": 0.0,
     "detail": "json=True function=True",
     "prompt_tokens": 2141,
-    "output_tokens": 29,
-    "elapsed_ms": 1055.0563330034493,
-    "response_preview": "```json\n{\n  \"example\": \"function square(number) {\\n  return number * number;\\n}\"\n}\n```"
+    "output_tokens": 25,
+    "elapsed_ms": 1735.8860000094865,
+    "response_preview": "```json\n{\"example\": \"function square(number) {\\n  return number * number;\\n}\"}\n```"
   },
   {
     "test": "MDN: Extract function syntax",
@@ -230,7 +230,7 @@
     "detail": "json=True function=True",
     "prompt_tokens": 2177,
     "output_tokens": 25,
-    "elapsed_ms": 1001.8992090044776,
+    "elapsed_ms": 1015.2931250049733,
     "response_preview": "```json\n{\"example\": \"function square(number) {\\n  return number * number;\\n}\"}\n```"
   },
   {
@@ -243,7 +243,7 @@
     "detail": "json=True function=True",
     "prompt_tokens": 2080,
     "output_tokens": 24,
-    "elapsed_ms": 1066.7937499965774,
+    "elapsed_ms": 1101.5576249919832,
     "response_preview": "```json\n{\"example\": \"function square(number) {\\nreturn number * number;\\n}\"}\n```"
   },
   {
@@ -256,7 +256,7 @@
     "detail": "json=True function=True",
     "prompt_tokens": 1998,
     "output_tokens": 25,
-    "elapsed_ms": 1064.2946669977391,
+    "elapsed_ms": 941.249167008209,
     "response_preview": "```json\n{\"example\": \"function square(number) {\\n  return number * number;\\n}\"}\n```"
   },
   {
@@ -268,9 +268,9 @@
     "actionability": 0.0,
     "detail": "json=False",
     "prompt_tokens": 1619,
-    "output_tokens": 230,
-    "elapsed_ms": 1759.3859159969725,
-    "response_preview": "[\n  {\"event\": \"PyCon US\", \"url\": \"https://us.pycon.org/2026/attend/information/\"},\n  {\"event\": \"PyCon DE & PyData 2026\", \"url\": \"https://www.python.org/events/python-events/2102/\"},\n  {\"event\": \"Djang"
+    "output_tokens": 235,
+    "elapsed_ms": 1865.002332997392,
+    "response_preview": "[\n  {\"event\": \"PyCon US 2026\", \"url\": \"https://us.pycon.org/2026/attend/information/\"},\n  {\"event\": \"PyCon DE & PyData 2026\", \"url\": \"https://www.python.org/events/python-events/2102/\"},\n  {\"event\": \""
   },
   {
     "test": "Python.org: Extract event",
@@ -282,7 +282,7 @@
     "detail": "json=False",
     "prompt_tokens": 1678,
     "output_tokens": 282,
-    "elapsed_ms": 2319.484082996496,
+    "elapsed_ms": 2294.3191670055967,
     "response_preview": "```json\n[\n  {\n    \"event\": \"PyCon US 2026\",\n    \"url\": \"https://us.pycon.org/2026/attend/information/\"\n  },\n  {\n    \"event\": \"PyCon DE & PyData 2026\",\n    \"url\": \"https://www.python.org/events/python-"
   },
   {
@@ -295,7 +295,7 @@
     "detail": "json=True",
     "prompt_tokens": 819,
     "output_tokens": 47,
-    "elapsed_ms": 1309.8026250081602,
+    "elapsed_ms": 1333.4955839964096,
     "response_preview": "```json\n{\n  \"event\": \"PyCon US 2026\",\n  \"url\": \"https://us.pycon.org/2026/attend/information/\"\n}\n```"
   },
   {
@@ -308,7 +308,7 @@
     "detail": "json=True",
     "prompt_tokens": 1954,
     "output_tokens": 41,
-    "elapsed_ms": 1236.9811670068884,
+    "elapsed_ms": 1177.247832994908,
     "response_preview": "```json\n[\n  {\n    \"event\": \"PyCon US 2026\",\n    \"url\": \"REGISTER FOR PYCON US!\"\n  }\n]\n```"
   }
 ]

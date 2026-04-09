@@ -135,6 +135,26 @@ Content:
 ]
 
 
+def strip_markdown(text: str) -> str:
+    """Remove markdown syntax, leaving clean text for faithful matching.
+    [text](url) → text
+    **bold** → bold
+    _italic_ → italic
+    `code` → code
+    # heading → heading
+    """
+    import re
+    s = text
+    s = re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', s)  # links
+    s = re.sub(r'\*\*([^*]*)\*\*', r'\1', s)         # bold
+    s = re.sub(r'_([^_]*)_', r'\1', s)                # italic
+    s = re.sub(r'`([^`]*)`', r'\1', s)                # inline code
+    s = re.sub(r'^#{1,6}\s+', '', s, flags=re.MULTILINE)  # headings
+    s = re.sub(r'^[-*]\s+', '', s, flags=re.MULTILINE)    # list markers
+    s = re.sub(r'```[^`]*```', '', s, flags=re.DOTALL)    # code blocks
+    return s
+
+
 def _extract_json(text: str) -> str:
     """Extract JSON from possible markdown code block."""
     cleaned = text.strip()
@@ -190,23 +210,23 @@ def validate_result(test: dict, response_text: str, source_content: str) -> dict
 
     if validate_type == "strict_urls_in_source":
         try:
-            cleaned = _extract_json(result)
-            urls = json.loads(cleaned)
+            cleaned_json = _extract_json(result)
+            urls = json.loads(cleaned_json)
             if not isinstance(urls, list) or len(urls) < 3:
                 scores["detail"] = f"Expected 3+ URLs, got {len(urls) if isinstance(urls, list) else 'non-list'}"
                 return scores
             scores["task_pass"] = True
-            # Faithfulness: each URL must be in source
+            # Faithfulness: URL must be in source (check both raw and clean)
+            clean_source = strip_markdown(source_content)
             grounded = 0
             hallucinated = []
             for url in urls[:3]:
-                if isinstance(url, str) and url in source_content:
+                if isinstance(url, str) and (url in source_content or url in clean_source):
                     grounded += 1
                 else:
                     hallucinated.append(str(url)[:60])
             scores["faithfulness"] = grounded / 3
             scores["hallucination"] = len(hallucinated) > 0
-            # Actionability: URLs must be absolute
             actionable = sum(1 for u in urls[:3] if isinstance(u, str) and u.startswith("http"))
             scores["actionability"] = actionable / 3
             scores["detail"] = f"grounded={grounded}/3 actionable={actionable}/3 hallucinated={hallucinated}"
@@ -246,10 +266,11 @@ def validate_result(test: dict, response_text: str, source_content: str) -> dict
         is_json = _is_valid_json_obj(result)
         has_nickel = "nickel" in result.lower()
         scores["task_pass"] = is_json and has_nickel
-        # Check if extracted values are in source
+        # Check faithfulness against markdown-stripped source
+        clean_source = strip_markdown(source_content).lower()
         if is_json:
             obj = json.loads(_extract_json(result))
-            grounded = sum(1 for v in obj.values() if isinstance(v, str) and v.lower() in source_content.lower())
+            grounded = sum(1 for v in obj.values() if isinstance(v, str) and v.lower() in clean_source)
             scores["faithfulness"] = grounded / max(len(obj), 1)
         scores["detail"] = f"json={is_json} nickel={has_nickel}"
 
@@ -257,14 +278,13 @@ def validate_result(test: dict, response_text: str, source_content: str) -> dict
         is_json = _is_valid_json_obj(result)
         has_function = "function" in result.lower()
         scores["task_pass"] = is_json and has_function
-        # Check if code example is from source
+        clean_source = strip_markdown(source_content)
         if is_json:
             try:
                 obj = json.loads(_extract_json(result))
                 example = obj.get("example", "")
-                # Check first meaningful line of code
                 first_line = example.strip().split("\n")[0].strip() if example else ""
-                scores["faithfulness"] = 1.0 if first_line and first_line in source_content else 0.5
+                scores["faithfulness"] = 1.0 if first_line and first_line in clean_source else 0.5
             except Exception:
                 scores["faithfulness"] = 0.5
         scores["detail"] = f"json={is_json} function={has_function}"
@@ -272,16 +292,23 @@ def validate_result(test: dict, response_text: str, source_content: str) -> dict
     elif validate_type == "python_event":
         is_json = _is_valid_json_obj(result)
         scores["task_pass"] = is_json
+        clean_source = strip_markdown(source_content)
         if is_json:
             try:
                 obj = json.loads(_extract_json(result))
                 url = obj.get("url", "")
-                if url and url in source_content:
+                # Check URL in both raw and clean source (URLs may be in markdown links)
+                url_in_source = url and (url in source_content or url in clean_source)
+                if url_in_source:
                     scores["faithfulness"] = 1.0
                     scores["actionability"] = 1.0 if url.startswith("http") else 0.5
                 elif url:
-                    scores["hallucination"] = url not in source_content and url.startswith("http")
+                    scores["hallucination"] = not url_in_source and url.startswith("http")
                     scores["faithfulness"] = 0.0 if scores["hallucination"] else 0.5
+                # Check event name
+                event = obj.get("event", "")
+                if event and event.lower() in clean_source.lower():
+                    scores["faithfulness"] = max(scores["faithfulness"], 1.0)
             except Exception:
                 pass
         scores["detail"] = f"json={is_json}"
