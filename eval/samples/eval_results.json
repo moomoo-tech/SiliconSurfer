@@ -1,0 +1,915 @@
+[
+  {
+    "name": "blog",
+    "html_chars": 40996,
+    "html_tokens": 10249,
+    "html_links": 87,
+    "our_scraper": {
+      "chars": 20580,
+      "tokens": 5145,
+      "compression_ratio": 0.502,
+      "links": 34,
+      "link_retention": 0.391,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 8,
+        "h1": 1,
+        "h2": 7,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 22
+      }
+    },
+    "our_lol_html": {
+      "chars": 24412,
+      "tokens": 6103,
+      "compression_ratio": 0.595,
+      "links": 36,
+      "link_retention": 0.414,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 8,
+        "h1": 1,
+        "h2": 7,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 27
+      }
+    },
+    "trafilatura": {
+      "chars": 20809,
+      "tokens": 5202,
+      "compression_ratio": 0.508,
+      "links": 55,
+      "link_retention": 0.632,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 3
+      }
+    },
+    "readability_js": {
+      "chars": 15905,
+      "tokens": 3976,
+      "compression_ratio": 0.388,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "playwright": {
+      "chars": 22662,
+      "tokens": 5665,
+      "compression_ratio": 0.553,
+      "links": 1,
+      "link_retention": 0.011,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 2,
+        "balanced": true,
+        "block_count": 1,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 3
+      }
+    }
+  },
+  {
+    "name": "example",
+    "html_chars": 528,
+    "html_tokens": 132,
+    "html_links": 1,
+    "our_scraper": {
+      "chars": 167,
+      "tokens": 41,
+      "compression_ratio": 0.311,
+      "links": 1,
+      "link_retention": 1.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 1,
+        "h1": 1,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "our_lol_html": {
+      "chars": 167,
+      "tokens": 41,
+      "compression_ratio": 0.311,
+      "links": 1,
+      "link_retention": 1.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 1,
+        "h1": 1,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "trafilatura": {
+      "chars": 112,
+      "tokens": 28,
+      "compression_ratio": 0.212,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "readability_js": {
+      "chars": 111,
+      "tokens": 27,
+      "compression_ratio": 0.205,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "playwright": {
+      "chars": 129,
+      "tokens": 32,
+      "compression_ratio": 0.242,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    }
+  },
+  {
+    "name": "github",
+    "html_chars": 294260,
+    "html_tokens": 73565,
+    "html_links": 171,
+    "our_scraper": {
+      "chars": 2183,
+      "tokens": 545,
+      "compression_ratio": 0.007,
+      "links": 9,
+      "link_retention": 0.053,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 4,
+        "balanced": true,
+        "block_count": 2,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 7,
+        "h1": 2,
+        "h2": 3,
+        "h3": 2,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 4
+      }
+    },
+    "our_lol_html": {
+      "chars": 3398,
+      "tokens": 849,
+      "compression_ratio": 0.012,
+      "links": 11,
+      "link_retention": 0.064,
+      "noise_keywords": {
+        "skip to content": 1
+      },
+      "noise_count": 1,
+      "code_blocks": {
+        "fence_count": 4,
+        "balanced": true,
+        "block_count": 2,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 29,
+        "h1": 8,
+        "h2": 9,
+        "h3": 12,
+        "list_items": 0,
+        "bold": 4,
+        "italic": 4
+      }
+    },
+    "trafilatura": {
+      "chars": 2079,
+      "tokens": 519,
+      "compression_ratio": 0.007,
+      "links": 11,
+      "link_retention": 0.064,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 7,
+        "h1": 7,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 1
+      }
+    },
+    "readability_js": {
+      "chars": 1741,
+      "tokens": 435,
+      "compression_ratio": 0.006,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 7,
+        "h1": 7,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 1
+      }
+    },
+    "playwright": {
+      "chars": 4871,
+      "tokens": 1217,
+      "compression_ratio": 0.017,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {
+        "sign in": 2,
+        "sign up": 1,
+        "cookie": 1,
+        "skip to content": 1
+      },
+      "noise_count": 5,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 7,
+        "h1": 7,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 1
+      }
+    }
+  },
+  {
+    "name": "hn",
+    "html_chars": 34572,
+    "html_tokens": 8643,
+    "html_links": 228,
+    "our_scraper": {
+      "chars": 5816,
+      "tokens": 1454,
+      "compression_ratio": 0.168,
+      "links": 31,
+      "link_retention": 0.136,
+      "noise_keywords": {
+        "login": 1,
+        "| hide |": 30
+      },
+      "noise_count": 31,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 1,
+        "italic": 3
+      }
+    },
+    "our_lol_html": {
+      "chars": 5785,
+      "tokens": 1446,
+      "compression_ratio": 0.167,
+      "links": 31,
+      "link_retention": 0.136,
+      "noise_keywords": {
+        "login": 1,
+        "| hide |": 30
+      },
+      "noise_count": 31,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 1,
+        "italic": 3
+      }
+    },
+    "trafilatura": {
+      "chars": 3850,
+      "tokens": 962,
+      "compression_ratio": 0.111,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {
+        "login": 1
+      },
+      "noise_count": 1,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 1
+      }
+    },
+    "readability_js": {
+      "chars": 3581,
+      "tokens": 895,
+      "compression_ratio": 0.104,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {
+        "| hide |": 30
+      },
+      "noise_count": 30,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 1
+      }
+    },
+    "playwright": {
+      "chars": 3924,
+      "tokens": 981,
+      "compression_ratio": 0.114,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {
+        "login": 1,
+        "| hide |": 30
+      },
+      "noise_count": 31,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 1
+      }
+    }
+  },
+  {
+    "name": "mdn",
+    "html_chars": 219766,
+    "html_tokens": 54941,
+    "html_links": 588,
+    "our_scraper": {
+      "chars": 23925,
+      "tokens": 5981,
+      "compression_ratio": 0.109,
+      "links": 2,
+      "link_retention": 0.003,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 72,
+        "balanced": true,
+        "block_count": 36,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 20,
+        "h1": 1,
+        "h2": 7,
+        "h3": 12,
+        "list_items": 16,
+        "bold": 9,
+        "italic": 22
+      }
+    },
+    "our_lol_html": {
+      "chars": 24111,
+      "tokens": 6027,
+      "compression_ratio": 0.11,
+      "links": 2,
+      "link_retention": 0.003,
+      "noise_keywords": {
+        "skip to main": 1
+      },
+      "noise_count": 1,
+      "code_blocks": {
+        "fence_count": 72,
+        "balanced": true,
+        "block_count": 36,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 19,
+        "h1": 1,
+        "h2": 6,
+        "h3": 12,
+        "list_items": 19,
+        "bold": 9,
+        "italic": 28
+      }
+    },
+    "trafilatura": {
+      "chars": 24222,
+      "tokens": 6055,
+      "compression_ratio": 0.11,
+      "links": 48,
+      "link_retention": 0.082,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 9,
+        "bold": 0,
+        "italic": 27
+      }
+    },
+    "readability_js": {
+      "chars": 22308,
+      "tokens": 5577,
+      "compression_ratio": 0.102,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "playwright": {
+      "chars": 24416,
+      "tokens": 6104,
+      "compression_ratio": 0.111,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {
+        "skip to main": 1
+      },
+      "noise_count": 1,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    }
+  },
+  {
+    "name": "python_org",
+    "html_chars": 48915,
+    "html_tokens": 12228,
+    "html_links": 215,
+    "our_scraper": {
+      "chars": 2240,
+      "tokens": 560,
+      "compression_ratio": 0.046,
+      "links": 3,
+      "link_retention": 0.014,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 8,
+        "h1": 0,
+        "h2": 8,
+        "h3": 0,
+        "list_items": 16,
+        "bold": 1,
+        "italic": 1
+      }
+    },
+    "our_lol_html": {
+      "chars": 3702,
+      "tokens": 925,
+      "compression_ratio": 0.076,
+      "links": 38,
+      "link_retention": 0.177,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 7,
+        "h1": 0,
+        "h2": 7,
+        "h3": 0,
+        "list_items": 6,
+        "bold": 8,
+        "italic": 2
+      }
+    },
+    "trafilatura": {
+      "chars": 2301,
+      "tokens": 575,
+      "compression_ratio": 0.047,
+      "links": 34,
+      "link_retention": 0.158,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 1,
+        "bold": 0,
+        "italic": 1
+      }
+    },
+    "readability_js": {
+      "chars": 2657,
+      "tokens": 664,
+      "compression_ratio": 0.054,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "playwright": {
+      "chars": 6615,
+      "tokens": 1653,
+      "compression_ratio": 0.135,
+      "links": 0,
+      "link_retention": 0.0,
+      "noise_keywords": {
+        "skip to content": 1
+      },
+      "noise_count": 1,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 7,
+        "h1": 7,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 1
+      }
+    }
+  },
+  {
+    "name": "wikipedia",
+    "html_chars": 126,
+    "html_tokens": 31,
+    "html_links": 0,
+    "our_scraper": {
+      "chars": 76850,
+      "tokens": 19212,
+      "compression_ratio": 619.742,
+      "links": 2,
+      "link_retention": 0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 58,
+        "balanced": true,
+        "block_count": 29,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 41,
+        "h1": 0,
+        "h2": 12,
+        "h3": 29,
+        "list_items": 47,
+        "bold": 2,
+        "italic": 47
+      }
+    },
+    "our_lol_html": {
+      "chars": 97499,
+      "tokens": 24374,
+      "compression_ratio": 786.258,
+      "links": 275,
+      "link_retention": 0,
+      "noise_keywords": {
+        "login": 1
+      },
+      "noise_count": 1,
+      "code_blocks": {
+        "fence_count": 58,
+        "balanced": true,
+        "block_count": 29,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 41,
+        "h1": 0,
+        "h2": 12,
+        "h3": 29,
+        "list_items": 303,
+        "bold": 289,
+        "italic": 311
+      }
+    },
+    "trafilatura": {
+      "chars": 0,
+      "tokens": 1,
+      "compression_ratio": 0.032,
+      "links": 0,
+      "link_retention": 0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 0
+      }
+    },
+    "readability_js": {
+      "chars": 71095,
+      "tokens": 17773,
+      "compression_ratio": 573.323,
+      "links": 0,
+      "link_retention": 0,
+      "noise_keywords": {},
+      "noise_count": 0,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 19
+      }
+    },
+    "playwright": {
+      "chars": 78994,
+      "tokens": 19748,
+      "compression_ratio": 637.032,
+      "links": 0,
+      "link_retention": 0,
+      "noise_keywords": {
+        "cookie": 1,
+        "privacy policy": 2
+      },
+      "noise_count": 3,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 0,
+        "italic": 21
+      }
+    }
+  }
+]

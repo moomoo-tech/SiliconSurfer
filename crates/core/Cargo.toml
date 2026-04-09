@@ -1,0 +1,24 @@
+[package]
+name = "agent-browser-core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+tokio.workspace = true
+reqwest.workspace = true
+scraper.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+chromiumoxide.workspace = true
+futures.workspace = true
+ego-tree = "0.10"
+lol_html.workspace = true
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "distiller_bench"
+harness = false

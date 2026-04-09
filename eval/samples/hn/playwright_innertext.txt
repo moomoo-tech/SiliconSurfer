@@ -1,0 +1,134 @@
+	Hacker Newsnew | past | comments | ask | show | jobs | submit	login
+
+
+
+1.	
+	LittleSnitch for Linux (obdev.at)
+	849 points by pluc 11 hours ago | hide | 293 comments
+
+2.	
+	Help Keep Thunderbird Alive (thunderbird.net)
+	151 points by playfultones 4 hours ago | hide | 88 comments
+
+3.	
+	I ported Mac OS X to the Nintendo Wii (bryankeller.github.io)
+	1644 points by blkhp19 20 hours ago | hide | 286 comments
+
+4.	
+	Open Source Security at Astral (astral.sh)
+	223 points by vinhnx 7 hours ago | hide | 46 comments
+
+5.	
+	Wit, unker, Git: The lost medieval pronouns of English intimacy (bbc.com)
+	22 points by eigenspace 1 hour ago | hide | 8 comments
+
+6.	
+	Creating the Futurescape for the Fifth Element [2019] (theasc.com)
+	39 points by nixass 2 hours ago | hide | 14 comments
+
+7.	
+	Haunted Paper Toys (ravensblight.com)
+	119 points by exvi 7 hours ago | hide | 11 comments
+
+8.	
+	C# in Unity 2026: Features Most Developers Still Don't Use (darkounity.com)
+	37 points by hacker_13 4 hours ago | hide | 27 comments
+
+9.	
+	Dr. Dobb's Developer Library DVD 6 (archive.org)
+	70 points by kristianp 7 hours ago | hide | 21 comments
+
+10.	
+	Claude mixes up who said what and that's not OK (dwyer.co.za)
+	132 points by sixhobbits 2 hours ago | hide | 107 comments
+
+11.	
+	Introduction to Nintendo DS Programming (patater.com)
+	7 points by medbar 2 hours ago | hide | 1 comment
+
+12.	
+	USB for Software Developers: An introduction to writing userspace USB drivers (werwolv.net)
+	321 points by WerWolv 16 hours ago | hide | 38 comments
+
+13.	
+	Understanding the Kalman filter with a simple radar example (kalmanfilter.net)
+	367 points by alex_be 18 hours ago | hide | 46 comments
+
+14.	
+	They're made out of meat (1991) (terrybisson.com)
+	569 points by surprisetalk 1 day ago | hide | 153 comments
+
+15.	
+	The Importance of Being Idle (theamericanscholar.org)
+	214 points by Caiero 10 hours ago | hide | 123 comments
+
+16.	
+	Improving storage efficiency in Magic Pocket, Dropbox's immutable blob store (dropbox.tech)
+	20 points by laluser 5 hours ago | hide | discuss
+
+17.	
+	Who is Satoshi Nakamoto? My quest to unmask Bitcoin's creator (nytimes.com)
+	525 points by jfirebaugh 1 day ago | hide | 642 comments
+
+18.	
+	ML promises to be profoundly weird (aphyr.com)
+	520 points by pabs3 22 hours ago | hide | 517 comments
+
+19.	
+	Process Manager for Autonomous AI Agents (botctl.dev)
+	49 points by ankitg12 5 hours ago | hide | 11 comments
+
+20.	
+	Git commands I run before reading any code (piechowski.io)
+	2082 points by grepsedawk 1 day ago | hide | 452 comments
+
+21.	
+	Show HN: Moon simulator game, ray-casting (mooncraft2000.com)
+	19 points by JKCalhoun 3 hours ago | hide | 7 comments
+
+22.	
+	Reallocating $100/Month Claude Code Spend to Zed and OpenRouter (braw.dev)
+	52 points by kisamoto 3 hours ago | hide | 49 comments
+
+23.	
+	Muse Spark: Scaling towards personal superintelligence (meta.com)
+	353 points by chabons 19 hours ago | hide | 336 comments
+
+24.	
+	Six (and a half) intuitions for KL divergence (perfectlynormal.co.uk)
+	87 points by jxmorris12 11 hours ago | hide | 12 comments
+
+25.	
+	MegaTrain: Full Precision Training of 100B+ Parameter LLMs on a Single GPU (arxiv.org)
+	306 points by chrsw 23 hours ago | hide | 54 comments
+
+26.	
+	I imported the full Linux kernel git history into pgit (oseifert.ch)
+	138 points by ImGajeed76 16 hours ago | hide | 22 comments
+
+27.	
+	America Has Lost the Arab World (foreignaffairs.com)
+	22 points by robtherobber 2 hours ago | hide | 8 comments
+
+28.	
+	Map Gesture Controls - Control maps with your hands (sanderdesnaijer.github.io)
+	33 points by hebelehubele 9 hours ago | hide | 5 comments
+
+29.	
+	Expanding Swift's IDE Support (swift.org)
+	124 points by frizlab 16 hours ago | hide | 57 comments
+
+30.	
+	Ask HN: Any interesting niche hobbies?
+	395 points by e-topy 23 hours ago | hide | 581 comments
+
+
+	More
+
+
+
+
+Guidelines | FAQ | Lists | API | Security | Legal | Apply to YC | Contact
+
+
+Search: 

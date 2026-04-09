@@ -1,0 +1,344 @@
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub SparkBuild and deploy intelligent apps
+GitHub ModelsManage and compare prompts
+MCP RegistryNewIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Sign in
+Sign up
+Resetting focus
+ nickel-org / nickel.rs Public
+Notifications
+Fork 159
+ Star 3.1k
+ Code
+ Issues 46
+ Pull requests 9
+ Actions
+ Projects
+ Wiki
+ Security and quality
+ Insights
+nickel-org/nickel.rs
+ master
+BranchesTags
+Go to file
+Code
+Open more actions menu
+Folders and files
+Name	Name	
+Last commit message
+	
+Last commit date
+
+
+Latest commit
+ 
+History
+647 Commits
+647 Commits
+
+
+examples
+	
+examples
+	
+ 
+	
+ 
+
+
+src
+	
+src
+	
+ 
+	
+ 
+
+
+tests
+	
+tests
+	
+ 
+	
+ 
+
+
+.appveyor.yml
+	
+.appveyor.yml
+	
+ 
+	
+ 
+
+
+.clog.toml
+	
+.clog.toml
+	
+ 
+	
+ 
+
+
+.gitattributes
+	
+.gitattributes
+	
+ 
+	
+ 
+
+
+.gitignore
+	
+.gitignore
+	
+ 
+	
+ 
+
+
+.travis.yml
+	
+.travis.yml
+	
+ 
+	
+ 
+
+
+Cargo.toml
+	
+Cargo.toml
+	
+ 
+	
+ 
+
+
+LICENSE
+	
+LICENSE
+	
+ 
+	
+ 
+
+
+README.md
+	
+README.md
+	
+ 
+	
+ 
+
+
+changelog.md
+	
+changelog.md
+	
+ 
+	
+ 
+
+
+contributing.md
+	
+contributing.md
+	
+ 
+	
+ 
+
+
+View all files
+Repository files navigation
+README
+Contributing
+MIT license
+nickel.rs    
+
+nickel.rs is a simple and lightweight foundation for web applications written in Rust. Its API is inspired by the popular express framework for JavaScript.
+
+Hello world
+#[macro_use] extern crate nickel;
+
+use nickel::{Nickel, HttpRouter};
+
+fn main() {
+    let mut server = Nickel::new();
+    server.get("**", middleware!("Hello World"));
+    server.listen("127.0.0.1:6767");
+}
+ 
+Dependencies
+
+You'll need to create a Cargo.toml that looks like this;
+
+[package]
+
+name = "my-nickel-app"
+version = "0.0.1"
+authors = ["yourname"]
+
+[dependencies.nickel]
+version = "*"
+# If you are using the 'nightly' rust channel you can uncomment
+# the line below to activate unstable features
+# features = ["unstable"]
+
+# Some examples require the `rustc_serialize` crate, which will
+# require uncommenting the lines below
+# [dependencies]
+# rustc-serialize = "*"
+ 
+
+You can then compile this using Cargo build and run it using Cargo run. After it's running you should visit http://localhost:6767 to see your hello world!
+
+More examples
+
+More examples can be found in the examples directory and the full documentation can be found here.
+
+Contributing
+
+nickel.rs is a community effort. We welcome new contributors with open arms. Please read the contributing guide here first.
+
+If you're looking for inspiration, there's list of open issues right here on github.
+
+If you need a helping hand reach out to @jolhoeft, @cburgdorf, @Ryman or @SimonPersson.
+
+And hey, did you know you can also contribute by just starring the project here on github :)
+
+Development Plan
+Version	Branch	Description
+0.11.x	maint-0.11.x	hyper-0.10.x (synchronous version), bug fixes only
+0.12.x	master	hyper-0.14.x (asynchronous version)
+0.13.x		new features, possibly will be 1.0 instead
+About
+
+An expressjs inspired web framework for Rust
+
+ nickel-org.github.io/
+Resources
+ Readme
+License
+ MIT license
+Contributing
+ Contributing
+ Activity
+ Custom properties
+Stars
+ 3.1k stars
+Watchers
+ 68 watching
+Forks
+ 159 forks
+Report repository
+Releases
+ 12 tags
+Packages
+No packages published
+
+Contributors 56
++ 42 contributors
+Languages
+ Rust 100.0%
+Footer
+ © 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
