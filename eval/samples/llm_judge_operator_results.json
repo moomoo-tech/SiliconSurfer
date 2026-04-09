@@ -1,0 +1,92 @@
+[
+  {
+    "test": "Login: Find form fields",
+    "tool": "reader_lol",
+    "task_pass": false,
+    "detail": "found=0/2 missing=['username_field', 'password_field']",
+    "prompt_tokens": 153,
+    "output_tokens": 34,
+    "elapsed_ms": 1403.035750001436
+  },
+  {
+    "test": "Login: Find form fields",
+    "tool": "reader_scraper",
+    "task_pass": false,
+    "detail": "found=0/2 missing=['username_field', 'password_field']",
+    "prompt_tokens": 140,
+    "output_tokens": 34,
+    "elapsed_ms": 1238.569416993414
+  },
+  {
+    "test": "Quotes: Find pagination link",
+    "tool": "reader_lol",
+    "task_pass": false,
+    "detail": "Reported MISSING",
+    "prompt_tokens": 1369,
+    "output_tokens": 2,
+    "elapsed_ms": 1379.0104999934556
+  },
+  {
+    "test": "Quotes: Find pagination link",
+    "tool": "reader_scraper",
+    "task_pass": false,
+    "detail": "Reported MISSING",
+    "prompt_tokens": 1439,
+    "output_tokens": 2,
+    "elapsed_ms": 1300.337041990133
+  },
+  {
+    "test": "Books: Find a book to buy",
+    "tool": "reader_lol",
+    "task_pass": true,
+    "detail": "title=True price=True",
+    "prompt_tokens": 986,
+    "output_tokens": 39,
+    "elapsed_ms": 1279.715540993493
+  },
+  {
+    "test": "Books: Find a book to buy",
+    "tool": "reader_scraper",
+    "task_pass": true,
+    "detail": "title=True price=True",
+    "prompt_tokens": 100,
+    "output_tokens": 39,
+    "elapsed_ms": 1343.0238339933567
+  },
+  {
+    "test": "Forms: Identify form inputs",
+    "tool": "reader_lol",
+    "task_pass": false,
+    "detail": "EMPTY — Reader mode deleted all UI elements",
+    "prompt_tokens": 0,
+    "output_tokens": 0,
+    "elapsed_ms": 0
+  },
+  {
+    "test": "Forms: Identify form inputs",
+    "tool": "reader_scraper",
+    "task_pass": false,
+    "detail": "EMPTY — Reader mode deleted all UI elements",
+    "prompt_tokens": 0,
+    "output_tokens": 0,
+    "elapsed_ms": 0
+  },
+  {
+    "test": "HerokuApp: Find available tests",
+    "tool": "reader_lol",
+    "task_pass": true,
+    "detail": "5 links, 5 grounded",
+    "prompt_tokens": 975,
+    "output_tokens": 186,
+    "elapsed_ms": 2031.1061669926858
+  },
+  {
+    "test": "HerokuApp: Find available tests",
+    "tool": "reader_scraper",
+    "task_pass": true,
+    "detail": "5 links, 5 grounded",
+    "prompt_tokens": 957,
+    "output_tokens": 147,
+    "elapsed_ms": 1448.2912909879815
+  }
+]
