@@ -1,0 +1,38 @@
+{
+  "Our Operator": {
+    "nav": 10,
+    "form": 10,
+    "content": 10,
+    "nav_t": 10,
+    "form_t": 10,
+    "content_t": 10,
+    "tokens": 32445
+  },
+  "Our Reader": {
+    "nav": 6,
+    "form": 0,
+    "content": 10,
+    "nav_t": 10,
+    "form_t": 10,
+    "content_t": 10,
+    "tokens": 23597
+  },
+  "Jina Reader": {
+    "nav": 10,
+    "form": 0,
+    "content": 10,
+    "nav_t": 10,
+    "form_t": 10,
+    "content_t": 10,
+    "tokens": 32541
+  },
+  "Trafilatura": {
+    "nav": 3,
+    "form": 3,
+    "content": 9,
+    "nav_t": 10,
+    "form_t": 10,
+    "content_t": 10,
+    "tokens": 7360
+  }
+}
