@@ -2,6 +2,8 @@
 //!
 //! Tests cover all 5 distill modes, edge cases, and bug regression.
 
+use std::ops::Not;
+
 use agent_browser_core::distiller_fast::{DistillMode, FastDistiller};
 
 // ============================================================
@@ -21,7 +23,10 @@ fn reader_basic_article() {
     assert!(md.contains("# Breaking News"), "heading missing: {md}");
     assert!(md.contains("**bold**"), "bold missing: {md}");
     assert!(md.contains("_italic_"), "italic missing: {md}");
-    assert!(md.contains("[a link](https://example.com)"), "link missing: {md}");
+    assert!(
+        md.contains("[a link](https://example.com)"),
+        "link missing: {md}"
+    );
 }
 
 #[test]
@@ -56,7 +61,10 @@ def hello():
 </code></pre>"#;
     let md = FastDistiller::distill(html, DistillMode::Reader, None);
     assert!(md.contains("```"), "no code fence: {md}");
-    assert!(md.contains("    print(\"world\")"), "indentation lost: {md}");
+    assert!(
+        md.contains("    print(\"world\")"),
+        "indentation lost: {md}"
+    );
     assert!(md.contains("        print(i)"), "nested indent lost: {md}");
 }
 
@@ -123,7 +131,11 @@ fn reader_dedup_removes_repeated_lines() {
         <p>Unique content</p>
     "#;
     let md = FastDistiller::distill(html, DistillMode::Reader, None);
-    assert_eq!(md.matches("repeated navigation").count(), 1, "dedup failed: {md}");
+    assert_eq!(
+        md.matches("repeated navigation").count(),
+        1,
+        "dedup failed: {md}"
+    );
     assert!(md.contains("Unique content"), "lost unique: {md}");
 }
 
@@ -131,7 +143,10 @@ fn reader_dedup_removes_repeated_lines() {
 fn reader_relative_link_with_base() {
     let html = r#"<a href="/docs/api">API Docs</a>"#;
     let md = FastDistiller::distill(html, DistillMode::Reader, Some("https://example.com/page"));
-    assert!(md.contains("[API Docs](https://example.com/docs/api)"), "got: {md}");
+    assert!(
+        md.contains("[API Docs](https://example.com/docs/api)"),
+        "got: {md}"
+    );
 }
 
 #[test]
@@ -139,7 +154,10 @@ fn reader_bare_relative_not_linked() {
     let html = r#"<a href="item?id=42">Details</a>"#;
     let md = FastDistiller::distill(html, DistillMode::Reader, Some("https://example.com/"));
     assert!(md.contains("Details"), "text: {md}");
-    assert!(!md.contains("[Details]("), "bare relative should not be linked: {md}");
+    assert!(
+        !md.contains("[Details]("),
+        "bare relative should not be linked: {md}"
+    );
 }
 
 // ============================================================
@@ -202,13 +220,20 @@ fn operator_radio_and_checkbox() {
     let md = FastDistiller::distill(html, DistillMode::Operator, None);
     assert!(md.contains("type=radio"), "radio: {md}");
     assert!(md.contains("type=checkbox"), "checkbox: {md}");
-    assert!(md.contains("@e1") && md.contains("@e2") && md.contains("@e3"), "refs: {md}");
+    assert!(
+        md.contains("@e1") && md.contains("@e2") && md.contains("@e3"),
+        "refs: {md}"
+    );
 }
 
 #[test]
 fn operator_bare_relative_resolved() {
     let html = r#"<a href="item?id=42">View</a>"#;
-    let md = FastDistiller::distill(html, DistillMode::Operator, Some("https://example.com/list"));
+    let md = FastDistiller::distill(
+        html,
+        DistillMode::Operator,
+        Some("https://example.com/list"),
+    );
     assert!(md.contains("item?id=42"), "bare relative resolved: {md}");
     assert!(md.contains("example.com"), "base applied: {md}");
 }
@@ -217,7 +242,10 @@ fn operator_bare_relative_resolved() {
 fn operator_placeholder_shown() {
     let html = r#"<input type="email" name="email" placeholder="you@example.com">"#;
     let md = FastDistiller::distill(html, DistillMode::Operator, None);
-    assert!(md.contains(r#"placeholder="you@example.com""#), "placeholder: {md}");
+    assert!(
+        md.contains(r#"placeholder="you@example.com""#),
+        "placeholder: {md}"
+    );
 }
 
 // ============================================================
@@ -236,9 +264,18 @@ fn spider_categorizes_links() {
     </body></html>"#;
     let json = FastDistiller::distill(html, DistillMode::Spider, Some("https://test.com"));
     let data: serde_json::Value = serde_json::from_str(&json).unwrap();
-    assert!(data["nav_links"].as_array().unwrap().len() >= 2, "nav: {json}");
-    assert!(data["content_links"].as_array().unwrap().len() >= 1, "content: {json}");
-    assert!(data["footer_links"].as_array().unwrap().len() >= 1, "footer: {json}");
+    assert!(
+        data["nav_links"].as_array().unwrap().len() >= 2,
+        "nav: {json}"
+    );
+    assert!(
+        data["content_links"].as_array().unwrap().is_empty().not(),
+        "content: {json}"
+    );
+    assert!(
+        data["footer_links"].as_array().unwrap().is_empty().not(),
+        "footer: {json}"
+    );
 }
 
 #[test]
@@ -274,9 +311,15 @@ fn developer_preserves_attributes() {
     </body></html>"#;
     let skeleton = FastDistiller::distill(html, DistillMode::Developer, None);
     assert!(skeleton.contains(r#"id="app""#), "id: {skeleton}");
-    assert!(skeleton.contains(r#"class="container""#), "class: {skeleton}");
+    assert!(
+        skeleton.contains(r#"class="container""#),
+        "class: {skeleton}"
+    );
     assert!(skeleton.contains(r#"role="main""#), "role: {skeleton}");
-    assert!(skeleton.contains(r#"data-page="home""#), "data attr: {skeleton}");
+    assert!(
+        skeleton.contains(r#"data-page="home""#),
+        "data attr: {skeleton}"
+    );
     assert!(skeleton.contains(r#"href="/link""#), "href: {skeleton}");
 }
 
@@ -305,7 +348,11 @@ fn data_extracts_table_with_headers() {
     let tables = data["tables"].as_array().unwrap();
     assert_eq!(tables.len(), 1, "tables: {json}");
     let table = &tables[0];
-    assert_eq!(table["headers"].as_array().unwrap().len(), 3, "headers: {json}");
+    assert_eq!(
+        table["headers"].as_array().unwrap().len(),
+        3,
+        "headers: {json}"
+    );
     assert_eq!(table["rows"].as_array().unwrap().len(), 2, "rows: {json}");
     assert!(json.contains("SSD 1TB"), "content: {json}");
     assert!(json.contains("$89"), "price: {json}");
@@ -365,7 +412,10 @@ fn title_empty() {
 
 #[test]
 fn title_missing() {
-    assert_eq!(FastDistiller::extract_title("<html><body>No title</body></html>"), None);
+    assert_eq!(
+        FastDistiller::extract_title("<html><body>No title</body></html>"),
+        None
+    );
 }
 
 // ============================================================
@@ -385,16 +435,25 @@ fn operator_has_more_content_than_reader() {
     let html = r#"<html><body><nav><a href="/x">Nav</a></nav><form><input name="q"><button>Go</button></form><p>Text</p></body></html>"#;
     let reader = FastDistiller::distill(html, DistillMode::Reader, None);
     let operator = FastDistiller::distill(html, DistillMode::Operator, None);
-    assert!(operator.len() > reader.len(), "operator should have more: reader={} operator={}", reader.len(), operator.len());
+    assert!(
+        operator.len() > reader.len(),
+        "operator should have more: reader={} operator={}",
+        reader.len(),
+        operator.len()
+    );
     assert!(operator.contains("[Form:"), "operator has form: {operator}");
-    assert!(operator.contains("[Input:"), "operator has input: {operator}");
+    assert!(
+        operator.contains("[Input:"),
+        "operator has input: {operator}"
+    );
 }
 
 #[test]
 fn spider_returns_valid_json() {
     let html = r#"<a href="https://a.com">A</a><a href="https://b.com">B</a>"#;
     let json = FastDistiller::distill(html, DistillMode::Spider, None);
-    let data: serde_json::Value = serde_json::from_str(&json).expect("spider must return valid JSON");
+    let data: serde_json::Value =
+        serde_json::from_str(&json).expect("spider must return valid JSON");
     assert!(data["total"].is_number(), "total field: {json}");
 }
 
@@ -455,11 +514,18 @@ fn regression_large_page_no_panic() {
     // Ensure large pages don't cause O(n²) or panic
     let mut html = String::from("<html><body>");
     for i in 0..1000 {
-        html.push_str(&format!("<p>Paragraph {} with <a href='https://x.com/{}'>link</a></p>", i, i));
+        html.push_str(&format!(
+            "<p>Paragraph {} with <a href='https://x.com/{}'>link</a></p>",
+            i, i
+        ));
     }
     html.push_str("</body></html>");
 
     let md = FastDistiller::distill(&html, DistillMode::Reader, None);
     assert!(md.len() > 1000, "should have content: {}", md.len());
-    assert!(md.contains("Paragraph 999"), "last paragraph: {}...", &md[md.len().saturating_sub(200)..]);
+    assert!(
+        md.contains("Paragraph 999"),
+        "last paragraph: {}...",
+        &md[md.len().saturating_sub(200)..]
+    );
 }

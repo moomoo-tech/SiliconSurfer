@@ -264,4 +264,4 @@ curl http://localhost:8080/fetch \
 
 ## License
 
-MIT
+Apache-2.0

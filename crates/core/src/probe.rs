@@ -104,6 +104,12 @@ pub struct Probe {
     browser: Option<Arc<BrowserPool>>,
 }
 
+impl Default for Probe {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Probe {
     pub fn new() -> Self {
         Self {
@@ -132,11 +138,8 @@ impl Probe {
         let elapsed_ms = start.elapsed().as_millis() as u64;
 
         // Run DOM checks
-        let check_results: Vec<CheckResult> = req
-            .checks
-            .iter()
-            .map(|c| run_check(&html, c))
-            .collect();
+        let check_results: Vec<CheckResult> =
+            req.checks.iter().map(|c| run_check(&html, c)).collect();
 
         // Run text contains checks
         let mut contains_results = HashMap::new();
@@ -167,7 +170,13 @@ impl Probe {
         let all_passed = is_success && checks_passed && contains_passed;
 
         // Build summary for LLM
-        let summary = build_summary(status, &check_results, &contains_results, all_passed, elapsed_ms);
+        let summary = build_summary(
+            status,
+            &check_results,
+            &contains_results,
+            all_passed,
+            elapsed_ms,
+        );
 
         Ok(ProbeResult {
             url: req.url,
@@ -182,7 +191,10 @@ impl Probe {
         })
     }
 
-    async fn fetch_with_reqwest(&self, req: &ProbeRequest) -> Result<(u16, bool, String), ProbeError> {
+    async fn fetch_with_reqwest(
+        &self,
+        req: &ProbeRequest,
+    ) -> Result<(u16, bool, String), ProbeError> {
         let resp = self
             .client
             .get(&req.url)
@@ -195,35 +207,23 @@ impl Probe {
         Ok((status, is_success, html))
     }
 
-    async fn fetch_with_browser(&self, req: &ProbeRequest) -> Result<(u16, bool, String), ProbeError> {
-        // Fallback: get raw HTML from Chrome for text contains checks
-        let browser = self.browser.as_ref().ok_or_else(|| {
-            ProbeError::Browser("Browser not available.".to_string())
-        })?;
-
-        let html = browser
-            .fetch_raw_html(&req.url)
-            .await
-            .map_err(|e| ProbeError::Browser(e.to_string()))?;
-
-        Ok((200, true, html))
-    }
-
     /// Run all checks directly inside Chrome via CDP — no HTML transfer.
     /// This is the fast path for T1 probes.
     async fn check_in_browser(&self, req: &ProbeRequest) -> Result<ProbeResult, ProbeError> {
         let start = Instant::now();
 
-        let browser = self.browser.as_ref().ok_or_else(|| {
-            ProbeError::Browser("Browser not available.".to_string())
-        })?;
+        let browser = self
+            .browser
+            .as_ref()
+            .ok_or_else(|| ProbeError::Browser("Browser not available.".to_string()))?;
 
         // Build JS that runs all checks in one evaluate() call
         let checks_json = serde_json::to_string(&req.checks).unwrap_or_default();
         let contains_json = serde_json::to_string(&req.contains).unwrap_or_default();
         let want_snapshot = req.snapshot;
 
-        let js = format!(r#"
+        let js = format!(
+            r#"
             (() => {{
                 const checks = {checks_json};
                 const contains = {contains_json};
@@ -285,19 +285,33 @@ impl Probe {
 
                 return {{ checkResults, containsResults, snapshot, title: document.title }};
             }})()
-        "#);
+        "#
+        );
 
         // Navigate and run checks in one shot
-        browser.ensure_started().await.map_err(|e| ProbeError::Browser(e.to_string()))?;
+        browser
+            .ensure_started()
+            .await
+            .map_err(|e| ProbeError::Browser(e.to_string()))?;
 
-        let guard = browser.browser_guard().await.map_err(|e| ProbeError::Browser(e.to_string()))?;
-        let br = guard.as_ref().ok_or_else(|| ProbeError::Browser("Browser not started".to_string()))?;
+        let guard = browser
+            .browser_guard()
+            .await
+            .map_err(|e| ProbeError::Browser(e.to_string()))?;
+        let br = guard
+            .as_ref()
+            .ok_or_else(|| ProbeError::Browser("Browser not started".to_string()))?;
 
-        let page = br.new_page(&req.url).await.map_err(|e| ProbeError::Browser(e.to_string()))?;
+        let page = br
+            .new_page(&req.url)
+            .await
+            .map_err(|e| ProbeError::Browser(e.to_string()))?;
         // Wait for DOM content loaded (not full network idle — same as Playwright domcontentloaded)
         tokio::time::sleep(std::time::Duration::from_millis(100)).await;
 
-        let result: serde_json::Value = page.evaluate(js).await
+        let result: serde_json::Value = page
+            .evaluate(js)
+            .await
             .map_err(|e| ProbeError::Browser(e.to_string()))?
             .into_value()
             .map_err(|e| ProbeError::Browser(format!("JSON parse error: {:?}", e)))?;
@@ -350,14 +364,24 @@ impl Probe {
 
         let checks_passed = check_results.iter().all(|c| {
             let mut ok = c.found;
-            if let Some(tm) = c.text_match { ok = ok && tm; }
-            if let Some(am) = c.attr_match { ok = ok && am; }
+            if let Some(tm) = c.text_match {
+                ok = ok && tm;
+            }
+            if let Some(am) = c.attr_match {
+                ok = ok && am;
+            }
             ok
         });
         let contains_passed = contains_results.values().all(|&v| v);
         let all_passed = checks_passed && contains_passed;
 
-        let summary = build_summary(200, &check_results, &contains_results, all_passed, elapsed_ms);
+        let summary = build_summary(
+            200,
+            &check_results,
+            &contains_results,
+            all_passed,
+            elapsed_ms,
+        );
 
         Ok(ProbeResult {
             url: req.url.clone(),
@@ -460,9 +484,16 @@ fn build_snapshot(html: &str) -> Vec<SnapshotNode> {
                 None
             } else {
                 let t = text_content.trim();
-                Some(if t.len() > 100 { format!("{}...", &t[..100]) } else { t.to_string() })
+                Some(if t.len() > 100 {
+                    format!("{}...", &t[..100])
+                } else {
+                    t.to_string()
+                })
             };
-            let children_count = el.children().filter(|c| scraper::ElementRef::wrap(*c).is_some()).count();
+            let children_count = el
+                .children()
+                .filter(|c| scraper::ElementRef::wrap(*c).is_some())
+                .count();
 
             nodes.push(SnapshotNode {
                 tag,

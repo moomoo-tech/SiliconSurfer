@@ -45,6 +45,12 @@ pub struct BrowserPool {
     performance_mode: bool,
 }
 
+impl Default for BrowserPool {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl BrowserPool {
     pub fn new() -> Self {
         Self {
@@ -107,13 +113,13 @@ impl BrowserPool {
         }
         // else: Vision mode — load everything (images, fonts, CSS) for captcha/screenshots
 
-        let config = builder.build()
+        let config = builder
+            .build()
             .map_err(|e| BrowserError::Launch(e.to_string()))?;
 
-        let (browser, mut handler) =
-            Browser::launch(config)
-                .await
-                .map_err(|e| BrowserError::Launch(e.to_string()))?;
+        let (browser, mut handler) = Browser::launch(config)
+            .await
+            .map_err(|e| BrowserError::Launch(e.to_string()))?;
 
         // Spawn CDP event handler in background
         tokio::spawn(async move {
@@ -140,26 +146,26 @@ impl BrowserPool {
     }
 
     /// Get a lock on the browser instance.
-    pub async fn browser_guard(&self) -> Result<tokio::sync::MutexGuard<'_, Option<Browser>>, BrowserError> {
+    pub async fn browser_guard(
+        &self,
+    ) -> Result<tokio::sync::MutexGuard<'_, Option<Browser>>, BrowserError> {
         Ok(self.browser.lock().await)
     }
 
     /// T1 fetch: render page with JS, extract clean content.
-    pub async fn fetch(
-        &self,
-        url: &str,
-        output: &str,
-    ) -> Result<BrowserFetchResult, BrowserError> {
+    pub async fn fetch(&self, url: &str, output: &str) -> Result<BrowserFetchResult, BrowserError> {
         self.ensure_started().await?;
 
-        let guard = self.browser.lock().await;
-        let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
-
-        // Create isolated incognito context — millisecond level
-        let page = browser
-            .new_page(url)
-            .await
-            .map_err(|e| BrowserError::Page(e.to_string()))?;
+        // Lock only to create the page, then drop immediately.
+        // Page is independent — no need to hold the lock during I/O.
+        let page = {
+            let guard = self.browser.lock().await;
+            let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
+            browser
+                .new_page(url)
+                .await
+                .map_err(|e| BrowserError::Page(e.to_string()))?
+        };
 
         // Wait for DOM to be ready
         page.wait_for_navigation()
@@ -182,7 +188,6 @@ impl BrowserPool {
 
         // Close page immediately — free resources
         let _ = page.close().await;
-        drop(guard);
 
         // Distill in Rust — same pipeline as T0
         let content = match output {
@@ -204,13 +209,14 @@ impl BrowserPool {
     pub async fn fetch_raw_html(&self, url: &str) -> Result<String, BrowserError> {
         self.ensure_started().await?;
 
-        let guard = self.browser.lock().await;
-        let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
-
-        let page = browser
-            .new_page(url)
-            .await
-            .map_err(|e| BrowserError::Page(e.to_string()))?;
+        let page = {
+            let guard = self.browser.lock().await;
+            let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
+            browser
+                .new_page(url)
+                .await
+                .map_err(|e| BrowserError::Page(e.to_string()))?
+        };
 
         page.wait_for_navigation()
             .await
@@ -233,13 +239,14 @@ impl BrowserPool {
     ) -> Result<BrowserFetchResult, BrowserError> {
         self.ensure_started().await?;
 
-        let guard = self.browser.lock().await;
-        let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
-
-        let page = browser
-            .new_page(url)
-            .await
-            .map_err(|e| BrowserError::Page(e.to_string()))?;
+        let page = {
+            let guard = self.browser.lock().await;
+            let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
+            browser
+                .new_page(url)
+                .await
+                .map_err(|e| BrowserError::Page(e.to_string()))?
+        };
 
         page.wait_for_navigation()
             .await
@@ -275,7 +282,6 @@ impl BrowserPool {
             .unwrap_or_default();
 
         let _ = page.close().await;
-        drop(guard);
 
         let content_length = content.len();
 

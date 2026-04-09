@@ -30,17 +30,25 @@ pub struct FastDistiller;
 
 impl FastDistiller {
     pub fn extract_title(html: &str) -> Option<String> {
-        let start = html.find("<title")?.checked_add(html[html.find("<title")?..].find('>')?)?;
+        let start = html
+            .find("<title")?
+            .checked_add(html[html.find("<title")?..].find('>')?)?;
         let start = start + 1;
         let end = html[start..].find("</title>").map(|i| i + start)?;
         let title = html[start..end].trim();
-        if title.is_empty() { None } else { Some(decode_title(title)) }
+        if title.is_empty() {
+            None
+        } else {
+            Some(decode_title(title))
+        }
     }
 
     /// Distill HTML with the specified mode.
     pub fn distill(html: &str, mode: DistillMode, base_url: Option<&str>) -> String {
         match mode {
-            DistillMode::LlmFriendly | DistillMode::Reader => strategy::reader::distill(html, base_url),
+            DistillMode::LlmFriendly | DistillMode::Reader => {
+                strategy::reader::distill(html, base_url)
+            }
             DistillMode::Operator => strategy::operator::distill(html, base_url),
             DistillMode::Spider => strategy::spider::distill(html, base_url),
             DistillMode::Developer => strategy::developer::distill(html, base_url),
@@ -70,12 +78,12 @@ fn decode_title(text: &str) -> String {
     while i < len {
         if chars[i] == '&' {
             let rest: String = chars[i..std::cmp::min(i + 12, len)].iter().collect();
-            if let Some(semi) = rest.find(';') {
-                if let Some(decoded) = strategy::decode_entity(&rest[..semi + 1]) {
-                    out.push_str(&decoded);
-                    i += semi + 1;
-                    continue;
-                }
+            if let Some(semi) = rest.find(';')
+                && let Some(decoded) = strategy::decode_entity(&rest[..semi + 1])
+            {
+                out.push_str(&decoded);
+                i += semi + 1;
+                continue;
             }
         }
         out.push(chars[i]);
@@ -92,13 +100,17 @@ mod tests {
     #[test]
     fn test_title() {
         let html = "<html><head><title>Hello World</title></head><body></body></html>";
-        assert_eq!(FastDistiller::extract_title(html), Some("Hello World".to_string()));
+        assert_eq!(
+            FastDistiller::extract_title(html),
+            Some("Hello World".to_string())
+        );
     }
 
     // ---- Reader mode ----
     #[test]
     fn test_reader_noise() {
-        let html = "<html><body><nav>Menu</nav><p>Content here</p><footer>Foot</footer></body></html>";
+        let html =
+            "<html><body><nav>Menu</nav><p>Content here</p><footer>Foot</footer></body></html>";
         let md = FastDistiller::distill(html, DistillMode::Reader, None);
         assert!(md.contains("Content here"), "got: {md}");
         assert!(!md.contains("Menu"), "got: {md}");
@@ -121,7 +133,8 @@ mod tests {
     #[test]
     fn test_reader_relative_links() {
         let html = r#"<p><a href="/foo">Link</a></p>"#;
-        let md = FastDistiller::distill(html, DistillMode::Reader, Some("https://example.com/page"));
+        let md =
+            FastDistiller::distill(html, DistillMode::Reader, Some("https://example.com/page"));
         assert!(md.contains("[Link](https://example.com/foo)"), "got: {md}");
     }
 
@@ -130,7 +143,10 @@ mod tests {
         let html = r#"<p><a href="item?id=123">Comments</a></p>"#;
         let md = FastDistiller::distill(html, DistillMode::Reader, Some("https://hn.com/"));
         assert!(md.contains("Comments"), "got: {md}");
-        assert!(!md.contains("[Comments]("), "reader should not link bare relative, got: {md}");
+        assert!(
+            !md.contains("[Comments]("),
+            "reader should not link bare relative, got: {md}"
+        );
     }
 
     #[test]
@@ -173,7 +189,10 @@ mod tests {
     fn test_reader_text_mode() {
         let html = "<html><body><h1>Title</h1><p>Hello <b>world</b></p></body></html>";
         let text = FastDistiller::to_text(html);
-        assert!(text.contains("Title") && text.contains("Hello") && !text.contains("<"), "got: {text}");
+        assert!(
+            text.contains("Title") && text.contains("Hello") && !text.contains("<"),
+            "got: {text}"
+        );
     }
 
     // ---- Operator mode ----
@@ -189,14 +208,20 @@ mod tests {
     fn test_operator_annotates_buttons() {
         let html = "<button>Submit</button>";
         let md = FastDistiller::distill(html, DistillMode::Operator, None);
-        assert!(md.contains("[Button:") && md.contains("Submit"), "got: {md}");
+        assert!(
+            md.contains("[Button:") && md.contains("Submit"),
+            "got: {md}"
+        );
     }
 
     #[test]
     fn test_operator_annotates_forms() {
         let html = r#"<form action="/search" method="GET"><input type="text" name="q" placeholder="Search"></form>"#;
         let md = FastDistiller::distill(html, DistillMode::Operator, None);
-        assert!(md.contains("[Form:") && md.contains("[Input:") && md.contains("name=q"), "got: {md}");
+        assert!(
+            md.contains("[Form:") && md.contains("[Input:") && md.contains("name=q"),
+            "got: {md}"
+        );
     }
 
     #[test]
@@ -230,9 +255,13 @@ mod tests {
     // ---- Developer mode ----
     #[test]
     fn test_developer_skeleton() {
-        let html = r#"<html><body><div id="app" class="container"><h1>Title</h1></div></body></html>"#;
+        let html =
+            r#"<html><body><div id="app" class="container"><h1>Title</h1></div></body></html>"#;
         let skeleton = FastDistiller::distill(html, DistillMode::Developer, None);
-        assert!(skeleton.contains("id=\"app\"") && skeleton.contains("class=\"container\""), "got: {skeleton}");
+        assert!(
+            skeleton.contains("id=\"app\"") && skeleton.contains("class=\"container\""),
+            "got: {skeleton}"
+        );
     }
 
     // ---- Data mode ----
@@ -241,7 +270,10 @@ mod tests {
         let html = r#"<table><tr><th>Name</th><th>Price</th></tr><tr><td>SSD</td><td>$99</td></tr></table>"#;
         let json = FastDistiller::distill(html, DistillMode::Data, None);
         let data: serde_json::Value = serde_json::from_str(&json).expect("valid json");
-        assert!(!data["tables"].as_array().unwrap().is_empty(), "got: {json}");
+        assert!(
+            !data["tables"].as_array().unwrap().is_empty(),
+            "got: {json}"
+        );
     }
 
     #[test]
@@ -257,7 +289,10 @@ mod tests {
     fn test_reader_img_alt_text() {
         let html = r#"<p>Check this:</p><img alt="Architecture diagram" src="https://example.com/arch.png"><p>More text</p>"#;
         let md = FastDistiller::distill(html, DistillMode::Reader, None);
-        assert!(md.contains("[image: Architecture diagram]"), "should preserve alt text, got: {md}");
+        assert!(
+            md.contains("[image: Architecture diagram]"),
+            "should preserve alt text, got: {md}"
+        );
         assert!(md.contains("arch.png"), "should preserve src, got: {md}");
     }
 
@@ -266,15 +301,24 @@ mod tests {
         let html = r#"<img data-src="https://cdn.example.com/real.png" src="placeholder.gif" alt="Flow chart">"#;
         let md = FastDistiller::distill(html, DistillMode::Reader, None);
         assert!(md.contains("[image: Flow chart]"), "got: {md}");
-        assert!(md.contains("cdn.example.com/real.png"), "should use data-src over src, got: {md}");
-        assert!(!md.contains("placeholder.gif"), "should prefer data-src, got: {md}");
+        assert!(
+            md.contains("cdn.example.com/real.png"),
+            "should use data-src over src, got: {md}"
+        );
+        assert!(
+            !md.contains("placeholder.gif"),
+            "should prefer data-src, got: {md}"
+        );
     }
 
     #[test]
     fn test_reader_img_no_alt_no_src() {
         let html = r#"<img src="data:image/gif;base64,R0lGOD"><p>Text</p>"#;
         let md = FastDistiller::distill(html, DistillMode::Reader, None);
-        assert!(!md.contains("data:image"), "should skip base64 images, got: {md}");
+        assert!(
+            !md.contains("data:image"),
+            "should skip base64 images, got: {md}"
+        );
         assert!(md.contains("Text"), "got: {md}");
     }
 
@@ -282,8 +326,14 @@ mod tests {
     fn test_reader_code_block_noise() {
         let html = r#"<pre><code>fn main() {}</code></pre><div class="copy-btn">Copy</div><ul class="line-numbers"><li>1</li></ul>"#;
         let md = FastDistiller::distill(html, DistillMode::Reader, None);
-        assert!(md.contains("fn main()"), "code should be preserved, got: {md}");
-        assert!(!md.contains("Copy"), "copy button should be removed, got: {md}");
+        assert!(
+            md.contains("fn main()"),
+            "code should be preserved, got: {md}"
+        );
+        assert!(
+            !md.contains("Copy"),
+            "copy button should be removed, got: {md}"
+        );
     }
 
     // ---- @e element references ----

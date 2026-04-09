@@ -1,11 +1,15 @@
-use axum::{extract::State, http::StatusCode, routing::{get, post}, Json, Router};
+use axum::{
+    Json, Router,
+    extract::State,
+    http::StatusCode,
+    routing::{get, post},
+};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 
-use agent_browser_core::{Engine, FetchMode};
-use agent_browser_core::distiller_fast::FastDistiller;
 use agent_browser_core::probe::{Probe, ProbeRequest, ProbeResult};
+use agent_browser_core::{Engine, FetchMode};
 
 struct AppState {
     engine: Engine,
@@ -21,6 +25,7 @@ struct FetchRequest {
     #[serde(default)]
     mode: FetchMode,
     #[serde(default = "default_timeout")]
+    #[allow(dead_code)]
     timeout_secs: u64,
     /// Use fast (lol_html) distiller instead of default (scraper)
     #[serde(default)]
@@ -59,7 +64,7 @@ struct HealthResponse {
     browser_ready: bool,
 }
 
-async fn health(State(state): State<Arc<AppState>>) -> Json<HealthResponse> {
+async fn health(State(_state): State<Arc<AppState>>) -> Json<HealthResponse> {
     Json(HealthResponse {
         status: "ok".to_string(),
         version: env!("CARGO_PKG_VERSION").to_string(),
@@ -72,7 +77,11 @@ async fn fetch_page(
     Json(req): Json<FetchRequest>,
 ) -> Result<Json<FetchResponse>, (StatusCode, Json<ErrorResponse>)> {
     // Use fetch_full to pass distill mode
-    match state.engine.fetch_full(&req.url, &req.output, req.mode, req.fast, req.distill).await {
+    match state
+        .engine
+        .fetch_full(&req.url, &req.output, req.mode, req.fast, req.distill)
+        .await
+    {
         Ok(result) => Ok(Json(FetchResponse {
             url: result.url,
             title: result.title,
@@ -99,12 +108,14 @@ struct DistillRequest {
     distill: agent_browser_core::distiller_fast::DistillMode,
 }
 
-async fn distill_html(
-    Json(req): Json<DistillRequest>,
-) -> Json<FetchResponse> {
+async fn distill_html(Json(req): Json<DistillRequest>) -> Json<FetchResponse> {
     let base_url = req.url.as_deref();
     let title = agent_browser_core::distiller_fast::FastDistiller::extract_title(&req.html);
-    let content = agent_browser_core::distiller_fast::FastDistiller::distill(&req.html, req.distill, base_url);
+    let content = agent_browser_core::distiller_fast::FastDistiller::distill(
+        &req.html,
+        req.distill,
+        base_url,
+    );
     let content_length = content.len();
 
     Json(FetchResponse {
@@ -124,7 +135,9 @@ async fn probe_page(
         Ok(result) => Ok(Json(result)),
         Err(e) => Err((
             StatusCode::BAD_GATEWAY,
-            Json(ErrorResponse { error: e.to_string() }),
+            Json(ErrorResponse {
+                error: e.to_string(),
+            }),
         )),
     }
 }
@@ -145,10 +158,7 @@ async fn main() {
 
     let probe = Probe::new().with_browser(engine.browser_pool());
 
-    let state = Arc::new(AppState {
-        engine,
-        probe,
-    });
+    let state = Arc::new(AppState { engine, probe });
 
     let app = Router::new()
         .route("/health", get(health))

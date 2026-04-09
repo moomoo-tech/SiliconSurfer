@@ -4,10 +4,10 @@
 //! Also injects `data-agent-id="eN"` into the HTML for Playwright targeting.
 //! Resolves all links including bare relative (item?id=123).
 
-use lol_html::{element, rewrite_str, RewriteStrSettings};
 use lol_html::html_content::ContentType::Text;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use lol_html::{RewriteStrSettings, element, rewrite_str};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::{extract_origin, finalize, operator_noise_selectors, resolve_href, strip_tags};
 
@@ -49,14 +49,33 @@ fn rewrite_with_counter(html: &str, base_url: Option<&str>, counter: Arc<AtomicU
 
     // Minimal noise removal
     for sel in operator_noise_selectors() {
-        handlers.push(element!(sel, |el| { el.remove(); Ok(()) }));
+        handlers.push(element!(sel, |el| {
+            el.remove();
+            Ok(())
+        }));
     }
 
     // Headings
-    handlers.push(element!("h1", |el| { el.before("\n\n# ", Text); el.after("\n\n", Text); Ok(()) }));
-    handlers.push(element!("h2", |el| { el.before("\n\n## ", Text); el.after("\n\n", Text); Ok(()) }));
-    handlers.push(element!("h3", |el| { el.before("\n\n### ", Text); el.after("\n\n", Text); Ok(()) }));
-    handlers.push(element!("p", |el| { el.before("\n", Text); el.after("\n", Text); Ok(()) }));
+    handlers.push(element!("h1", |el| {
+        el.before("\n\n# ", Text);
+        el.after("\n\n", Text);
+        Ok(())
+    }));
+    handlers.push(element!("h2", |el| {
+        el.before("\n\n## ", Text);
+        el.after("\n\n", Text);
+        Ok(())
+    }));
+    handlers.push(element!("h3", |el| {
+        el.before("\n\n### ", Text);
+        el.after("\n\n", Text);
+        Ok(())
+    }));
+    handlers.push(element!("p", |el| {
+        el.before("\n", Text);
+        el.after("\n", Text);
+        Ok(())
+    }));
 
     // Links — @eN reference + resolve URL
     let bo = base_origin.clone();
@@ -90,13 +109,18 @@ fn rewrite_with_counter(html: &str, base_url: Option<&str>, counter: Arc<AtomicU
         let id = c.fetch_add(1, Ordering::Relaxed) + 1;
         let eid = format!("e{}", id);
         el.set_attribute("data-agent-id", &eid).ok();
-        let itype = el.get_attribute("type").unwrap_or_else(|| "text".to_string());
+        let itype = el
+            .get_attribute("type")
+            .unwrap_or_else(|| "text".to_string());
         let name = el.get_attribute("name").unwrap_or_else(|| "?".to_string());
         let placeholder = el.get_attribute("placeholder").unwrap_or_default();
         let label = if placeholder.is_empty() {
             format!("@{} [Input: type={} name={}]", eid, itype, name)
         } else {
-            format!("@{} [Input: type={} name={} placeholder=\"{}\"]", eid, itype, name, placeholder)
+            format!(
+                "@{} [Input: type={} name={} placeholder=\"{}\"]",
+                eid, itype, name, placeholder
+            )
         };
         el.before(&label, Text);
         Ok(())
@@ -127,8 +151,13 @@ fn rewrite_with_counter(html: &str, base_url: Option<&str>, counter: Arc<AtomicU
     // Forms — action + method (no @eN, it's a container)
     handlers.push(element!("form", |el| {
         let action = el.get_attribute("action").unwrap_or_default();
-        let method = el.get_attribute("method").unwrap_or_else(|| "GET".to_string());
-        el.before(&format!("\n[Form: {} {}]\n", method.to_uppercase(), action), Text);
+        let method = el
+            .get_attribute("method")
+            .unwrap_or_else(|| "GET".to_string());
+        el.before(
+            &format!("\n[Form: {} {}]\n", method.to_uppercase(), action),
+            Text,
+        );
         el.after("\n[/Form]\n", Text);
         Ok(())
     }));
@@ -141,18 +170,43 @@ fn rewrite_with_counter(html: &str, base_url: Option<&str>, counter: Arc<AtomicU
     }));
 
     // Formatting
-    handlers.push(element!("strong, b", |el| { el.before("**", Text); el.after("**", Text); Ok(()) }));
-    handlers.push(element!("li", |el| { el.before("\n- ", Text); Ok(()) }));
-    handlers.push(element!("tr", |el| { el.after("\n", Text); Ok(()) }));
-    handlers.push(element!("div, section, article", |el| { el.before("\n", Text); el.after("\n", Text); Ok(()) }));
-    handlers.push(element!("hr", |el| { el.before("\n---\n", Text); Ok(()) }));
-    handlers.push(element!("br", |el| { el.before("\n", Text); Ok(()) }));
-    handlers.push(element!("pre", |el| { el.before("\n\x04", Text); el.after("\x05\n", Text); Ok(()) }));
+    handlers.push(element!("strong, b", |el| {
+        el.before("**", Text);
+        el.after("**", Text);
+        Ok(())
+    }));
+    handlers.push(element!("li", |el| {
+        el.before("\n- ", Text);
+        Ok(())
+    }));
+    handlers.push(element!("tr", |el| {
+        el.after("\n", Text);
+        Ok(())
+    }));
+    handlers.push(element!("div, section, article", |el| {
+        el.before("\n", Text);
+        el.after("\n", Text);
+        Ok(())
+    }));
+    handlers.push(element!("hr", |el| {
+        el.before("\n---\n", Text);
+        Ok(())
+    }));
+    handlers.push(element!("br", |el| {
+        el.before("\n", Text);
+        Ok(())
+    }));
+    handlers.push(element!("pre", |el| {
+        el.before("\n\x04", Text);
+        el.after("\x05\n", Text);
+        Ok(())
+    }));
 
     // Images
     handlers.push(element!("img", |el| {
         let alt = el.get_attribute("alt").unwrap_or_default();
-        let src = el.get_attribute("data-src")
+        let src = el
+            .get_attribute("data-src")
             .or_else(|| el.get_attribute("data-original"))
             .or_else(|| el.get_attribute("src"))
             .unwrap_or_default();
@@ -169,8 +223,12 @@ fn rewrite_with_counter(html: &str, base_url: Option<&str>, counter: Arc<AtomicU
         Ok(())
     }));
 
-    rewrite_str(html, RewriteStrSettings {
-        element_content_handlers: handlers,
-        ..RewriteStrSettings::new()
-    }).unwrap_or_else(|_| html.to_string())
+    rewrite_str(
+        html,
+        RewriteStrSettings {
+            element_content_handlers: handlers,
+            ..RewriteStrSettings::new()
+        },
+    )
+    .unwrap_or_else(|_| html.to_string())
 }

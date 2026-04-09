@@ -45,6 +45,12 @@ pub struct Engine {
     t1: Arc<BrowserPool>,
 }
 
+impl Default for Engine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Engine {
     pub fn new() -> Self {
         Self {
@@ -65,7 +71,8 @@ impl Engine {
         output: &str,
         mode: FetchMode,
     ) -> Result<EngineResult, EngineError> {
-        self.fetch_with_opts(url, output, mode, false, DistillMode::default()).await
+        self.fetch_with_opts(url, output, mode, false, DistillMode::default())
+            .await
     }
 
     /// Fetch with fast distiller + distill mode.
@@ -75,7 +82,8 @@ impl Engine {
         output: &str,
         mode: FetchMode,
     ) -> Result<EngineResult, EngineError> {
-        self.fetch_with_opts(url, output, mode, true, DistillMode::default()).await
+        self.fetch_with_opts(url, output, mode, true, DistillMode::default())
+            .await
     }
 
     /// Fetch with full options.
@@ -106,7 +114,13 @@ impl Engine {
     }
 
     /// T0: reqwest + Rust distiller
-    async fn fetch_t0(&self, url: &str, output: &str, fast: bool, distill: DistillMode) -> Result<EngineResult, EngineError> {
+    async fn fetch_t0(
+        &self,
+        url: &str,
+        output: &str,
+        fast: bool,
+        distill: DistillMode,
+    ) -> Result<EngineResult, EngineError> {
         let opts = FetchOptions {
             url: url.to_string(),
             output: output.to_string(),
@@ -141,7 +155,13 @@ impl Engine {
     }
 
     /// Auto: T0 first, fallback to T1 if content looks empty/too short
-    async fn fetch_auto(&self, url: &str, output: &str, fast: bool, distill: DistillMode) -> Result<EngineResult, EngineError> {
+    async fn fetch_auto(
+        &self,
+        url: &str,
+        output: &str,
+        fast: bool,
+        distill: DistillMode,
+    ) -> Result<EngineResult, EngineError> {
         match self.fetch_t0(url, output, fast, distill).await {
             Ok(result) if result.content_length > 100 => Ok(result),
             Ok(_sparse) => {

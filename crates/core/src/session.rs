@@ -7,7 +7,6 @@
 
 use crate::browser::{BrowserError, BrowserPool};
 use crate::distiller_fast::{DistillMode, FastDistiller};
-use reqwest::cookie::Jar;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -18,8 +17,6 @@ pub struct AgentSession {
     page: Option<chromiumoxide::Page>,
     /// @eN → CSS selector mapping (refreshed on each observe)
     locator_map: HashMap<String, String>,
-    /// Cookie jar synced from T1 for T0 use
-    cookie_jar: Arc<Jar>,
     /// Current URL
     pub current_url: String,
 }
@@ -48,7 +45,6 @@ impl AgentSession {
             pool,
             page: None,
             locator_map: HashMap::new(),
-            cookie_jar: Arc::new(Jar::default()),
             current_url: String::new(),
         })
     }
@@ -59,14 +55,20 @@ impl AgentSession {
         let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
 
         let page = if let Some(ref p) = self.page {
-            p.goto(url).await.map_err(|e| BrowserError::Page(e.to_string()))?;
+            p.goto(url)
+                .await
+                .map_err(|e| BrowserError::Page(e.to_string()))?;
             p.clone()
         } else {
             // New page — inject all patches BEFORE any navigation
-            let p = browser.new_page("about:blank").await
+            let p = browser
+                .new_page("about:blank")
+                .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?;
             Self::inject_patches(&p).await;
-            p.goto(url).await.map_err(|e| BrowserError::Page(e.to_string()))?;
+            p.goto(url)
+                .await
+                .map_err(|e| BrowserError::Page(e.to_string()))?;
             p
         };
 
@@ -77,12 +79,19 @@ impl AgentSession {
         Self::inject_tab_fix(&page).await;
         Self::inject_dialog_handler(&page).await;
 
-        self.current_url = page.evaluate("window.location.href").await
-            .ok().and_then(|v| v.into_value::<String>().ok())
+        self.current_url = page
+            .evaluate("window.location.href")
+            .await
+            .ok()
+            .and_then(|v| v.into_value::<String>().ok())
             .unwrap_or_else(|| url.to_string());
         self.page = Some(page);
 
-        Ok(ActResult { success: true, url: self.current_url.clone(), detail: format!("Navigated to {}", url) })
+        Ok(ActResult {
+            success: true,
+            url: self.current_url.clone(),
+            detail: format!("Navigated to {}", url),
+        })
     }
 
     /// Inject all pre-navigation patches: stealth + tab fix + dialog handler + shadow DOM.
@@ -94,7 +103,9 @@ impl AgentSession {
 
     /// Bug 9 fix: Rewrite target="_blank" to prevent new tab black hole.
     async fn inject_tab_fix(page: &chromiumoxide::Page) {
-        let _ = page.evaluate(r#"
+        let _ = page
+            .evaluate(
+                r#"
             // Rewrite all existing target="_blank" links
             document.querySelectorAll('a[target="_blank"]').forEach(a => {
                 a.setAttribute('target', '_self');
@@ -106,30 +117,45 @@ impl AgentSession {
             }, true);
             // Override window.open to navigate in current tab
             window.open = (url) => { if (url) window.location.href = url; };
-        "#.to_string()).await;
+        "#
+                .to_string(),
+            )
+            .await;
     }
 
     /// Bug 10 fix: Auto-accept all JS dialogs (alert/confirm/prompt).
     async fn inject_dialog_handler(page: &chromiumoxide::Page) {
         // Override native dialog functions to prevent V8 freeze
-        let _ = page.evaluate(r#"
+        let _ = page
+            .evaluate(
+                r#"
             window.alert = () => {};
             window.confirm = () => true;
             window.prompt = () => '';
             // Also prevent beforeunload dialogs
             window.addEventListener('beforeunload', (e) => { delete e.returnValue; });
-        "#.to_string()).await;
+        "#
+                .to_string(),
+            )
+            .await;
     }
 
     /// Bug 6 fix: Inject anti-bot stealth patches before page loads.
     async fn inject_stealth(page: &chromiumoxide::Page) {
         // Erase webdriver flag
-        let _ = page.evaluate(r#"
+        let _ = page
+            .evaluate(
+                r#"
             Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-        "#.to_string()).await;
+        "#
+                .to_string(),
+            )
+            .await;
 
         // Fake plugins (headless Chrome has 0 plugins)
-        let _ = page.evaluate(r#"
+        let _ = page
+            .evaluate(
+                r#"
             Object.defineProperty(navigator, 'plugins', {
                 get: () => [1, 2, 3, 4, 5].map(() => ({
                     name: 'Chrome PDF Plugin',
@@ -138,26 +164,44 @@ impl AgentSession {
                     length: 1
                 }))
             });
-        "#.to_string()).await;
+        "#
+                .to_string(),
+            )
+            .await;
 
         // Fake languages
-        let _ = page.evaluate(r#"
+        let _ = page
+            .evaluate(
+                r#"
             Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});
-        "#.to_string()).await;
+        "#
+                .to_string(),
+            )
+            .await;
 
         // Fix permissions API (headless reports 'denied' for everything)
-        let _ = page.evaluate(r#"
+        let _ = page
+            .evaluate(
+                r#"
             const originalQuery = window.navigator.permissions.query;
             window.navigator.permissions.query = (parameters) =>
                 parameters.name === 'notifications'
                     ? Promise.resolve({state: Notification.permission})
                     : originalQuery(parameters);
-        "#.to_string()).await;
+        "#
+                .to_string(),
+            )
+            .await;
 
         // Chrome runtime (headless doesn't have it)
-        let _ = page.evaluate(r#"
+        let _ = page
+            .evaluate(
+                r#"
             window.chrome = { runtime: {} };
-        "#.to_string()).await;
+        "#
+                .to_string(),
+            )
+            .await;
     }
 
     /// OBSERVE — see the current page with our distiller.
@@ -169,7 +213,9 @@ impl AgentSession {
 
             // Bug 12 fix: Wait for DOM quiescence (not networkidle)
             // Wait until DOM stops changing for 500ms
-            let _ = page.evaluate(r#"
+            let _ = page
+                .evaluate(
+                    r#"
                 new Promise(resolve => {
                     let timer;
                     const observer = new MutationObserver(() => {
@@ -182,7 +228,10 @@ impl AgentSession {
                     // If already stable, resolve after 500ms
                     timer = setTimeout(() => { observer.disconnect(); resolve(); }, 500);
                 })
-            "#.to_string()).await;
+            "#
+                    .to_string(),
+                )
+                .await;
 
             // Bug 11 fix: Shadow Piercer — tag real nodes + flatten shadow content
             let _ = page.evaluate(r#"
@@ -218,7 +267,9 @@ impl AgentSession {
             "#.to_string()).await;
 
             // Bug 5 fix: Remove invisible elements BEFORE extracting HTML
-            let _ = page.evaluate(r#"
+            let _ = page
+                .evaluate(
+                    r#"
                 (() => {
                     const remove = [];
                     document.querySelectorAll('*').forEach(el => {
@@ -231,9 +282,15 @@ impl AgentSession {
                     });
                     remove.forEach(el => el.remove());
                 })()
-            "#.to_string()).await;
+            "#
+                    .to_string(),
+                )
+                .await;
 
-            let mut html = page.content().await.map_err(|e| BrowserError::Page(e.to_string()))?;
+            let mut html = page
+                .content()
+                .await
+                .map_err(|e| BrowserError::Page(e.to_string()))?;
 
             // Flatten same-origin iframe contents into main HTML
             let iframe_js = r#"(() => {
@@ -253,27 +310,27 @@ impl AgentSession {
                 return results;
             })()"#;
 
-            if let Ok(result) = page.evaluate(iframe_js.to_string()).await {
-                if let Ok(frames) = result.into_value::<Vec<serde_json::Value>>() {
-                    for frame in frames {
-                        let src = frame["src"].as_str().unwrap_or("");
-                        if let Some(frame_html) = frame["html"].as_str() {
-                            let replacement = format!(
-                                "<div data-iframe-src=\"{}\">{}</div>", src, frame_html
-                            );
-                            if let Some(pos) = html.find("<iframe") {
-                                let end = html[pos..].find("</iframe>")
-                                    .map(|e| pos + e + "</iframe>".len())
-                                    .or_else(|| html[pos..].find("/>").map(|e| pos + e + "/>".len()));
-                                if let Some(end) = end {
-                                    html.replace_range(pos..end, &replacement);
-                                }
+            if let Ok(result) = page.evaluate(iframe_js.to_string()).await
+                && let Ok(frames) = result.into_value::<Vec<serde_json::Value>>()
+            {
+                for frame in frames {
+                    let src = frame["src"].as_str().unwrap_or("");
+                    if let Some(frame_html) = frame["html"].as_str() {
+                        let replacement =
+                            format!("<div data-iframe-src=\"{}\">{}</div>", src, frame_html);
+                        if let Some(pos) = html.find("<iframe") {
+                            let end = html[pos..]
+                                .find("</iframe>")
+                                .map(|e| pos + e + "</iframe>".len())
+                                .or_else(|| html[pos..].find("/>").map(|e| pos + e + "/>".len()));
+                            if let Some(end) = end {
+                                html.replace_range(pos..end, &replacement);
                             }
-                        } else if frame["cross_origin"].as_bool() == Some(true) {
-                            // Mark cross-origin iframes so Agent knows
-                            let marker = format!("[iframe: {}]", src);
-                            html = html.replacen("<iframe", &format!("<!-- {} --><iframe", marker), 1);
                         }
+                    } else if frame["cross_origin"].as_bool() == Some(true) {
+                        // Mark cross-origin iframes so Agent knows
+                        let marker = format!("[iframe: {}]", src);
+                        html = html.replacen("<iframe", &format!("<!-- {} --><iframe", marker), 1);
                     }
                 }
             }
@@ -285,9 +342,10 @@ impl AgentSession {
         let content = FastDistiller::distill(&html, mode, Some(&url));
 
         // Build locator map for operator mode (now safe to borrow self mutably)
-        if mode == DistillMode::Operator {
-            if let Some(page) = self.page.as_ref() {
-                let js = r#"
+        if mode == DistillMode::Operator
+            && let Some(page) = self.page.as_ref()
+        {
+            let js = r#"
                     (() => {
                         const map = {};
                         document.querySelectorAll('[data-agent-id]').forEach(el => {
@@ -301,15 +359,14 @@ impl AgentSession {
                         return map;
                     })()
                 "#;
-                if let Ok(result) = page.evaluate(js.to_string()).await {
-                    if let Ok(val) = result.into_value::<serde_json::Value>() {
-                        self.locator_map.clear();
-                        if let Some(obj) = val.as_object() {
-                            for (k, v) in obj {
-                                if let Some(sel) = v.as_str() {
-                                    self.locator_map.insert(k.clone(), sel.to_string());
-                                }
-                            }
+            if let Ok(result) = page.evaluate(js.to_string()).await
+                && let Ok(val) = result.into_value::<serde_json::Value>()
+            {
+                self.locator_map.clear();
+                if let Some(obj) = val.as_object() {
+                    for (k, v) in obj {
+                        if let Some(sel) = v.as_str() {
+                            self.locator_map.insert(k.clone(), sel.to_string());
                         }
                     }
                 }
@@ -320,7 +377,10 @@ impl AgentSession {
         let element_count = self.locator_map.len();
 
         Ok(ObserveResult {
-            content, title, url, content_length,
+            content,
+            title,
+            url,
+            content_length,
             mode: format!("{:?}", mode).to_lowercase(),
             element_count,
         })
@@ -328,7 +388,12 @@ impl AgentSession {
 
     /// ACT — execute an action on a @eN element.
     /// All CDP calls wrapped in timeout to prevent hanging on broken WebSocket (Bug 8).
-    pub async fn act(&mut self, action: &str, target: &str, value: &str) -> Result<ActResult, BrowserError> {
+    pub async fn act(
+        &mut self,
+        action: &str,
+        target: &str,
+        value: &str,
+    ) -> Result<ActResult, BrowserError> {
         let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
         let cdp_timeout = std::time::Duration::from_secs(10);
 
@@ -355,7 +420,8 @@ impl AgentSession {
                     el.click();
                     return {{success: true, detail: 'Clicked ' + el.tagName}};
                 }})()"#,
-                selector.replace('\'', "\\'"), selector.replace('\'', "\\'")
+                selector.replace('\'', "\\'"),
+                selector.replace('\'', "\\'")
             ),
             "fill" => format!(
                 r#"(() => {{
@@ -366,7 +432,8 @@ impl AgentSession {
                     el.dispatchEvent(new Event('change', {{bubbles: true}}));
                     return {{success: true, detail: 'Filled ' + (el.name || el.id || 'element')}};
                 }})()"#,
-                selector.replace('\'', "\\'"), selector.replace('\'', "\\'"),
+                selector.replace('\'', "\\'"),
+                selector.replace('\'', "\\'"),
                 value.replace('\'', "\\'")
             ),
             "submit" => format!(
@@ -387,7 +454,9 @@ impl AgentSession {
         // Bug 8 fix: Timeout all CDP calls to prevent hanging on broken WebSocket
         let result: serde_json::Value = tokio::time::timeout(cdp_timeout, page.evaluate(js))
             .await
-            .map_err(|_| BrowserError::Page("CDP timeout — browser may be unresponsive".to_string()))?
+            .map_err(|_| {
+                BrowserError::Page("CDP timeout — browser may be unresponsive".to_string())
+            })?
             .map_err(|e| BrowserError::Page(e.to_string()))?
             .into_value()
             .map_err(|e| BrowserError::Page(format!("{:?}", e)))?;
@@ -396,8 +465,11 @@ impl AgentSession {
         tokio::time::sleep(std::time::Duration::from_millis(800)).await;
 
         // Update current URL
-        self.current_url = page.evaluate("window.location.href").await
-            .ok().and_then(|v| v.into_value::<String>().ok())
+        self.current_url = page
+            .evaluate("window.location.href")
+            .await
+            .ok()
+            .and_then(|v| v.into_value::<String>().ok())
             .unwrap_or(self.current_url.clone());
 
         // Invalidate locator map — DOM may have changed after action.

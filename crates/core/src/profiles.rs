@@ -22,17 +22,13 @@ static PROFILES: OnceLock<Vec<SiteProfile>> = OnceLock::new();
 /// Load profiles from profiles.toml (or use empty if not found).
 fn load_profiles() -> Vec<SiteProfile> {
     // Try multiple paths
-    let paths = [
-        "profiles.toml",
-        "../profiles.toml",
-        "../../profiles.toml",
-    ];
+    let paths = ["profiles.toml", "../profiles.toml", "../../profiles.toml"];
 
     for path in &paths {
-        if let Ok(content) = std::fs::read_to_string(path) {
-            if let Ok(parsed) = toml::from_str::<ProfilesFile>(&content) {
-                return parsed.profile;
-            }
+        if let Ok(content) = std::fs::read_to_string(path)
+            && let Ok(parsed) = toml::from_str::<ProfilesFile>(&content)
+        {
+            return parsed.profile;
         }
     }
 
@@ -48,9 +44,9 @@ pub fn profiles() -> &'static [SiteProfile] {
 /// Find matching profile for a URL.
 pub fn match_profile(url: &str) -> Option<&'static SiteProfile> {
     let domain = extract_domain(url)?;
-    profiles().iter().find(|p| {
-        p.domains.iter().any(|d| domain.contains(d.as_str()))
-    })
+    profiles()
+        .iter()
+        .find(|p| p.domains.iter().any(|d| domain.contains(d.as_str())))
 }
 
 /// Get extra noise selectors for a URL (empty if no profile matches).
@@ -80,7 +76,13 @@ mod tests {
 
     #[test]
     fn test_extract_domain() {
-        assert_eq!(extract_domain("https://cloud.tencent.com/dev/article/123"), Some("cloud.tencent.com"));
-        assert_eq!(extract_domain("https://github.com/foo/bar"), Some("github.com"));
+        assert_eq!(
+            extract_domain("https://cloud.tencent.com/dev/article/123"),
+            Some("cloud.tencent.com")
+        );
+        assert_eq!(
+            extract_domain("https://github.com/foo/bar"),
+            Some("github.com")
+        );
     }
 }

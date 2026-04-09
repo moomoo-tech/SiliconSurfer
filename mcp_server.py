@@ -29,6 +29,17 @@ except ImportError:
 SERVER_URL = "http://localhost:9883"
 _server_proc = None
 
+# Persistent browser session for observe/act continuity.
+# Created lazily on first use; keeps the page alive between calls.
+_session = None
+
+def _get_session():
+    """Get or create the persistent BrowserSession."""
+    global _session
+    if _session is None and _use_pyo3:
+        _session = agent_browser.Session()
+    return _session
+
 
 def _ensure_http_server():
     """Start HTTP server as fallback when PyO3 not available."""
@@ -169,10 +180,19 @@ async def call_tool(name: str, arguments: dict):
             return [TextContent(type="text", text="Error: url is required")]
 
         try:
-            result = _fetch(url, distill=mode)
-            content = result.get("content", "")
-            title = result.get("title", "")
-            length = result.get("content_length", 0)
+            session = _get_session()
+            if session and mode in ("operator", "developer"):
+                # Stateful path: use BrowserSession so page stays alive for act()
+                session.navigate(url)
+                content = session.see(mode)
+                title = ""  # session.see() returns distilled content directly
+                length = len(content)
+            else:
+                # Stateless path: T0 fetch for read-only modes (reader/spider/data)
+                result = _fetch(url, distill=mode)
+                content = result.get("content", "")
+                title = result.get("title", "")
+                length = result.get("content_length", 0)
 
             if mode in ("spider", "data"):
                 try:
@@ -194,18 +214,45 @@ async def call_tool(name: str, arguments: dict):
         target = arguments.get("target", "")
         value = arguments.get("value", "")
 
-        if action == "navigate":
-            try:
-                result = _fetch(target, distill="operator")
-                return [TextContent(type="text", text=f"Navigated to {target}.\n\n{result.get('content', '')[:2000]}")]
-            except Exception as e:
-                return [TextContent(type="text", text=f"Navigation failed: {e}")]
+        session = _get_session()
+        if not session:
+            return [TextContent(type="text", text="Error: PyO3 not available — browser actions require native bindings.")]
 
-        return [TextContent(type="text", text=
-            f"Action '{action}' on '{target}' received.\n"
-            f"Note: Direct browser actions require T1 CDP session.\n"
-            f"Use observe() to read pages, act('navigate', url) to go to URLs."
-        )]
+        try:
+            if action == "navigate":
+                result = session.navigate(target)
+                # Return operator view of the new page
+                content = session.see("operator")
+                return [TextContent(type="text", text=f"Navigated to {target}.\n\n{content[:2000]}")]
+
+            elif action == "click":
+                if target.startswith("@"):
+                    result = session.click_agent_ref(target)
+                else:
+                    result = session.click(target)
+                detail = result.get("detail", "")
+                url = result.get("url", "")
+                return [TextContent(type="text", text=f"Clicked {target}. {detail}\nURL: {url}")]
+
+            elif action == "fill":
+                if target.startswith("@"):
+                    result = session.fill_agent_ref(target, value)
+                else:
+                    result = session.fill(target, value)
+                detail = result.get("detail", "")
+                return [TextContent(type="text", text=f"Filled {target} = {value!r}. {detail}")]
+
+            elif action == "submit":
+                result = session.submit(target if target else "form")
+                detail = result.get("detail", "")
+                url = result.get("url", "")
+                return [TextContent(type="text", text=f"Submitted. {detail}\nURL: {url}")]
+
+            else:
+                return [TextContent(type="text", text=f"Unknown action: {action}")]
+
+        except Exception as e:
+            return [TextContent(type="text", text=f"Action failed: {e}")]
 
     return [TextContent(type="text", text=f"Unknown tool: {name}")]
 

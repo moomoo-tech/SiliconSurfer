@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 
 use agent_browser_core::distiller::Distiller;
 use agent_browser_core::distiller_fast::{DistillMode, FastDistiller};
@@ -35,7 +35,9 @@ fn large_html() -> String {
             <em>emphasis</em>. More text to simulate real content with various &#160; entities &#38; special chars.</p></section>"#
         ));
     }
-    html.push_str("</article><script>var x = 1;</script><style>.foo{color:red}</style></body></html>");
+    html.push_str(
+        "</article><script>var x = 1;</script><style>.foo{color:red}</style></body></html>",
+    );
     html
 }
 
@@ -47,9 +49,7 @@ fn bench_scraper(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("scraper");
 
-    group.bench_function("small_500B", |b| {
-        b.iter(|| d.to_markdown(black_box(small)))
-    });
+    group.bench_function("small_500B", |b| b.iter(|| d.to_markdown(black_box(small))));
     group.bench_function("medium_50KB", |b| {
         b.iter(|| d.to_markdown(black_box(&medium)))
     });
@@ -86,9 +86,7 @@ fn bench_comparison(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("comparison_50KB");
 
-    group.bench_function("scraper", |b| {
-        b.iter(|| d.to_markdown(black_box(&medium)))
-    });
+    group.bench_function("scraper", |b| b.iter(|| d.to_markdown(black_box(&medium))));
     group.bench_function("lol_html", |b| {
         b.iter(|| FastDistiller::to_markdown(black_box(&medium)))
     });
@@ -102,13 +100,31 @@ fn bench_all_modes(c: &mut Criterion) {
     let mut group = c.benchmark_group("modes_50KB");
 
     group.bench_function("reader", |b| {
-        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Reader, Some("https://example.com")))
+        b.iter(|| {
+            FastDistiller::distill(
+                black_box(&medium),
+                DistillMode::Reader,
+                Some("https://example.com"),
+            )
+        })
     });
     group.bench_function("operator", |b| {
-        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Operator, Some("https://example.com")))
+        b.iter(|| {
+            FastDistiller::distill(
+                black_box(&medium),
+                DistillMode::Operator,
+                Some("https://example.com"),
+            )
+        })
     });
     group.bench_function("spider", |b| {
-        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Spider, Some("https://example.com")))
+        b.iter(|| {
+            FastDistiller::distill(
+                black_box(&medium),
+                DistillMode::Spider,
+                Some("https://example.com"),
+            )
+        })
     });
     group.bench_function("developer", |b| {
         b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Developer, None))
@@ -120,5 +136,11 @@ fn bench_all_modes(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_scraper, bench_lol_html, bench_comparison, bench_all_modes);
+criterion_group!(
+    benches,
+    bench_scraper,
+    bench_lol_html,
+    bench_comparison,
+    bench_all_modes
+);
 criterion_main!(benches);

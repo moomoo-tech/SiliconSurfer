@@ -11,12 +11,11 @@
 use scraper::{ElementRef, Html, Node, Selector};
 use std::collections::HashSet;
 
-use crate::extract::{ExtractionResult, Extractor, Profile};
 use crate::distiller_fast::DistillMode;
+use crate::extract::{ExtractionResult, Extractor, Profile};
 
 /// Parse context — carries state through recursive DOM walk.
 struct ParseContext {
-    base_url: Option<String>,
     base_origin: Option<String>,
     in_pre: bool,
     in_table: bool,
@@ -24,7 +23,6 @@ struct ParseContext {
     list_ordered: bool,
     list_index: usize,
     output: String,
-    seen_lines: HashSet<u64>,
     links_count: usize,
     headings_count: usize,
 }
@@ -33,14 +31,12 @@ impl ParseContext {
     fn new(base_url: Option<&str>, capacity: usize) -> Self {
         Self {
             base_origin: base_url.and_then(extract_origin),
-            base_url: base_url.map(|s| s.to_string()),
             in_pre: false,
             in_table: false,
             list_depth: 0,
             list_ordered: false,
             list_index: 0,
             output: String::with_capacity(capacity),
-            seen_lines: HashSet::with_capacity(256),
             links_count: 0,
             headings_count: 0,
         }
@@ -50,7 +46,11 @@ impl ParseContext {
     fn resolve_url(&self, href: &str) -> Option<String> {
         if href.starts_with("http") {
             Some(href.to_string())
-        } else if href.starts_with("javascript:") || href.starts_with("mailto:") || href == "#" || href.is_empty() {
+        } else if href.starts_with("javascript:")
+            || href.starts_with("mailto:")
+            || href == "#"
+            || href.is_empty()
+        {
             None
         } else if href.starts_with('/') {
             self.base_origin.as_ref().map(|o| format!("{}{}", o, href))
@@ -76,6 +76,12 @@ pub struct Distiller {
     content_selectors: Vec<Selector>,
 }
 
+impl Default for Distiller {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Distiller {
     pub fn new() -> Self {
         let profile = Profile::reader(None);
@@ -84,10 +90,14 @@ impl Distiller {
 
     pub fn from_profile(profile: &Profile) -> Self {
         Self {
-            noise_selectors: profile.noise_selectors.iter()
+            noise_selectors: profile
+                .noise_selectors
+                .iter()
                 .filter_map(|s| Selector::parse(s).ok())
                 .collect(),
-            content_selectors: profile.content_selectors.iter()
+            content_selectors: profile
+                .content_selectors
+                .iter()
                 .filter_map(|s| Selector::parse(s).ok())
                 .collect(),
         }
@@ -96,7 +106,8 @@ impl Distiller {
     pub fn extract_title(&self, html: &str) -> Option<String> {
         let doc = Html::parse_document(html);
         let sel = Selector::parse("title").ok()?;
-        doc.select(&sel).next()
+        doc.select(&sel)
+            .next()
             .map(|el| el.text().collect::<String>().trim().to_string())
             .filter(|t| !t.is_empty())
     }
@@ -152,7 +163,9 @@ impl Distiller {
             "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => {
                 let level = tag[1..].parse::<usize>().unwrap_or(1);
                 ctx.push("\n\n");
-                for _ in 0..level { ctx.push_char('#'); }
+                for _ in 0..level {
+                    ctx.push_char('#');
+                }
                 ctx.push_char(' ');
                 ctx.headings_count += 1;
                 // Collect heading text directly (don't recurse into children for headings)
@@ -166,8 +179,15 @@ impl Distiller {
                 ctx.in_pre = true;
                 ctx.push("\n\n```\n");
             }
-            "ul" => { ctx.list_depth += 1; ctx.list_ordered = false; }
-            "ol" => { ctx.list_depth += 1; ctx.list_ordered = true; ctx.list_index = 0; }
+            "ul" => {
+                ctx.list_depth += 1;
+                ctx.list_ordered = false;
+            }
+            "ol" => {
+                ctx.list_depth += 1;
+                ctx.list_ordered = true;
+                ctx.list_index = 0;
+            }
             "li" => {
                 if ctx.list_ordered {
                     ctx.list_index += 1;
@@ -177,13 +197,21 @@ impl Distiller {
                 }
             }
             "blockquote" => ctx.push("\n\n> "),
-            "hr" => { ctx.push("\n\n---\n\n"); return; }
-            "br" => { ctx.push("\n"); return; }
+            "hr" => {
+                ctx.push("\n\n---\n\n");
+                return;
+            }
+            "br" => {
+                ctx.push("\n");
+                return;
+            }
             "a" => {
                 let href = el.value().attr("href").unwrap_or("");
                 let text: String = el.text().collect::<Vec<_>>().join("");
                 let text = text.trim();
-                if text.is_empty() { return; }
+                if text.is_empty() {
+                    return;
+                }
 
                 if let Some(url) = ctx.resolve_url(href) {
                     ctx.push("[");
@@ -201,13 +229,18 @@ impl Distiller {
             "strong" | "b" => ctx.push("**"),
             "em" | "i" => ctx.push("_"),
             "code" if !ctx.in_pre => ctx.push("`"),
-            "table" => { ctx.in_table = true; ctx.push("\n\n"); }
+            "table" => {
+                ctx.in_table = true;
+                ctx.push("\n\n");
+            }
             "tr" => ctx.push("\n"),
             "td" | "th" => ctx.push(" "),
             "div" | "section" | "article" => ctx.push("\n"),
             "img" => {
-                if let Some(alt) = el.value().attr("alt") {
-                    if !alt.is_empty() { ctx.push(&format!("[image: {}] ", alt)); }
+                if let Some(alt) = el.value().attr("alt")
+                    && !alt.is_empty()
+                {
+                    ctx.push(&format!("[image: {}] ", alt));
                 }
                 return;
             }
@@ -245,11 +278,17 @@ impl Distiller {
                 ctx.in_pre = false;
                 ctx.push("\n```\n\n");
             }
-            "ul" | "ol" => { ctx.list_depth -= 1; ctx.push("\n"); }
+            "ul" | "ol" => {
+                ctx.list_depth -= 1;
+                ctx.push("\n");
+            }
             "strong" | "b" => ctx.push("** "),
             "em" | "i" => ctx.push("_ "),
             "code" if !ctx.in_pre => ctx.push("`"),
-            "table" => { ctx.in_table = false; ctx.push("\n"); }
+            "table" => {
+                ctx.in_table = false;
+                ctx.push("\n");
+            }
             "div" | "section" | "article" => ctx.push("\n"),
             "blockquote" => ctx.push("\n\n"),
             _ => {}
@@ -258,12 +297,17 @@ impl Distiller {
 
     /// Text-only visitor (no markdown formatting).
     fn visit_text_only(&self, el: ElementRef<'_>, ctx: &mut ParseContext) {
-        if self.is_noise(&el) { return; }
+        if self.is_noise(&el) {
+            return;
+        }
 
         let tag = el.value().name();
         match tag {
             "script" | "style" | "svg" | "iframe" | "noscript" => return,
-            "br" => { ctx.push("\n"); return; }
+            "br" => {
+                ctx.push("\n");
+                return;
+            }
             "p" | "div" | "tr" | "li" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => ctx.push("\n"),
             _ => {}
         }
@@ -272,7 +316,10 @@ impl Distiller {
             match child.value() {
                 Node::Text(text) => {
                     let t = text.trim();
-                    if !t.is_empty() { ctx.push(t); ctx.push_char(' '); }
+                    if !t.is_empty() {
+                        ctx.push(t);
+                        ctx.push_char(' ');
+                    }
                 }
                 Node::Element(_) => {
                     if let Some(child_el) = ElementRef::wrap(child) {
@@ -376,7 +423,9 @@ fn dedup_and_clean(raw: &str) -> String {
         let clean: String = line.split_whitespace().collect::<Vec<_>>().join(" ");
         if clean.is_empty() {
             blank_count += 1;
-            if blank_count <= 1 { result.push('\n'); }
+            if blank_count <= 1 {
+                result.push('\n');
+            }
             continue;
         }
         blank_count = 0;
@@ -428,15 +477,22 @@ mod tests {
         let d = Distiller::new();
         let html = r#"<html><body><article><p><a href="https://example.com">Click here</a></p></article></body></html>"#;
         let md = d.to_markdown(html);
-        assert!(md.contains("[Click here](https://example.com)"), "got: {md}");
+        assert!(
+            md.contains("[Click here](https://example.com)"),
+            "got: {md}"
+        );
     }
 
     #[test]
     fn test_relative_links() {
         let d = Distiller::new();
-        let html = r#"<html><body><article><p><a href="/foo/bar">Link</a></p></article></body></html>"#;
+        let html =
+            r#"<html><body><article><p><a href="/foo/bar">Link</a></p></article></body></html>"#;
         let md = d.to_markdown_with_base(html, Some("https://example.com/page"));
-        assert!(md.contains("[Link](https://example.com/foo/bar)"), "got: {md}");
+        assert!(
+            md.contains("[Link](https://example.com/foo/bar)"),
+            "got: {md}"
+        );
     }
 
     #[test]
@@ -445,8 +501,14 @@ mod tests {
         let d = Distiller::new();
         let html = r#"<html><body><article><p><a href="item?id=123">Comments</a></p></article></body></html>"#;
         let md = d.to_markdown_with_base(html, Some("https://news.ycombinator.com/"));
-        assert!(md.contains("Comments"), "text should be preserved, got: {md}");
-        assert!(!md.contains("[Comments]("), "reader should NOT link bare relative, got: {md}");
+        assert!(
+            md.contains("Comments"),
+            "text should be preserved, got: {md}"
+        );
+        assert!(
+            !md.contains("[Comments]("),
+            "reader should NOT link bare relative, got: {md}"
+        );
     }
 
     #[test]
@@ -457,7 +519,10 @@ mod tests {
 }</code></pre></article></body></html>"#;
         let md = d.to_markdown(html);
         assert!(md.contains("```"), "got: {md}");
-        assert!(md.contains("    println!"), "indentation preserved, got: {md}");
+        assert!(
+            md.contains("    println!"),
+            "indentation preserved, got: {md}"
+        );
     }
 
     #[test]
@@ -484,7 +549,11 @@ mod tests {
         let result = d.extract(html, &profile);
         assert!(result.content.contains("# Test"), "got: {}", result.content);
         assert!(result.links_count >= 1, "links: {}", result.links_count);
-        assert!(result.headings_count >= 1, "headings: {}", result.headings_count);
+        assert!(
+            result.headings_count >= 1,
+            "headings: {}",
+            result.headings_count
+        );
         assert_eq!(result.engine, "ast-scraper");
     }
 }

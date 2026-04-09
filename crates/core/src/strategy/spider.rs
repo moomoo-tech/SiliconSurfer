@@ -9,11 +9,14 @@ pub fn distill(html: &str, base_url: Option<&str>) -> String {
     let base_origin = base_url.and_then(extract_origin);
     let doc = scraper::Html::parse_document(html);
     let a_sel = scraper::Selector::parse("a[href]").unwrap();
-    let nav_sel = scraper::Selector::parse("nav a[href], header a[href], [role='navigation'] a[href]").unwrap();
+    let nav_sel =
+        scraper::Selector::parse("nav a[href], header a[href], [role='navigation'] a[href]")
+            .unwrap();
     let footer_sel = scraper::Selector::parse("footer a[href]").unwrap();
 
     let nav_ids: std::collections::HashSet<_> = doc.select(&nav_sel).map(|e| e.id()).collect();
-    let footer_ids: std::collections::HashSet<_> = doc.select(&footer_sel).map(|e| e.id()).collect();
+    let footer_ids: std::collections::HashSet<_> =
+        doc.select(&footer_sel).map(|e| e.id()).collect();
 
     let mut nav_links = Vec::new();
     let mut content_links = Vec::new();
@@ -26,10 +29,14 @@ pub fn distill(html: &str, base_url: Option<&str>) -> String {
             Some(url) => url,
             None => continue,
         };
-        if !seen.insert(full_url.clone()) { continue; }
+        if !seen.insert(full_url.clone()) {
+            continue;
+        }
         let text: String = el.text().collect::<Vec<_>>().join(" ");
         let text = text.trim().to_string();
-        if text.is_empty() { continue; }
+        if text.is_empty() {
+            continue;
+        }
 
         let link = serde_json::json!({"text": text, "url": full_url});
         if nav_ids.contains(&el.id()) {
@@ -46,5 +53,6 @@ pub fn distill(html: &str, base_url: Option<&str>) -> String {
         "content_links": content_links,
         "footer_links": footer_links,
         "total": nav_links.len() + content_links.len() + footer_links.len(),
-    }).to_string()
+    })
+    .to_string()
 }

@@ -1,11 +1,11 @@
 pub mod browser;
 pub mod cdp;
-pub mod profiles;
 pub mod distiller;
 pub mod distiller_fast;
 pub mod extract;
 pub mod fetcher;
 pub mod probe;
+pub mod profiles;
 pub mod router;
 pub mod session;
 pub mod strategy;

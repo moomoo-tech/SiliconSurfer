@@ -41,20 +41,20 @@ impl BrowserSession {
 
     /// Navigate to a URL — creates page if needed.
     pub async fn navigate(&mut self, url: &str) -> Result<ActionResult, BrowserError> {
-        let guard = self.pool.browser_guard().await?;
-        let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
-
-        // Create new page or reuse
+        // Only need the lock to create a new page; drop guard before async I/O.
         let page = if let Some(ref p) = self.page {
             p.goto(url)
                 .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?;
             p.clone()
         } else {
+            let guard = self.pool.browser_guard().await?;
+            let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
             let p = browser
                 .new_page(url)
                 .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?;
+            drop(guard);
             p
         };
 
@@ -102,15 +102,15 @@ impl BrowserSession {
     /// Click an element by CSS selector.
     pub async fn click(&self, selector: &str) -> Result<ActionResult, BrowserError> {
         let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+        let safe_selector =
+            serde_json::to_string(selector).map_err(|e| BrowserError::Page(e.to_string()))?;
         let js = format!(
             r#"(() => {{
-                const el = document.querySelector('{}');
-                if (!el) return {{ success: false, detail: 'Element not found: {}' }};
+                const el = document.querySelector({safe_selector});
+                if (!el) return {{ success: false, detail: 'Element not found: ' + {safe_selector} }};
                 el.click();
                 return {{ success: true, detail: 'Clicked ' + el.tagName }};
             }})()"#,
-            selector.replace('\'', "\\'"),
-            selector.replace('\'', "\\'")
         );
 
         let result: serde_json::Value = page
@@ -141,19 +141,19 @@ impl BrowserSession {
     /// Fill a form field by CSS selector.
     pub async fn fill(&self, selector: &str, value: &str) -> Result<ActionResult, BrowserError> {
         let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+        let safe_selector =
+            serde_json::to_string(selector).map_err(|e| BrowserError::Page(e.to_string()))?;
+        let safe_value =
+            serde_json::to_string(value).map_err(|e| BrowserError::Page(e.to_string()))?;
         let js = format!(
             r#"(() => {{
-                const el = document.querySelector('{}');
-                if (!el) return {{ success: false, detail: 'Element not found: {}' }};
-                el.value = '{}';
+                const el = document.querySelector({safe_selector});
+                if (!el) return {{ success: false, detail: 'Element not found: ' + {safe_selector} }};
+                el.value = {safe_value};
                 el.dispatchEvent(new Event('input', {{ bubbles: true }}));
                 el.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                return {{ success: true, detail: 'Filled ' + el.name + ' = {}' }};
+                return {{ success: true, detail: 'Filled ' + el.name + ' = ' + {safe_value} }};
             }})()"#,
-            selector.replace('\'', "\\'"),
-            selector.replace('\'', "\\'"),
-            value.replace('\'', "\\'"),
-            value.replace('\'', "\\'")
         );
 
         let result: serde_json::Value = page
@@ -171,27 +171,35 @@ impl BrowserSession {
     }
 
     /// Fill by @eN agent reference.
-    pub async fn fill_agent_ref(&self, ref_id: &str, value: &str) -> Result<ActionResult, BrowserError> {
+    pub async fn fill_agent_ref(
+        &self,
+        ref_id: &str,
+        value: &str,
+    ) -> Result<ActionResult, BrowserError> {
         let id = ref_id.trim_start_matches('@');
         self.fill(&format!("[data-agent-id='{}']", id), value).await
     }
 
     /// Fill by field name attribute.
-    pub async fn fill_by_name(&self, name: &str, value: &str) -> Result<ActionResult, BrowserError> {
+    pub async fn fill_by_name(
+        &self,
+        name: &str,
+        value: &str,
+    ) -> Result<ActionResult, BrowserError> {
         self.fill(&format!("[name='{}']", name), value).await
     }
 
     /// Submit a form (click submit button).
     pub async fn submit(&self, selector: &str) -> Result<ActionResult, BrowserError> {
         let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+        let safe_selector =
+            serde_json::to_string(selector).map_err(|e| BrowserError::Page(e.to_string()))?;
         let js = format!(
             r#"(() => {{
-                const el = document.querySelector('{}');
+                const el = document.querySelector({safe_selector});
                 if (!el) {{
-                    // Try finding any submit button in the form
                     const btn = document.querySelector('button[type="submit"], input[type="submit"]');
                     if (btn) {{ btn.click(); return {{ success: true, detail: 'Clicked fallback submit' }}; }}
-                    // Try submitting the form directly
                     const form = document.querySelector('form');
                     if (form) {{ form.submit(); return {{ success: true, detail: 'Submitted form directly' }}; }}
                     return {{ success: false, detail: 'No submit element found' }};
@@ -199,7 +207,6 @@ impl BrowserSession {
                 el.click();
                 return {{ success: true, detail: 'Clicked ' + el.tagName }};
             }})()"#,
-            selector.replace('\'', "\\'")
         );
 
         let result: serde_json::Value = page

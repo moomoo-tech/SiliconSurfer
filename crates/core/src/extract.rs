@@ -53,24 +53,63 @@ impl Profile {
             mode: DistillMode::Reader,
             base_url: base_url.map(|s| s.to_string()),
             noise_selectors: vec![
-                "script", "style", "nav", "footer", "header", "iframe",
-                "noscript", "svg", "form", "button", "input", "select", "textarea",
-                "head", "img", "picture", "video", "audio", "canvas",
-                "[class*='ad-']", "[class*='ads-']",
-                "[class*='cookie-']", "[class*='cookie_']",
-                ".popup", ".modal", "[class*='-popup']", "[class*='-modal']",
-                ".social-share", ".share-buttons", ".sharing",
-                ".newsletter", ".subscribe",
+                "script",
+                "style",
+                "nav",
+                "footer",
+                "header",
+                "iframe",
+                "noscript",
+                "svg",
+                "form",
+                "button",
+                "input",
+                "select",
+                "textarea",
+                "head",
+                "img",
+                "picture",
+                "video",
+                "audio",
+                "canvas",
+                "[class*='ad-']",
+                "[class*='ads-']",
+                "[class*='cookie-']",
+                "[class*='cookie_']",
+                ".popup",
+                ".modal",
+                "[class*='-popup']",
+                "[class*='-modal']",
+                ".social-share",
+                ".share-buttons",
+                ".sharing",
+                ".newsletter",
+                ".subscribe",
                 "[class*='-banner'][class*='ad']",
-                "[role='navigation']", "[role='complementary']",
-                "[role='search']", "[aria-hidden='true']",
-            ].into_iter().map(|s| s.to_string()).collect(),
+                "[role='navigation']",
+                "[role='complementary']",
+                "[role='search']",
+                "[aria-hidden='true']",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
             content_selectors: vec![
-                "article", "main", "[role='main']",
-                ".post-content", ".article-content", ".entry-content",
-                ".post-body", ".article-body",
-                "#content", ".content", "#main-content",
-            ].into_iter().map(|s| s.to_string()).collect(),
+                "article",
+                "main",
+                "[role='main']",
+                ".post-content",
+                ".article-content",
+                ".entry-content",
+                ".post-body",
+                ".article-body",
+                "#content",
+                ".content",
+                "#main-content",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
             noise_text_patterns: vec![],
         }
     }
@@ -82,9 +121,12 @@ impl Profile {
             mode: DistillMode::Operator,
             base_url: base_url.map(|s| s.to_string()),
             noise_selectors: vec![
-                "script", "style", "head", "noscript", "svg",
-                "img", "picture", "video", "audio", "canvas",
-            ].into_iter().map(|s| s.to_string()).collect(),
+                "script", "style", "head", "noscript", "svg", "img", "picture", "video", "audio",
+                "canvas",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect(),
             content_selectors: vec![],
             noise_text_patterns: vec![],
         }
@@ -96,14 +138,11 @@ impl Profile {
         p.name = "hacker_news".to_string();
         // HN-specific noise
         p.noise_selectors.extend([
-            ".pagetop".to_string(),        // Top navigation bar
-            ".yclinks".to_string(),         // Bottom links
+            ".pagetop".to_string(),              // Top navigation bar
+            ".yclinks".to_string(),              // Bottom links
             "td[bgcolor='#ff6600']".to_string(), // Orange nav bar
         ]);
-        p.noise_text_patterns = vec![
-            "| hide |".to_string(),
-            "| past |".to_string(),
-        ];
+        p.noise_text_patterns = vec!["| hide |".to_string(), "| past |".to_string()];
         p
     }
 
