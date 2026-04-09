@@ -1,0 +1,27 @@
+[
+  {
+    "goal": "Login to quotes site and find an Einstein quote",
+    "success": true,
+    "steps": 12
+  },
+  {
+    "goal": "Find the cheapest book and get its full description",
+    "success": false,
+    "steps": 15
+  },
+  {
+    "goal": "Collect quotes from 3 different pages",
+    "success": true,
+    "steps": 6
+  },
+  {
+    "goal": "Find all travel books and their prices",
+    "success": true,
+    "steps": 6
+  },
+  {
+    "goal": "Login to the secure area using the credentials shown on the page",
+    "success": false,
+    "steps": 15
+  }
+]
