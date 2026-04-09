@@ -82,15 +82,19 @@ fn fetch(py: Python<'_>, url: &str, output: &str, mode: &str, fast: bool) -> PyR
     let url = url.to_string();
     let output = output.to_string();
 
-    let result = run_async(async move {
-        let engine = get_engine();
-        if fast {
-            engine.fetch_fast(&url, &output, fetch_mode).await
-        } else {
-            engine.fetch(&url, &output, fetch_mode).await
-        }
-    })
-    .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+    // Release GIL during blocking I/O so Python asyncio can continue
+    let result = py
+        .detach(move || {
+            run_async(async move {
+                let engine = get_engine();
+                if fast {
+                    engine.fetch_fast(&url, &output, fetch_mode).await
+                } else {
+                    engine.fetch(&url, &output, fetch_mode).await
+                }
+            })
+        })
+        .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
 
     let dict = PyDict::new(py);
     dict.set_item("url", &result.url)?;
@@ -116,13 +120,15 @@ fn fetch_many(
     };
     let output = output.to_string();
 
-    let results = run_async(async move {
-        let engine = get_engine();
-        let futs: Vec<_> = urls
-            .iter()
-            .map(|url| engine.fetch(url, &output, fetch_mode))
-            .collect();
-        futures::future::join_all(futs).await
+    let results = py.detach(move || {
+        run_async(async move {
+            let engine = get_engine();
+            let futs: Vec<_> = urls
+                .iter()
+                .map(|url| engine.fetch(url, &output, fetch_mode))
+                .collect();
+            futures::future::join_all(futs).await
+        })
     });
 
     let mut py_results = Vec::with_capacity(results.len());
@@ -201,7 +207,8 @@ fn probe(
         render_js,
     };
 
-    let result = run_async(async move { get_probe().check(req).await })
+    let result = py
+        .detach(move || run_async(async move { get_probe().check(req).await }))
         .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
 
     let json_str =
@@ -227,10 +234,11 @@ struct Session {
 #[pymethods]
 impl Session {
     #[new]
-    fn new() -> PyResult<Self> {
+    fn new(py: Python<'_>) -> PyResult<Self> {
         ensure_browser_started();
         let pool = get_engine().browser_pool();
-        let session = run_async(async move { BrowserSession::new(pool).await })
+        let session = py
+            .detach(move || run_async(async move { BrowserSession::new(pool).await }))
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         Ok(Self {
             inner: Arc::new(TokioMutex::new(session)),
@@ -241,16 +249,17 @@ impl Session {
     fn navigate(&self, py: Python<'_>, url: &str) -> PyResult<Py<PyDict>> {
         let inner = self.inner.clone();
         let url = url.to_string();
-        let result = run_async(async move { inner.lock().await.navigate(&url).await })
+        let result = py
+            .detach(move || run_async(async move { inner.lock().await.navigate(&url).await }))
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         action_result_to_dict(py, &result)
     }
 
     /// Get distilled view of current page. mode: reader/operator/spider/data/developer.
-    fn see(&self, mode: &str) -> PyResult<String> {
+    fn see(&self, py: Python<'_>, mode: &str) -> PyResult<String> {
         let inner = self.inner.clone();
         let distill_mode = parse_distill_mode(mode);
-        run_async(async move { inner.lock().await.see(distill_mode).await })
+        py.detach(move || run_async(async move { inner.lock().await.see(distill_mode).await }))
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
@@ -258,7 +267,8 @@ impl Session {
     fn click(&self, py: Python<'_>, selector: &str) -> PyResult<Py<PyDict>> {
         let inner = self.inner.clone();
         let selector = selector.to_string();
-        let result = run_async(async move { inner.lock().await.click(&selector).await })
+        let result = py
+            .detach(move || run_async(async move { inner.lock().await.click(&selector).await }))
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         action_result_to_dict(py, &result)
     }
@@ -267,7 +277,10 @@ impl Session {
     fn click_agent_ref(&self, py: Python<'_>, ref_id: &str) -> PyResult<Py<PyDict>> {
         let inner = self.inner.clone();
         let ref_id = ref_id.to_string();
-        let result = run_async(async move { inner.lock().await.click_agent_ref(&ref_id).await })
+        let result = py
+            .detach(move || {
+                run_async(async move { inner.lock().await.click_agent_ref(&ref_id).await })
+            })
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         action_result_to_dict(py, &result)
     }
@@ -277,7 +290,10 @@ impl Session {
         let inner = self.inner.clone();
         let selector = selector.to_string();
         let value = value.to_string();
-        let result = run_async(async move { inner.lock().await.fill(&selector, &value).await })
+        let result = py
+            .detach(move || {
+                run_async(async move { inner.lock().await.fill(&selector, &value).await })
+            })
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         action_result_to_dict(py, &result)
     }
@@ -287,9 +303,11 @@ impl Session {
         let inner = self.inner.clone();
         let ref_id = ref_id.to_string();
         let value = value.to_string();
-        let result =
-            run_async(async move { inner.lock().await.fill_agent_ref(&ref_id, &value).await })
-                .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        let result = py
+            .detach(move || {
+                run_async(async move { inner.lock().await.fill_agent_ref(&ref_id, &value).await })
+            })
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         action_result_to_dict(py, &result)
     }
 
@@ -297,22 +315,23 @@ impl Session {
     fn submit(&self, py: Python<'_>, selector: &str) -> PyResult<Py<PyDict>> {
         let inner = self.inner.clone();
         let selector = selector.to_string();
-        let result = run_async(async move { inner.lock().await.submit(&selector).await })
+        let result = py
+            .detach(move || run_async(async move { inner.lock().await.submit(&selector).await }))
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         action_result_to_dict(py, &result)
     }
 
     /// Get raw HTML of current page.
-    fn content(&self) -> PyResult<String> {
+    fn content(&self, py: Python<'_>) -> PyResult<String> {
         let inner = self.inner.clone();
-        run_async(async move { inner.lock().await.content().await })
+        py.detach(move || run_async(async move { inner.lock().await.content().await }))
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
     /// Get current URL.
-    fn url(&self) -> PyResult<String> {
+    fn url(&self, py: Python<'_>) -> PyResult<String> {
         let inner = self.inner.clone();
-        run_async(async move { inner.lock().await.url().await })
+        py.detach(move || run_async(async move { inner.lock().await.url().await }))
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
@@ -320,6 +339,7 @@ impl Session {
     #[pyo3(signature = (name, value, domain, path=None))]
     fn set_cookie(
         &self,
+        py: Python<'_>,
         name: &str,
         value: &str,
         domain: &str,
@@ -330,24 +350,28 @@ impl Session {
         let value = value.to_string();
         let domain = domain.to_string();
         let path = path.map(|s| s.to_string());
-        run_async(async move {
-            inner
-                .lock()
-                .await
-                .set_cookie(&name, &value, &domain, path.as_deref())
-                .await
+        py.detach(move || {
+            run_async(async move {
+                inner
+                    .lock()
+                    .await
+                    .set_cookie(&name, &value, &domain, path.as_deref())
+                    .await
+            })
         })
         .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
-    /// Set multiple cookies from a list of dicts.
-    /// Each dict: {"name": str, "value": str, "domain": str, "path"?: str}
-    fn set_cookies(&self, cookies_json: &str) -> PyResult<usize> {
+    /// Set multiple cookies from a JSON array string.
+    /// Each entry: {"name": str, "value": str, "domain": str, "path"?: str}
+    fn set_cookies(&self, py: Python<'_>, cookies_json: &str) -> PyResult<usize> {
         let inner = self.inner.clone();
         let cookies: Vec<serde_json::Value> = serde_json::from_str(cookies_json)
             .map_err(|e| PyRuntimeError::new_err(format!("Invalid JSON: {e}")))?;
-        run_async(async move { inner.lock().await.set_cookies_from_json(&cookies).await })
-            .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+        py.detach(move || {
+            run_async(async move { inner.lock().await.set_cookies_from_json(&cookies).await })
+        })
+        .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 }
 

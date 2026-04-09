@@ -43,20 +43,25 @@ impl BrowserSession {
 
     /// Navigate to a URL — creates page if needed.
     pub async fn navigate(&mut self, url: &str) -> Result<ActionResult, BrowserError> {
-        // Only need the lock to create a new page; drop guard before async I/O.
+        // Create blank page under lock (no network I/O), then navigate after lock is dropped.
         let page = if let Some(ref p) = self.page {
             p.goto(url)
                 .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?;
             p.clone()
         } else {
-            let guard = self.pool.browser_guard().await?;
-            let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
-            let p = browser
-                .new_page(url)
+            let p = {
+                let guard = self.pool.browser_guard().await?;
+                let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
+                browser
+                    .new_page("about:blank")
+                    .await
+                    .map_err(|e| BrowserError::Page(e.to_string()))?
+                // guard drops here — lock released
+            };
+            p.goto(url)
                 .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?;
-            drop(guard);
             p
         };
 
@@ -115,12 +120,9 @@ impl BrowserSession {
             }})()"#,
         );
 
-        let result: serde_json::Value = page
-            .evaluate(js)
-            .await
-            .map_err(|e| BrowserError::Page(e.to_string()))?
-            .into_value()
-            .map_err(|e| BrowserError::Page(format!("{:?}", e)))?;
+        // Click may trigger navigation which destroys the execution context.
+        // "Execution context was destroyed" means the click succeeded AND caused a page transition.
+        let result = Self::evaluate_tolerant(page, &js).await?;
 
         // Wait for navigation if it happens
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
@@ -211,12 +213,7 @@ impl BrowserSession {
             }})()"#,
         );
 
-        let result: serde_json::Value = page
-            .evaluate(js)
-            .await
-            .map_err(|e| BrowserError::Page(e.to_string()))?
-            .into_value()
-            .map_err(|e| BrowserError::Page(format!("{:?}", e)))?;
+        let result = Self::evaluate_tolerant(page, &js).await?;
 
         // Wait for form submission
         tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
@@ -237,6 +234,33 @@ impl BrowserSession {
             .map_err(|e| BrowserError::Page(e.to_string()))?
             .into_value()
             .map_err(|e| BrowserError::Page(format!("{:?}", e)))
+    }
+
+    /// Evaluate JS, tolerating "execution context destroyed" errors.
+    /// When a click/submit triggers navigation, V8 destroys the context before
+    /// returning the result. This is expected — it means the action succeeded.
+    async fn evaluate_tolerant(
+        page: &chromiumoxide::Page,
+        js: &str,
+    ) -> Result<serde_json::Value, BrowserError> {
+        match page.evaluate(js.to_string()).await {
+            Ok(val) => Ok(val
+                .into_value()
+                .unwrap_or(serde_json::json!({"success": true, "detail": "Executed"}))),
+            Err(e) => {
+                let err = e.to_string();
+                if err.contains("context was destroyed")
+                    || err.contains("Target closed")
+                    || err.contains("Session closed")
+                    || err.contains("Cannot find context")
+                {
+                    // Navigation killed the context — action succeeded
+                    Ok(serde_json::json!({"success": true, "detail": "Clicked and navigated"}))
+                } else {
+                    Err(BrowserError::Page(err))
+                }
+            }
+        }
     }
 
     /// Set a cookie on the current page.

@@ -182,14 +182,23 @@ async def call_tool(name: str, arguments: dict):
 
         try:
             session = _get_session()
-            if session and mode in ("operator", "developer"):
-                # Stateful path: use BrowserSession so page stays alive for act()
+            if session and session.url() not in ("", "about:blank"):
+                # Session is active — ALL modes go through T1 to preserve cookies/auth state.
+                # Dropping to T0 would lose the session (different cookie jar).
+                current = session.url()
+                if current != url:
+                    session.navigate(url)
+                content = session.see(mode)
+                title = ""
+                length = len(content)
+            elif session and mode in ("operator", "developer"):
+                # First interaction — activate session via T1
                 session.navigate(url)
                 content = session.see(mode)
-                title = ""  # session.see() returns distilled content directly
+                title = ""
                 length = len(content)
             else:
-                # Stateless path: T0 fetch for read-only modes (reader/spider/data)
+                # No session yet, read-only mode — use fast T0 path
                 result = _fetch(url, distill=mode)
                 content = result.get("content", "")
                 title = result.get("title", "")

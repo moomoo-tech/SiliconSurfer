@@ -156,18 +156,22 @@ impl BrowserPool {
     pub async fn fetch(&self, url: &str, output: &str) -> Result<BrowserFetchResult, BrowserError> {
         self.ensure_started().await?;
 
-        // Lock only to create the page, then drop immediately.
-        // Page is independent — no need to hold the lock during I/O.
+        // Create a blank page under the lock (instant CDP command, no network I/O),
+        // then drop the lock BEFORE navigating. This allows true concurrency.
         let page = {
             let guard = self.browser.lock().await;
             let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
             browser
-                .new_page(url)
+                .new_page("about:blank")
                 .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?
+            // guard drops here — lock released before any network I/O
         };
 
-        // Wait for DOM to be ready
+        // Navigate without holding the lock — other tasks can create pages concurrently
+        page.goto(url)
+            .await
+            .map_err(|e| BrowserError::Page(e.to_string()))?;
         page.wait_for_navigation()
             .await
             .map_err(|e| BrowserError::Page(e.to_string()))?;
@@ -213,11 +217,14 @@ impl BrowserPool {
             let guard = self.browser.lock().await;
             let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
             browser
-                .new_page(url)
+                .new_page("about:blank")
                 .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?
         };
 
+        page.goto(url)
+            .await
+            .map_err(|e| BrowserError::Page(e.to_string()))?;
         page.wait_for_navigation()
             .await
             .map_err(|e| BrowserError::Page(e.to_string()))?;
@@ -243,11 +250,14 @@ impl BrowserPool {
             let guard = self.browser.lock().await;
             let browser = guard.as_ref().ok_or(BrowserError::NotStarted)?;
             browser
-                .new_page(url)
+                .new_page("about:blank")
                 .await
                 .map_err(|e| BrowserError::Page(e.to_string()))?
         };
 
+        page.goto(url)
+            .await
+            .map_err(|e| BrowserError::Page(e.to_string()))?;
         page.wait_for_navigation()
             .await
             .map_err(|e| BrowserError::Page(e.to_string()))?;
