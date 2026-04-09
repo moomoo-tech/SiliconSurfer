@@ -1,7 +1,8 @@
 # SiliconSurfer 🏄
 
 > The MCP-compatible browser built for silicon-based lifeforms.
-> 专为硅基生物打造的 MCP 兼容浏览器。
+
+English | [中文](README_CN.md)
 
 ## Why Not Playwright MCP?
 
@@ -35,6 +36,7 @@ act(action, target, value)   # Interact with the page
   act("click", "@e3")        → Click element
   act("fill", "@e1", "admin")→ Fill form field
   act("submit", "@e5")       → Submit form
+  act("set_cookies", "", '[{"name":"session","value":"abc","domain":".example.com"}]')
 ```
 
 Workflow: `observe(mode="operator")` → see elements → `act("click", "@e3")` → `observe` again.
@@ -56,70 +58,71 @@ cargo build --release -p agent-browser-server
 PORT=9883 ./target/release/agent-browser-server
 ```
 
-## 定位
+## Design Philosophy
 
-AI Agent 需要从互联网获取信息和执行操作，但不需要 CSS 渲染、可视化调试等面向人类的功能。
+AI Agents need to fetch information and perform actions on the web, but don't need CSS rendering, visual debugging, or other human-facing features.
 
-SiliconSurfer 让 AI 用**硅基生物的方式**看网页——5 种视觉模式，@e 元素引用，毫秒级响应。
+SiliconSurfer lets AI see the web **the silicon way** — 5 vision modes, @e element references, millisecond response times.
 
-## 双层架构
+## Two-Tier Architecture
 
-根据目标网页的复杂度，自动选择最优抓取策略：
+Automatically selects the optimal fetching strategy based on page complexity:
 
 ```
-             Agent / LLM 请求抓取
+              Agent / LLM request
                     │
                     ▼
             ┌──────────────┐
-            │  路由决策引擎   │
+            │ Routing Engine │
             └──┬────────┬──┘
                │        │
-       静态页面 │        │ 动态页面（SPA/JS 渲染/需要交互）
+     Static    │        │  Dynamic (SPA / JS-rendered / interactive)
                ▼        ▼
         ┌──────────┐  ┌─────────────────┐
-        │ T0: 轻量层 │  │ T1: 无头浏览器层  │
-        │ reqwest   │  │ Chromium + CDP  │
+        │ T0: Light │  │ T1: Headless     │
+        │ reqwest   │  │ Chromium + CDP   │
         └─────┬────┘  └───────┬─────────┘
               │               │
               ▼               ▼
         ┌─────────────────────────────┐
-        │      提炼器 (Distiller)      │
-        │  HTML → 干净 Markdown/JSON   │
+        │      Distiller               │
+        │  HTML → clean Markdown/JSON  │
         └─────────────────────────────┘
                     │
                     ▼
               Agent / LLM
 ```
 
-### T0：轻量层 — reqwest（静态页面）
+### T0: Lightweight — reqwest (static pages)
 
-纯 HTTP 请求，不启动浏览器。适用于：
+Pure HTTP requests, no browser. For:
 
-- 静态 HTML 页面、博客、文档站
-- 开放 API、RSS 源
-- 无 JS 渲染依赖的内容页
+- Static HTML pages, blogs, documentation sites
+- Open APIs, RSS feeds
+- Pages with no JS rendering dependencies
 
-特点：
-- 单机轻松数千并发
-- 内存占用极低（KB 级/请求）
-- 毫秒级响应
+Features:
+- Thousands of concurrent requests per machine
+- Minimal memory footprint (KB per request)
+- Millisecond response times
 
-### T1：无头浏览器层 — Chromium + CDP（动态页面）
+### T1: Headless Browser — Chromium + CDP (dynamic pages)
 
-启动极度阉割的 Chromium 内核，只保留 JS 引擎和 DOM 解析。适用于：
+Heavily stripped-down Chromium kernel, keeping only the JS engine and DOM parser. For:
 
-- SPA 单页应用（React/Vue/Angular）
-- 数据通过 AJAX/WebSocket 异步加载的页面
-- 需要登录、点击、表单交互的场景
-- 需要执行 JS 才能拿到内容的页面
+- SPA apps (React/Vue/Angular)
+- Pages that load data via AJAX/WebSocket
+- Login, click, form interaction scenarios
+- Pages requiring JS execution to render content
 
-特点：
-- 全局唯一守护进程，毫秒级创建/销毁隔离 Context
-- 拦截 CSS/图片/字体/媒体，只保留 JS 执行和 DOM 构建
-- 支持交互：导航、点击、表单填写、提交
-- BrowserSession 持久化：observe 和 act 共享同一个 Tab
+Features:
+- Single global daemon process, millisecond context creation/destruction
+- Intercepts CSS/images/fonts/media — only keeps JS execution and DOM
+- Supports interaction: navigate, click, fill forms, submit
+- Persistent BrowserSession: observe and act share the same tab
+- Cookie injection: skip login flows by injecting session cookies
 
-### 路由决策
+### Routing Logic
 
 ```rust
 match mode {
@@ -133,49 +136,49 @@ match mode {
 }
 ```
 
-## 提炼器 (Distiller)
+## Distiller
 
-两层架构的公共出口。无论 HTML 从哪条路径获取，都经过同一套清洗管线：
+The common exit point for both tiers. Regardless of how HTML is fetched, it goes through the same cleaning pipeline:
 
-1. **DOM 降噪**：剔除 `<nav>`、`<footer>`、`<script>`、`<style>`、广告容器
-2. **内容定位**：锁定 `<article>`、`<main>` 或主要内容 `<div>`
-3. **格式转换**：输出干净的 Markdown 或结构化 JSON
-4. **Token 压缩**：将数十万字符的原始 HTML 压缩为数百~数千 Token 的高密度文本
+1. **DOM noise removal**: strips `<nav>`, `<footer>`, `<script>`, `<style>`, ad containers
+2. **Content targeting**: locks onto `<article>`, `<main>`, or primary content `<div>`
+3. **Format conversion**: outputs clean Markdown or structured JSON
+4. **Token compression**: compresses hundreds of thousands of raw HTML chars into hundreds to thousands of high-density tokens
 
-双引擎：`scraper`（DOM AST）用于精确提取，`lol_html`（流式）用于高速批量处理（6.76ms/500KB）。
+Dual engine: `scraper` (DOM AST) for precise extraction, `lol_html` (streaming) for high-speed batch processing (6.76ms/500KB).
 
-## 技术选型
+## Tech Stack
 
-| 组件 | 选型 | 理由 |
-|------|------|------|
-| 语言 | Rust | 内存安全、零成本抽象、极致并发性能 |
-| 异步运行时 | tokio | Rust 生态事实标准 |
-| T0 HTTP 客户端 | reqwest | 极速请求，gzip/brotli/deflate |
-| T1 CDP 通信 | chromiumoxide | Rust 生态最成熟的 CDP 封装 |
-| HTML 解析 | scraper + lol_html | AST 精确提取 + 流式高速处理 |
-| 序列化 | serde + serde_json | 高性能 JSON/结构化输出 |
-| Python 桥接 | PyO3 | Rust → Python FFI，零网络开销 |
-| HTTP API | axum | 轻量 HTTP 服务端 |
+| Component | Choice | Rationale |
+|-----------|--------|-----------|
+| Language | Rust | Memory safety, zero-cost abstractions, extreme concurrency |
+| Async runtime | tokio | De facto standard in Rust ecosystem |
+| T0 HTTP client | reqwest | Fast requests, gzip/brotli/deflate |
+| T1 CDP | chromiumoxide | Most mature CDP wrapper in Rust |
+| HTML parsing | scraper + lol_html | AST precision + streaming speed |
+| Serialization | serde + serde_json | High-performance JSON output |
+| Python bridge | PyO3 | Rust → Python FFI, zero network overhead |
+| HTTP API | axum | Lightweight HTTP server |
 
 ## API
 
 ```bash
-# T0 抓取静态页面（返回 Markdown）
+# T0 fetch static page (returns Markdown)
 curl http://localhost:9883/fetch \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com"}'
 
-# 指定模式和引擎
+# Specify engine and distill mode
 curl http://localhost:9883/fetch \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "mode": "t1", "distill": "operator"}'
 
-# 直接蒸馏 HTML
+# Distill raw HTML directly
 curl http://localhost:9883/distill \
   -H "Content-Type: application/json" \
   -d '{"html": "<html>...</html>", "distill": "reader"}'
 
-# DOM 探针
+# DOM probe
 curl http://localhost:9883/probe \
   -H "Content-Type: application/json" \
   -d '{"url": "http://localhost:3000", "checks": [{"selector": "#app"}]}'
