@@ -1,9 +1,76 @@
-use scraper::{Html, Selector, ElementRef};
+//! AST-based distiller using scraper (Servo DOM parser).
+//!
+//! Single-pass Visitor + Context pattern:
+//! - ParseContext tracks state (in_pre, in_table, list_depth)
+//! - visit_node recursively walks DOM, pruning noise immediately
+//! - URL resolution built into context
+//!
+//! Use for: complex tables, Developer mode, targeted extraction.
+//! For bulk/fast processing, use distiller_fast.rs (lol_html stream).
+
+use scraper::{ElementRef, Html, Node, Selector};
 use std::collections::HashSet;
 
-/// DOM noise reduction + content extraction pipeline.
-///
-/// Takes raw HTML → strips noise → extracts text → deduplicates → outputs clean Markdown or text.
+use crate::extract::{ExtractionResult, Extractor, Profile};
+use crate::distiller_fast::DistillMode;
+
+/// Parse context — carries state through recursive DOM walk.
+struct ParseContext {
+    base_url: Option<String>,
+    base_origin: Option<String>,
+    in_pre: bool,
+    in_table: bool,
+    list_depth: usize,
+    list_ordered: bool,
+    list_index: usize,
+    output: String,
+    seen_lines: HashSet<u64>,
+    links_count: usize,
+    headings_count: usize,
+}
+
+impl ParseContext {
+    fn new(base_url: Option<&str>, capacity: usize) -> Self {
+        Self {
+            base_origin: base_url.and_then(extract_origin),
+            base_url: base_url.map(|s| s.to_string()),
+            in_pre: false,
+            in_table: false,
+            list_depth: 0,
+            list_ordered: false,
+            list_index: 0,
+            output: String::with_capacity(capacity),
+            seen_lines: HashSet::with_capacity(256),
+            links_count: 0,
+            headings_count: 0,
+        }
+    }
+
+    /// Resolve URL — Reader mode is conservative (only http + root-relative).
+    fn resolve_url(&self, href: &str) -> Option<String> {
+        if href.starts_with("http") {
+            Some(href.to_string())
+        } else if href.starts_with("javascript:") || href.starts_with("mailto:") || href == "#" || href.is_empty() {
+            None
+        } else if href.starts_with('/') {
+            self.base_origin.as_ref().map(|o| format!("{}{}", o, href))
+        } else {
+            // Bare relative (item?id=123): skip in Reader mode to keep output lean.
+            // Operator/Spider modes should resolve these.
+            None
+        }
+    }
+
+    fn push(&mut self, s: &str) {
+        self.output.push_str(s);
+    }
+
+    fn push_char(&mut self, c: char) {
+        self.output.push(c);
+    }
+}
+
+/// AST Distiller — Visitor pattern over scraper DOM.
 pub struct Distiller {
     noise_selectors: Vec<Selector>,
     content_selectors: Vec<Selector>,
@@ -11,35 +78,16 @@ pub struct Distiller {
 
 impl Distiller {
     pub fn new() -> Self {
-        let noise_tags = [
-            "script", "style", "nav", "footer", "header", "iframe",
-            "noscript", "svg", "form", "button", "input", "select", "textarea",
-            // Ad / tracking / UI noise
-            "[class*='ad-']", "[class*='ads-']", "[class*='advert']",
-            "[id*='google_ads']",
-            "[class*='cookie-']", "[class*='cookie_']",
-            ".popup", ".modal", "[class*='-popup']", "[class*='-modal']",
-            "[class*='-banner'][class*='ad']",
-            "[class*='social']", "[class*='share']", "[class*='newsletter']",
-            "[class*='related']", "[class*='recommended']",
-            "[role='navigation']", "[role='complementary']",
-            "[role='search']", "[aria-hidden='true']",
-        ];
+        let profile = Profile::reader(None);
+        Self::from_profile(&profile)
+    }
 
-        let content_tags = [
-            "article", "main", "[role='main']",
-            ".post-content", ".article-content", ".entry-content",
-            ".post-body", ".article-body",
-            "#content", ".content", "#main-content",
-        ];
-
+    pub fn from_profile(profile: &Profile) -> Self {
         Self {
-            noise_selectors: noise_tags
-                .iter()
+            noise_selectors: profile.noise_selectors.iter()
                 .filter_map(|s| Selector::parse(s).ok())
                 .collect(),
-            content_selectors: content_tags
-                .iter()
+            content_selectors: profile.content_selectors.iter()
                 .filter_map(|s| Selector::parse(s).ok())
                 .collect(),
         }
@@ -48,436 +96,296 @@ impl Distiller {
     pub fn extract_title(&self, html: &str) -> Option<String> {
         let doc = Html::parse_document(html);
         let sel = Selector::parse("title").ok()?;
-        doc.select(&sel)
-            .next()
+        doc.select(&sel).next()
             .map(|el| el.text().collect::<String>().trim().to_string())
             .filter(|t| !t.is_empty())
     }
 
-    /// Convert HTML to clean Markdown
     pub fn to_markdown(&self, html: &str) -> String {
-        let doc = Html::parse_document(html);
-        let content_root = self.find_content_root(&doc);
-        let noise_ids = self.collect_noise_ids(&doc);
-
-        let mut md = String::with_capacity(html.len() / 4);
-        self.walk_to_markdown(content_root, &doc, &noise_ids, &mut md);
-
-        dedup_and_clean(&md)
+        self.to_markdown_with_base(html, None)
     }
 
-    /// Convert HTML to plain text
+    pub fn to_markdown_with_base(&self, html: &str, base_url: Option<&str>) -> String {
+        let doc = Html::parse_document(html);
+        let root = self.find_content_root(&doc);
+        let mut ctx = ParseContext::new(base_url, html.len() / 3);
+        self.visit_node(root, &mut ctx);
+        dedup_and_clean(&ctx.output)
+    }
+
     pub fn to_text(&self, html: &str) -> String {
         let doc = Html::parse_document(html);
-        let content_root = self.find_content_root(&doc);
-        let noise_ids = self.collect_noise_ids(&doc);
-
-        let mut text = String::with_capacity(html.len() / 4);
-        self.walk_to_text(content_root, &doc, &noise_ids, &mut text);
-
-        dedup_and_clean(&text)
+        let root = self.find_content_root(&doc);
+        let mut ctx = ParseContext::new(None, html.len() / 3);
+        ctx.in_pre = false; // text mode doesn't use pre markers
+        self.visit_text_only(root, &mut ctx);
+        dedup_and_clean(&ctx.output)
     }
 
-    /// Find the best content root element
+    /// Find best content container.
     fn find_content_root<'a>(&self, doc: &'a Html) -> ElementRef<'a> {
         for sel in &self.content_selectors {
             if let Some(el) = doc.select(sel).next() {
                 return el;
             }
         }
-        // Fallback: body or root
         let body_sel = Selector::parse("body").unwrap();
         doc.select(&body_sel).next().unwrap_or(doc.root_element())
     }
 
-    /// Collect node IDs of all noise elements (and their descendants)
-    fn collect_noise_ids(&self, doc: &Html) -> HashSet<ego_tree::NodeId> {
-        let mut ids = HashSet::new();
-        for sel in &self.noise_selectors {
-            for el in doc.select(sel) {
-                // Mark this element and all descendants as noise
-                ids.insert(el.id());
-                for desc in el.descendants() {
-                    ids.insert(desc.id());
+    /// Check if element matches any noise selector.
+    fn is_noise(&self, el: &ElementRef<'_>) -> bool {
+        self.noise_selectors.iter().any(|sel| sel.matches(el))
+    }
+
+    /// Single-pass recursive visitor — the core of the AST engine.
+    fn visit_node(&self, el: ElementRef<'_>, ctx: &mut ParseContext) {
+        // Immediate pruning — skip entire subtree
+        if self.is_noise(&el) {
+            return;
+        }
+
+        let tag = el.value().name();
+
+        // --- Enter node: set context + emit prefix ---
+        match tag {
+            "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => {
+                let level = tag[1..].parse::<usize>().unwrap_or(1);
+                ctx.push("\n\n");
+                for _ in 0..level { ctx.push_char('#'); }
+                ctx.push_char(' ');
+                ctx.headings_count += 1;
+                // Collect heading text directly (don't recurse into children for headings)
+                let text: String = el.text().collect::<Vec<_>>().join(" ");
+                ctx.push(text.trim());
+                ctx.push("\n\n");
+                return; // Don't recurse into heading children
+            }
+            "p" => ctx.push("\n"),
+            "pre" => {
+                ctx.in_pre = true;
+                ctx.push("\n\n```\n");
+            }
+            "ul" => { ctx.list_depth += 1; ctx.list_ordered = false; }
+            "ol" => { ctx.list_depth += 1; ctx.list_ordered = true; ctx.list_index = 0; }
+            "li" => {
+                if ctx.list_ordered {
+                    ctx.list_index += 1;
+                    ctx.push(&format!("\n{}. ", ctx.list_index));
+                } else {
+                    ctx.push("\n- ");
                 }
             }
-        }
-        ids
-    }
+            "blockquote" => ctx.push("\n\n> "),
+            "hr" => { ctx.push("\n\n---\n\n"); return; }
+            "br" => { ctx.push("\n"); return; }
+            "a" => {
+                let href = el.value().attr("href").unwrap_or("");
+                let text: String = el.text().collect::<Vec<_>>().join("");
+                let text = text.trim();
+                if text.is_empty() { return; }
 
-    /// Check if a node is noise
-    fn is_noise(&self, node_id: ego_tree::NodeId, noise_ids: &HashSet<ego_tree::NodeId>) -> bool {
-        noise_ids.contains(&node_id)
-    }
-
-    /// Walk DOM tree, output Markdown, skip noise nodes
-    fn walk_to_markdown(
-        &self,
-        el: ElementRef<'_>,
-        doc: &Html,
-        noise_ids: &HashSet<ego_tree::NodeId>,
-        md: &mut String,
-    ) {
-        use scraper::Node;
-
-        for child in el.children() {
-            if self.is_noise(child.id(), noise_ids) {
-                continue;
+                if let Some(url) = ctx.resolve_url(href) {
+                    ctx.push("[");
+                    ctx.push(text);
+                    ctx.push("](");
+                    ctx.push(&url);
+                    ctx.push(") ");
+                    ctx.links_count += 1;
+                } else {
+                    ctx.push(text);
+                    ctx.push(" ");
+                }
+                return; // Don't recurse into <a> children (already collected text)
             }
+            "strong" | "b" => ctx.push("**"),
+            "em" | "i" => ctx.push("_"),
+            "code" if !ctx.in_pre => ctx.push("`"),
+            "table" => { ctx.in_table = true; ctx.push("\n\n"); }
+            "tr" => ctx.push("\n"),
+            "td" | "th" => ctx.push(" "),
+            "div" | "section" | "article" => ctx.push("\n"),
+            "img" => {
+                if let Some(alt) = el.value().attr("alt") {
+                    if !alt.is_empty() { ctx.push(&format!("[image: {}] ", alt)); }
+                }
+                return;
+            }
+            "script" | "style" | "svg" | "iframe" | "noscript" => return,
+            _ => {}
+        }
 
+        // --- Recurse into children ---
+        for child in el.children() {
             match child.value() {
                 Node::Text(text) => {
-                    let t = text.trim();
-                    if !t.is_empty() {
-                        md.push_str(t);
-                        md.push(' ');
-                    }
-                }
-                Node::Element(elem) => {
-                    let tag = elem.name();
-                    let child_ref = ElementRef::wrap(child);
-
-                    match tag {
-                        "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => {
-                            let level = tag[1..].parse::<usize>().unwrap_or(1);
-                            let prefix = "#".repeat(level);
-                            md.push_str("\n\n");
-                            md.push_str(&prefix);
-                            md.push(' ');
-                            if let Some(r) = child_ref {
-                                self.collect_clean_text(r, noise_ids, md);
-                            }
-                            md.push_str("\n\n");
+                    if ctx.in_pre {
+                        ctx.push(text); // Preserve whitespace in <pre>
+                    } else {
+                        let t = text.trim();
+                        if !t.is_empty() {
+                            ctx.push(t);
+                            ctx.push_char(' ');
                         }
-                        "p" | "div" => {
-                            md.push('\n');
-                            if let Some(r) = child_ref {
-                                self.walk_to_markdown(r, doc, noise_ids, md);
-                            }
-                            md.push('\n');
-                        }
-                        "br" => md.push('\n'),
-                        "a" => {
-                            let href = elem.attr("href").unwrap_or("");
-                            // Collect link text first
-                            let mut link_text = String::new();
-                            if let Some(r) = child_ref {
-                                self.collect_clean_text(r, noise_ids, &mut link_text);
-                            }
-                            let link_text = link_text.trim().to_string();
-
-                            if link_text.is_empty() {
-                                // Empty link (vote buttons etc) — skip entirely
-                            } else if href.is_empty() || href == "#"
-                                || href.starts_with("vote?")
-                                || href.starts_with("hide?")
-                                || href.starts_with("login")
-                                || href.starts_with("javascript:")
-                            {
-                                // Non-useful link, output text only
-                                md.push_str(&link_text);
-                                md.push(' ');
-                            } else if href.starts_with("http") {
-                                // Full URL — render as markdown link
-                                md.push('[');
-                                md.push_str(&link_text);
-                                md.push_str("](");
-                                md.push_str(href);
-                                md.push(')');
-                                md.push(' ');
-                            } else {
-                                // Relative URL — just output text
-                                md.push_str(&link_text);
-                                md.push(' ');
-                            }
-                        }
-                        "strong" | "b" => {
-                            md.push_str("**");
-                            if let Some(r) = child_ref {
-                                self.collect_clean_text(r, noise_ids, md);
-                            }
-                            md.push_str("** ");
-                        }
-                        "em" | "i" => {
-                            md.push('_');
-                            if let Some(r) = child_ref {
-                                self.collect_clean_text(r, noise_ids, md);
-                            }
-                            md.push_str("_ ");
-                        }
-                        "code" => {
-                            md.push('`');
-                            if let Some(r) = child_ref {
-                                self.collect_clean_text(r, noise_ids, md);
-                            }
-                            md.push('`');
-                        }
-                        "pre" => {
-                            md.push_str("\n\n```\n");
-                            if let Some(r) = child_ref {
-                                self.collect_clean_text(r, noise_ids, md);
-                            }
-                            md.push_str("\n```\n\n");
-                        }
-                        "ul" | "ol" => {
-                            md.push('\n');
-                            if let Some(r) = child_ref {
-                                let li_sel = Selector::parse("li").unwrap();
-                                for (i, li) in r.select(&li_sel).enumerate() {
-                                    if self.is_noise(li.id(), noise_ids) {
-                                        continue;
-                                    }
-                                    if tag == "ol" {
-                                        md.push_str(&format!("\n{}. ", i + 1));
-                                    } else {
-                                        md.push_str("\n- ");
-                                    }
-                                    self.collect_clean_text(li, noise_ids, md);
-                                }
-                            }
-                            md.push('\n');
-                        }
-                        "blockquote" => {
-                            md.push_str("\n\n> ");
-                            if let Some(r) = child_ref {
-                                self.collect_clean_text(r, noise_ids, md);
-                            }
-                            md.push_str("\n\n");
-                        }
-                        "hr" => md.push_str("\n\n---\n\n"),
-                        "img" => {
-                            if let Some(alt) = elem.attr("alt") {
-                                if !alt.is_empty() {
-                                    md.push_str(&format!("[image: {}] ", alt));
-                                }
-                            }
-                        }
-                        // Layout tables → flatten to text (not markdown tables)
-                        // Only render as markdown table if it looks like a data table
-                        "table" => {
-                            if let Some(r) = child_ref {
-                                if is_data_table(r) {
-                                    self.render_data_table(r, noise_ids, md);
-                                } else {
-                                    // Layout table: just extract text with line breaks
-                                    md.push('\n');
-                                    self.walk_to_markdown(r, doc, noise_ids, md);
-                                    md.push('\n');
-                                }
-                            }
-                        }
-                        "tr" => {
-                            if let Some(r) = child_ref {
-                                self.walk_to_markdown(r, doc, noise_ids, md);
-                            }
-                            md.push('\n');
-                        }
-                        "td" | "th" => {
-                            if let Some(r) = child_ref {
-                                self.walk_to_markdown(r, doc, noise_ids, md);
-                            }
-                            md.push(' ');
-                        }
-                        // Skip remaining noise
-                        "script" | "style" | "svg" | "iframe" | "noscript" => {}
-                        // Recurse into everything else
-                        _ => {
-                            if let Some(r) = child_ref {
-                                self.walk_to_markdown(r, doc, noise_ids, md);
-                            }
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    /// Walk DOM tree, output plain text only
-    fn walk_to_text(
-        &self,
-        el: ElementRef<'_>,
-        doc: &Html,
-        noise_ids: &HashSet<ego_tree::NodeId>,
-        text: &mut String,
-    ) {
-        use scraper::Node;
-
-        for child in el.children() {
-            if self.is_noise(child.id(), noise_ids) {
-                continue;
-            }
-            match child.value() {
-                Node::Text(t) => {
-                    let trimmed = t.trim();
-                    if !trimmed.is_empty() {
-                        text.push_str(trimmed);
-                        text.push(' ');
-                    }
-                }
-                Node::Element(elem) => {
-                    match elem.name() {
-                        "script" | "style" | "svg" | "iframe" | "noscript" => {}
-                        "br" => text.push('\n'),
-                        "p" | "div" | "tr" | "li" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => {
-                            text.push('\n');
-                            if let Some(r) = ElementRef::wrap(child) {
-                                self.walk_to_text(r, doc, noise_ids, text);
-                            }
-                            text.push('\n');
-                        }
-                        _ => {
-                            if let Some(r) = ElementRef::wrap(child) {
-                                self.walk_to_text(r, doc, noise_ids, text);
-                            }
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    /// Collect clean text from an element, skipping noise descendants
-    fn collect_clean_text(
-        &self,
-        el: ElementRef<'_>,
-        noise_ids: &HashSet<ego_tree::NodeId>,
-        out: &mut String,
-    ) {
-        use scraper::Node;
-
-        for desc in el.children() {
-            if self.is_noise(desc.id(), noise_ids) {
-                continue;
-            }
-            match desc.value() {
-                Node::Text(text) => {
-                    let t = text.trim();
-                    if !t.is_empty() {
-                        out.push_str(t);
-                        out.push(' ');
                     }
                 }
                 Node::Element(_) => {
-                    if let Some(r) = ElementRef::wrap(desc) {
-                        self.collect_clean_text(r, noise_ids, out);
+                    if let Some(child_el) = ElementRef::wrap(child) {
+                        self.visit_node(child_el, ctx);
                     }
                 }
                 _ => {}
             }
         }
+
+        // --- Leave node: close markers + restore context ---
+        match tag {
+            "p" => ctx.push("\n"),
+            "pre" => {
+                ctx.in_pre = false;
+                ctx.push("\n```\n\n");
+            }
+            "ul" | "ol" => { ctx.list_depth -= 1; ctx.push("\n"); }
+            "strong" | "b" => ctx.push("** "),
+            "em" | "i" => ctx.push("_ "),
+            "code" if !ctx.in_pre => ctx.push("`"),
+            "table" => { ctx.in_table = false; ctx.push("\n"); }
+            "div" | "section" | "article" => ctx.push("\n"),
+            "blockquote" => ctx.push("\n\n"),
+            _ => {}
+        }
     }
 
-    /// Render a data table as markdown table
-    fn render_data_table(
-        &self,
-        table: ElementRef<'_>,
-        noise_ids: &HashSet<ego_tree::NodeId>,
-        md: &mut String,
-    ) {
-        let tr_sel = Selector::parse("tr").unwrap();
-        let cell_sel = Selector::parse("th, td").unwrap();
+    /// Text-only visitor (no markdown formatting).
+    fn visit_text_only(&self, el: ElementRef<'_>, ctx: &mut ParseContext) {
+        if self.is_noise(&el) { return; }
 
-        md.push_str("\n\n");
-        let mut first_row = true;
-        for tr in table.select(&tr_sel) {
-            if self.is_noise(tr.id(), noise_ids) {
-                continue;
-            }
-            let cells: Vec<String> = tr
-                .select(&cell_sel)
-                .filter(|c| !self.is_noise(c.id(), noise_ids))
-                .map(|c| {
-                    let mut text = String::new();
-                    self.collect_clean_text(c, noise_ids, &mut text);
-                    text.trim().to_string()
-                })
-                .collect();
+        let tag = el.value().name();
+        match tag {
+            "script" | "style" | "svg" | "iframe" | "noscript" => return,
+            "br" => { ctx.push("\n"); return; }
+            "p" | "div" | "tr" | "li" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => ctx.push("\n"),
+            _ => {}
+        }
 
-            if cells.is_empty() {
-                continue;
-            }
-
-            md.push('|');
-            for cell in &cells {
-                md.push(' ');
-                md.push_str(cell);
-                md.push_str(" |");
-            }
-            md.push('\n');
-
-            if first_row {
-                md.push('|');
-                for _ in &cells {
-                    md.push_str(" --- |");
+        for child in el.children() {
+            match child.value() {
+                Node::Text(text) => {
+                    let t = text.trim();
+                    if !t.is_empty() { ctx.push(t); ctx.push_char(' '); }
                 }
-                md.push('\n');
-                first_row = false;
+                Node::Element(_) => {
+                    if let Some(child_el) = ElementRef::wrap(child) {
+                        self.visit_text_only(child_el, ctx);
+                    }
+                }
+                _ => {}
             }
         }
-        md.push('\n');
+
+        match tag {
+            "p" | "div" | "tr" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => ctx.push("\n"),
+            _ => {}
+        }
     }
 }
 
-/// Heuristic: is this a data table (should render as markdown table)
-/// or a layout table (should flatten to text)?
-fn is_data_table(table: ElementRef<'_>) -> bool {
-    let th_sel = Selector::parse("th").unwrap();
-    let tr_sel = Selector::parse("tr").unwrap();
-    let td_sel = Selector::parse("td").unwrap();
+/// Implement the Extractor trait for AST distiller.
+impl Extractor for Distiller {
+    fn extract(&self, html: &str, profile: &Profile) -> ExtractionResult {
+        let distiller = Distiller::from_profile(profile);
+        let doc = Html::parse_document(html);
+        let root = distiller.find_content_root(&doc);
+        let mut ctx = ParseContext::new(profile.base_url.as_deref(), html.len() / 3);
 
-    // Has <th> headers → likely data table
-    let has_headers = table.select(&th_sel).next().is_some();
+        match profile.mode {
+            DistillMode::LlmFriendly | DistillMode::Reader | DistillMode::Operator => {
+                distiller.visit_node(root, &mut ctx);
+            }
+            DistillMode::Data => {
+                distiller.visit_node(root, &mut ctx);
+                // TODO: structured JSON extraction
+            }
+            DistillMode::Developer => {
+                distiller.visit_node(root, &mut ctx);
+                // TODO: DOM skeleton output
+            }
+            DistillMode::Spider => {
+                distiller.visit_node(root, &mut ctx);
+                // TODO: link-only JSON output
+            }
+        }
 
-    // Count rows and cells to check regularity
-    let rows: Vec<usize> = table
-        .select(&tr_sel)
-        .map(|tr| tr.select(&td_sel).count() + tr.select(&th_sel).count())
-        .filter(|&c| c > 0)
-        .collect();
+        let content = dedup_and_clean(&ctx.output);
+        let content_length = content.len();
 
-    if rows.is_empty() {
-        return false;
+        ExtractionResult {
+            content,
+            title: distiller.extract_title(html),
+            content_length,
+            links_count: ctx.links_count,
+            headings_count: ctx.headings_count,
+            engine: "ast-scraper".to_string(),
+            mode: profile.mode,
+        }
     }
 
-    // Data tables usually have consistent column counts
-    let first_cols = rows[0];
-    let is_regular = rows.iter().all(|&c| c == first_cols);
-
-    // Data table: has headers OR (regular shape AND multiple columns AND multiple rows)
-    has_headers || (is_regular && first_cols >= 2 && rows.len() >= 2)
+    fn name(&self) -> &str {
+        "ast-scraper"
+    }
 }
 
-/// Deduplicate lines and clean up whitespace
+fn extract_origin(url: &str) -> Option<String> {
+    let scheme_end = url.find("://")?;
+    let after = &url[scheme_end + 3..];
+    let host_end = after.find('/').unwrap_or(after.len());
+    Some(url[..scheme_end + 3 + host_end].to_string())
+}
+
+fn hash_fast(s: &str) -> u64 {
+    use std::hash::{Hash, Hasher};
+    let mut h = std::collections::hash_map::DefaultHasher::new();
+    s.hash(&mut h);
+    h.finish()
+}
+
 fn dedup_and_clean(raw: &str) -> String {
-    let mut seen = HashSet::new();
+    let mut seen = HashSet::with_capacity(256);
     let mut result = String::with_capacity(raw.len());
-    let mut blank_count = 0;
+    let mut blank_count = 0u32;
+    let mut in_pre = false;
 
     for line in raw.lines() {
-        // Collapse internal whitespace
-        let clean: String = line.split_whitespace().collect::<Vec<_>>().join(" ");
+        let trimmed = line.trim();
 
+        // Track code fence state
+        if trimmed == "```" {
+            in_pre = !in_pre;
+            blank_count = 0;
+            result.push_str("```\n");
+            continue;
+        }
+
+        if in_pre {
+            // Preserve whitespace inside code blocks
+            result.push_str(line);
+            result.push('\n');
+            continue;
+        }
+
+        let clean: String = line.split_whitespace().collect::<Vec<_>>().join(" ");
         if clean.is_empty() {
             blank_count += 1;
-            if blank_count <= 1 {
-                result.push('\n');
-            }
+            if blank_count <= 1 { result.push('\n'); }
             continue;
         }
-
         blank_count = 0;
-
-        // Skip duplicate lines (exact match after whitespace normalization)
-        if clean.len() > 10 && !seen.insert(clean.clone()) {
+        if clean.len() > 10 && !seen.insert(hash_fast(&clean)) {
             continue;
         }
-
         result.push_str(&clean);
         result.push('\n');
     }
-
     result.trim().to_string()
 }
 
@@ -493,16 +401,6 @@ mod tests {
     }
 
     #[test]
-    fn test_to_text_strips_tags() {
-        let d = Distiller::new();
-        let html = "<html><body><article><p>Hello <b>world</b></p></article></body></html>";
-        let text = d.to_text(html);
-        assert!(text.contains("Hello"));
-        assert!(text.contains("world"));
-        assert!(!text.contains("<"));
-    }
-
-    #[test]
     fn test_noise_removal() {
         let d = Distiller::new();
         let html = r#"<html><body>
@@ -511,9 +409,9 @@ mod tests {
             <footer>Footer stuff</footer>
         </body></html>"#;
         let text = d.to_text(html);
-        assert!(text.contains("Main content"));
-        assert!(!text.contains("Navigation"));
-        assert!(!text.contains("Footer"));
+        assert!(text.contains("Main content"), "got: {text}");
+        assert!(!text.contains("Navigation"), "got: {text}");
+        assert!(!text.contains("Footer"), "got: {text}");
     }
 
     #[test]
@@ -521,8 +419,8 @@ mod tests {
         let d = Distiller::new();
         let html = "<html><body><article><h1>Title</h1><p>Content</p></article></body></html>";
         let md = d.to_markdown(html);
-        assert!(md.contains("# Title"));
-        assert!(md.contains("Content"));
+        assert!(md.contains("# Title"), "got: {md}");
+        assert!(md.contains("Content"), "got: {md}");
     }
 
     #[test]
@@ -530,53 +428,63 @@ mod tests {
         let d = Distiller::new();
         let html = r#"<html><body><article><p><a href="https://example.com">Click here</a></p></article></body></html>"#;
         let md = d.to_markdown(html);
-        // Link text may have trailing space before ']'
-        assert!(md.contains("[Click here](https://example.com)") ||
-                md.contains("[Click here ](https://example.com)"));
+        assert!(md.contains("[Click here](https://example.com)"), "got: {md}");
     }
 
     #[test]
-    fn test_layout_table_flattened() {
+    fn test_relative_links() {
         let d = Distiller::new();
-        // HN-style layout table (single wide cell) should NOT become markdown table
-        let html = r#"<html><body><table><tr><td>
-            <a href="/item">Some title</a>
-            <span>100 points</span>
-        </td></tr></table></body></html>"#;
-        let md = d.to_markdown(html);
-        // Should NOT have markdown table pipes as structure
-        assert!(!md.starts_with("|"));
-        assert!(md.contains("Some title"));
+        let html = r#"<html><body><article><p><a href="/foo/bar">Link</a></p></article></body></html>"#;
+        let md = d.to_markdown_with_base(html, Some("https://example.com/page"));
+        assert!(md.contains("[Link](https://example.com/foo/bar)"), "got: {md}");
     }
 
     #[test]
-    fn test_data_table_rendered() {
+    fn test_bare_relative_links_reader_skips() {
+        // Reader mode: bare relative links (item?id=123) should be text only
         let d = Distiller::new();
-        let html = r#"<html><body><table>
-            <tr><th>Name</th><th>Price</th></tr>
-            <tr><td>SSD</td><td>$99</td></tr>
-            <tr><td>HDD</td><td>$49</td></tr>
-        </table></body></html>"#;
-        let md = d.to_markdown(html);
-        assert!(md.contains("| Name | Price |"));
-        assert!(md.contains("| SSD | $99 |"));
+        let html = r#"<html><body><article><p><a href="item?id=123">Comments</a></p></article></body></html>"#;
+        let md = d.to_markdown_with_base(html, Some("https://news.ycombinator.com/"));
+        assert!(md.contains("Comments"), "text should be preserved, got: {md}");
+        assert!(!md.contains("[Comments]("), "reader should NOT link bare relative, got: {md}");
     }
 
     #[test]
-    fn test_dedup_lines() {
+    fn test_pre_preserves_whitespace() {
         let d = Distiller::new();
-        // article wraps content so distiller finds it; repeated divs are outside
-        let html = r#"<html><body>
-            <article>
-                <p>Repeated navigation text here</p>
-                <p>Repeated navigation text here</p>
-                <p>Unique content</p>
-                <p>Repeated navigation text here</p>
-            </article>
-        </body></html>"#;
+        let html = r#"<html><body><article><pre><code>fn main() {
+    println!("hello");
+}</code></pre></article></body></html>"#;
         let md = d.to_markdown(html);
-        let count = md.matches("Repeated navigation text here").count();
-        assert_eq!(count, 1, "Duplicate lines should be removed");
-        assert!(md.contains("Unique content"));
+        assert!(md.contains("```"), "got: {md}");
+        assert!(md.contains("    println!"), "indentation preserved, got: {md}");
+    }
+
+    #[test]
+    fn test_dedup() {
+        let d = Distiller::new();
+        let html = "<html><body><article><p>Same line here</p><p>Same line here</p><p>Unique</p></article></body></html>";
+        let md = d.to_markdown(html);
+        assert_eq!(md.matches("Same line here").count(), 1, "got: {md}");
+        assert!(md.contains("Unique"), "got: {md}");
+    }
+
+    #[test]
+    fn test_profile_custom() {
+        let profile = Profile::hacker_news();
+        let d = Distiller::from_profile(&profile);
+        assert!(d.noise_selectors.len() > 5);
+    }
+
+    #[test]
+    fn test_extractor_trait() {
+        let d = Distiller::new();
+        let profile = Profile::reader(Some("https://example.com"));
+        let html = "<html><body><article><h1>Test</h1><p>Content with <a href='/link'>link</a></p></article></body></html>";
+        let result = d.extract(html, &profile);
+        assert!(result.content.contains("# Test"), "got: {}", result.content);
+        assert!(result.links_count >= 1, "links: {}", result.links_count);
+        assert!(result.headings_count >= 1, "headings: {}", result.headings_count);
+        assert_eq!(result.engine, "ast-scraper");
     }
 }

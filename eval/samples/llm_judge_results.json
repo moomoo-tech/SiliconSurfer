@@ -7,10 +7,10 @@
     "hallucination": false,
     "actionability": 1.0,
     "detail": "grounded=3/3 actionable=3/3 hallucinated=[]",
-    "prompt_tokens": 2053,
-    "output_tokens": 94,
-    "elapsed_ms": 1492.227125010686,
-    "response_preview": "[\n  \"https://piechowski.io/post/git-commands-before-reading-code/\",\n  \"https://bryankeller.github.io/2026/04/08/porting-mac-os-x-nintendo-wii.html\",\n  \"http://www.terrybisson.com/theyre-made-out-of-me"
+    "prompt_tokens": 2034,
+    "output_tokens": 48,
+    "elapsed_ms": 1216.4725829934468,
+    "response_preview": "[\n  \"https://getsession.org/donate\",\n  \"https://cssstudio.ai\",\n  \"https://obdev.at/products/littlesnitch-linux/index.html\"\n]"
   },
   {
     "test": "HN: Extract top 3 URLs (strict)",
@@ -20,10 +20,10 @@
     "hallucination": false,
     "actionability": 1.0,
     "detail": "grounded=3/3 actionable=3/3 hallucinated=[]",
-    "prompt_tokens": 2107,
-    "output_tokens": 77,
-    "elapsed_ms": 1159.430625004461,
-    "response_preview": "[\n  \"https://obdev.at/products/littlesnitch-linux/index.html\",\n  \"https://cssstudio.ai\",\n  \"https://bryankeller.github.io/2026/04/08/porting-mac-os-x-nintendo-wii.html\"\n]"
+    "prompt_tokens": 2085,
+    "output_tokens": 48,
+    "elapsed_ms": 1244.3231670040404,
+    "response_preview": "[\n  \"https://getsession.org/donate\",\n  \"https://cssstudio.ai\",\n  \"https://obdev.at/products/littlesnitch-linux/index.html\"\n]"
   },
   {
     "test": "HN: Extract top 3 URLs (strict)",
@@ -33,10 +33,10 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "grounded=3/3 actionable=0/3 hallucinated=[]",
-    "prompt_tokens": 1631,
-    "output_tokens": 30,
-    "elapsed_ms": 950.4221660026815,
-    "response_preview": "[\n  \"obdev.at\",\n  \"cssstudio.ai\",\n  \"bryankeller.github.io\"\n]"
+    "prompt_tokens": 1624,
+    "output_tokens": 27,
+    "elapsed_ms": 1762.3029999958817,
+    "response_preview": "[\n  \"getsession.org\",\n  \"cssstudio.ai\",\n  \"obdev.at\"\n]"
   },
   {
     "test": "HN: Extract top 3 URLs (strict)",
@@ -46,10 +46,10 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "grounded=3/3 actionable=0/3 hallucinated=[]",
-    "prompt_tokens": 1510,
-    "output_tokens": 30,
-    "elapsed_ms": 1015.468375000637,
-    "response_preview": "[\n  \"obdev.at\",\n  \"cssstudio.ai\",\n  \"bryankeller.github.io\"\n]"
+    "prompt_tokens": 1501,
+    "output_tokens": 27,
+    "elapsed_ms": 3171.522124990588,
+    "response_preview": "[\n  \"getsession.org\",\n  \"cssstudio.ai\",\n  \"obdev.at\"\n]"
   },
   {
     "test": "HN: Find comment URL (strict)",
@@ -59,9 +59,9 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "Correctly reported MISSING",
-    "prompt_tokens": 2049,
+    "prompt_tokens": 2030,
     "output_tokens": 2,
-    "elapsed_ms": 1019.8450419993605,
+    "elapsed_ms": 913.7999579979805,
     "response_preview": "MISSING"
   },
   {
@@ -72,9 +72,9 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "Correctly reported MISSING",
-    "prompt_tokens": 2103,
+    "prompt_tokens": 2081,
     "output_tokens": 2,
-    "elapsed_ms": 1028.3074579929234,
+    "elapsed_ms": 1212.4251249915687,
     "response_preview": "MISSING"
   },
   {
@@ -85,9 +85,9 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "Correctly reported MISSING",
-    "prompt_tokens": 1627,
+    "prompt_tokens": 1620,
     "output_tokens": 2,
-    "elapsed_ms": 1024.439375003567,
+    "elapsed_ms": 1076.6052920080256,
     "response_preview": "MISSING"
   },
   {
@@ -98,36 +98,36 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "Correctly reported MISSING",
-    "prompt_tokens": 1506,
+    "prompt_tokens": 1497,
     "output_tokens": 2,
-    "elapsed_ms": 1743.2687079999596,
+    "elapsed_ms": 1188.2541670056526,
     "response_preview": "MISSING"
   },
   {
     "test": "Example: Summarize page",
     "tool": "our_scraper",
-    "task_pass": true,
-    "faithfulness": 1.0,
-    "hallucination": false,
-    "actionability": 0.0,
-    "detail": "Summary contains key terms",
-    "prompt_tokens": 49,
-    "output_tokens": 19,
-    "elapsed_ms": 1747.3668340098811,
-    "response_preview": "This webpage serves as an example domain intended for use in documentation and educational materials without requiring permission."
-  },
-  {
-    "test": "Example: Summarize page",
-    "tool": "our_lol_html",
     "task_pass": false,
     "faithfulness": 0.5,
     "hallucination": false,
     "actionability": 0.0,
     "detail": "Missing key terms",
     "prompt_tokens": 49,
-    "output_tokens": 18,
-    "elapsed_ms": 1462.4517500051297,
-    "response_preview": "This website serves as a reserved domain intended exclusively for illustrative documentation purposes rather than operational use."
+    "output_tokens": 15,
+    "elapsed_ms": 1386.2902499968186,
+    "response_preview": "This website serves as a reserved domain intended strictly for illustrative purposes in documentation."
+  },
+  {
+    "test": "Example: Summarize page",
+    "tool": "our_lol_html",
+    "task_pass": true,
+    "faithfulness": 1.0,
+    "hallucination": false,
+    "actionability": 0.0,
+    "detail": "Summary contains key terms",
+    "prompt_tokens": 49,
+    "output_tokens": 21,
+    "elapsed_ms": 973.4918750036741,
+    "response_preview": "This webpage serves as an example domain intended for use in documentation and should not be used for actual operations."
   },
   {
     "test": "Example: Summarize page",
@@ -138,9 +138,9 @@
     "actionability": 0.0,
     "detail": "Summary contains key terms",
     "prompt_tokens": 33,
-    "output_tokens": 18,
-    "elapsed_ms": 1654.016833010246,
-    "response_preview": "This domain is reserved for use in documentation examples and should not be used for operational purposes."
+    "output_tokens": 17,
+    "elapsed_ms": 1415.541915994254,
+    "response_preview": "This domain is reserved specifically for use in documentation examples to avoid the need for permission."
   },
   {
     "test": "Example: Summarize page",
@@ -151,9 +151,9 @@
     "actionability": 0.0,
     "detail": "Summary contains key terms",
     "prompt_tokens": 36,
-    "output_tokens": 19,
-    "elapsed_ms": 1360.4237499966985,
-    "response_preview": "This webpage serves as an example domain intended for use in documentation to avoid the need for permission."
+    "output_tokens": 18,
+    "elapsed_ms": 1011.7481249908451,
+    "response_preview": "This domain is reserved for use in documentation examples and should not be used for operational purposes."
   },
   {
     "test": "GitHub: Extract repo info",
@@ -163,9 +163,9 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "json=True nickel=True",
-    "prompt_tokens": 685,
+    "prompt_tokens": 705,
     "output_tokens": 48,
-    "elapsed_ms": 1289.1820000077132,
+    "elapsed_ms": 1346.5489999944111,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
@@ -178,7 +178,7 @@
     "detail": "json=True nickel=True",
     "prompt_tokens": 1708,
     "output_tokens": 48,
-    "elapsed_ms": 1616.2436250015162,
+    "elapsed_ms": 1409.3011660006596,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
@@ -191,7 +191,7 @@
     "detail": "json=True nickel=True",
     "prompt_tokens": 672,
     "output_tokens": 48,
-    "elapsed_ms": 1241.401457999018,
+    "elapsed_ms": 3465.609457998653,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
@@ -204,7 +204,7 @@
     "detail": "json=True nickel=True",
     "prompt_tokens": 1456,
     "output_tokens": 48,
-    "elapsed_ms": 1373.4434580110246,
+    "elapsed_ms": 1506.2784999900032,
     "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
   },
   {
@@ -215,10 +215,10 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "json=True function=True",
-    "prompt_tokens": 2053,
-    "output_tokens": 24,
-    "elapsed_ms": 1442.8799169982085,
-    "response_preview": "```json\n{\"example\": \"function square(number) {\\nreturn number * number;\\n}\"}\n```"
+    "prompt_tokens": 2141,
+    "output_tokens": 29,
+    "elapsed_ms": 1055.0563330034493,
+    "response_preview": "```json\n{\n  \"example\": \"function square(number) {\\n  return number * number;\\n}\"\n}\n```"
   },
   {
     "test": "MDN: Extract function syntax",
@@ -230,7 +230,7 @@
     "detail": "json=True function=True",
     "prompt_tokens": 2177,
     "output_tokens": 25,
-    "elapsed_ms": 1039.0982499957317,
+    "elapsed_ms": 1001.8992090044776,
     "response_preview": "```json\n{\"example\": \"function square(number) {\\n  return number * number;\\n}\"}\n```"
   },
   {
@@ -243,7 +243,7 @@
     "detail": "json=True function=True",
     "prompt_tokens": 2080,
     "output_tokens": 24,
-    "elapsed_ms": 1152.0637920039007,
+    "elapsed_ms": 1066.7937499965774,
     "response_preview": "```json\n{\"example\": \"function square(number) {\\nreturn number * number;\\n}\"}\n```"
   },
   {
@@ -256,21 +256,21 @@
     "detail": "json=True function=True",
     "prompt_tokens": 1998,
     "output_tokens": 25,
-    "elapsed_ms": 1247.5771250028629,
+    "elapsed_ms": 1064.2946669977391,
     "response_preview": "```json\n{\"example\": \"function square(number) {\\n  return number * number;\\n}\"}\n```"
   },
   {
     "test": "Python.org: Extract event",
     "tool": "our_scraper",
-    "task_pass": true,
+    "task_pass": false,
     "faithfulness": 1.0,
     "hallucination": false,
     "actionability": 0.0,
-    "detail": "json=True",
-    "prompt_tokens": 819,
-    "output_tokens": 53,
-    "elapsed_ms": 1878.3565839985386,
-    "response_preview": "```json\n[\n  {\n    \"event\": \"PyCon US 2026\",\n    \"url\": \"https://us.pycon.org/2026/attend/information/\"\n  }\n]\n```"
+    "detail": "json=False",
+    "prompt_tokens": 1619,
+    "output_tokens": 230,
+    "elapsed_ms": 1759.3859159969725,
+    "response_preview": "[\n  {\"event\": \"PyCon US\", \"url\": \"https://us.pycon.org/2026/attend/information/\"},\n  {\"event\": \"PyCon DE & PyData 2026\", \"url\": \"https://www.python.org/events/python-events/2102/\"},\n  {\"event\": \"Djang"
   },
   {
     "test": "Python.org: Extract event",
@@ -280,9 +280,9 @@
     "hallucination": false,
     "actionability": 0.0,
     "detail": "json=False",
-    "prompt_tokens": 1683,
+    "prompt_tokens": 1678,
     "output_tokens": 282,
-    "elapsed_ms": 2333.45270800055,
+    "elapsed_ms": 2319.484082996496,
     "response_preview": "```json\n[\n  {\n    \"event\": \"PyCon US 2026\",\n    \"url\": \"https://us.pycon.org/2026/attend/information/\"\n  },\n  {\n    \"event\": \"PyCon DE & PyData 2026\",\n    \"url\": \"https://www.python.org/events/python-"
   },
   {
@@ -293,22 +293,22 @@
     "hallucination": false,
     "actionability": 1.0,
     "detail": "json=True",
-    "prompt_tokens": 785,
-    "output_tokens": 42,
-    "elapsed_ms": 1335.213415994076,
-    "response_preview": "```json\n{\n  \"event\": \"PyCon US\",\n  \"url\": \"https://us.pycon.org/2026/attend/information/\"\n}\n```"
+    "prompt_tokens": 819,
+    "output_tokens": 47,
+    "elapsed_ms": 1309.8026250081602,
+    "response_preview": "```json\n{\n  \"event\": \"PyCon US 2026\",\n  \"url\": \"https://us.pycon.org/2026/attend/information/\"\n}\n```"
   },
   {
     "test": "Python.org: Extract event",
     "tool": "playwright",
-    "task_pass": false,
+    "task_pass": true,
     "faithfulness": 1.0,
     "hallucination": false,
     "actionability": 0.0,
-    "detail": "json=False",
-    "prompt_tokens": 1964,
-    "output_tokens": 167,
-    "elapsed_ms": 1875.6242079980439,
-    "response_preview": "```json\n[\n  {\n    \"event\": \"PyCon US 2026\",\n    \"url\": null\n  },\n  {\n    \"event\": \"PyCon DE & PyData 2026\",\n    \"url\": null\n  },\n  {\n    \"event\": \"DjangoCon Europe 2026\",\n    \"url\": null\n  },\n  {\n    "
+    "detail": "json=True",
+    "prompt_tokens": 1954,
+    "output_tokens": 41,
+    "elapsed_ms": 1236.9811670068884,
+    "response_preview": "```json\n[\n  {\n    \"event\": \"PyCon US 2026\",\n    \"url\": \"REGISTER FOR PYCON US!\"\n  }\n]\n```"
   }
 ]

@@ -12,10 +12,13 @@ use serde::{Deserialize, Serialize};
 
 /// Distiller output mode
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum DistillMode {
-    /// Extreme noise removal, clean markdown for content understanding
+    /// Default for LLM: extreme noise removal + token compression + base_url links
+    /// Uses lol_html stream engine. Conservative link policy (http + /path only).
     #[default]
+    LlmFriendly,
+    /// Same as LlmFriendly but with less noise removal (keeps more structure)
     Reader,
     /// Preserve UI elements, annotate actionable nodes for interaction
     Operator,
@@ -41,7 +44,7 @@ impl FastDistiller {
     /// Distill HTML with the specified mode.
     pub fn distill(html: &str, mode: DistillMode, base_url: Option<&str>) -> String {
         match mode {
-            DistillMode::Reader => Self::mode_reader(html, base_url),
+            DistillMode::LlmFriendly | DistillMode::Reader => Self::mode_reader(html, base_url),
             DistillMode::Operator => Self::mode_operator(html, base_url),
             DistillMode::Spider => Self::mode_spider(html, base_url),
             DistillMode::Developer => Self::mode_developer(html),

@@ -1,6 +1,6 @@
 # The Future of Everything is Lies, I Guess
 
-Software LLM The Future of Everything is Lies I Guess
+[Software](https://aphyr.com/tags/software) [LLM](https://aphyr.com/tags/llm) [The Future of Everything is Lies I Guess](https://aphyr.com/tags/the-future-of-everything-is-lies-i-guess)
 2026-04-06
 
 Table of Contents
@@ -298,35 +298,49 @@ Buckle up.
 
 ---
 
-1. The term “Artificial Intelligence” is both over-broad and carries
+1.
+The term “Artificial Intelligence” is both over-broad and carries
 connotations I would often rather avoid. In this work I try to use “ML” or
 “LLM” for specificity. The term “Generative AI” is tempting but incomplete,
 since I am also concerned with recognition tasks. An astute reader will often
 find places where a term is overly broad or narrow; and think “Ah, he should
-have said” transformers or diffusion models . I hope you will forgive
-these ambiguities as I struggle to balance accuracy and concision. ↩
-2. Think of how many stories have been written about AI. Those stories,
+have said” _transformers _ or _diffusion models _ . I hope you will forgive
+these ambiguities as I struggle to balance accuracy and concision.
+↩
+2.
+Think of how many stories have been written about AI. Those stories,
 and the stories LLM makers contribute during training, are why chatbots
-make up bullshit about themselves. ↩
-3. Arguably, neither do we. ↩
-4. One common reaction to hearing that an LLM did something idiotic is
+make up bullshit about themselves.
+↩
+3.
+Arguably, neither do we.
+↩
+4.
+One common reaction to hearing that an LLM did something idiotic is
 to discount the evidence. “You didn’t prompt it correctly.” “You weren’t
 using the most sophisticated model.” “Models are so much better than they were
 three months ago.” This is silly. These comments were de rigueur on Hacker News
-two years ago; if the frontier models weren’t idiots then , they shouldn’t be
-idiots now . The examples I give in this essay are mainly from major
+two years ago; if the frontier models weren’t idiots _then _ , they shouldn’t be
+idiots _now _ . The examples I give in this essay are mainly from major
 commercial models (e.g. ChatGPT GPT-5.4, Gemini 3.1 Pro, or Claude Opus 4.6)
 in the last three months; several are from late March. Several of them come from experienced
 software engineers who use LLMs professionally in their work. Modern ML models
 are astonishingly capable, and they are also blithering idiots. This should
-not be even slightly controversial. ↩
-5. The technical term for this is “erasure coding”. ↩
-6. There’s some version of Hanlon’s razor here—perhaps “Never
+not be even slightly controversial.
+↩
+5.
+The technical term for this is “erasure coding”.
+↩
+6.
+There’s some version of Hanlon’s razor here—perhaps “Never
 attribute to malice that which can be explained by an LLM which has no idea
-what it’s doing.” ↩
-7. Pash thinks this occurred because his LLM failed to properly
+what it’s doing.”
+↩
+7.
+Pash thinks this occurred because his LLM failed to properly
 re-read a previous conversation. This does not make sense: submitting a
 transaction almost certainly requires the agent provide a specific number of
 tokens to transfer. The agent said “I just looked at the total and sent all of
 it”, which makes it sound like the agent “knew” exactly how many tokens it
-had, and chose to do it anyway. ↩
+had, and chose to do it anyway.
+↩

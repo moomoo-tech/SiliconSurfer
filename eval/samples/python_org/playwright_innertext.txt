@@ -199,9 +199,9 @@ Success Stories
 
 More
 
-Prioritizing cutting-edge speed and supporting the rapid growth of Hudson River Trading’s codebase can have unintended effects that require innovative solutions. For those working on our Python codebase, this means addressing “code tangling,” the coupling of unrelated code through unintuitive import cycles. In this article, George Farcasiu, Noah Kim, Jacob Brugh, and Jiahao Li discuss how they mitigate the cost and time burden of this issue by creating new tools to analyze and untangle dependencies efficiently.
+Maintaining our ever-evolving Python codebase poses an intricate challenge: how do we make updates to reflect the changing rules and regulations of 200+ global markets without compromising access to the systems that our engineers and traders use on a daily basis? While an inner layer of shared business logic enables coherency in our codebase performance, it also means small regulatory changes can impact many systems. In this article, Python Engineer John Lekberg details how we use Python type annotations to minimize the time and risk involved in manual verification.
 
-Building a Dependency Graph of Our Python Codebase by George Farcasiu, Noah Kim, Jacon Brugh, Jiahao Li
+Building Robust Codebases with Python's Type Annotations by John Lekberg
 
 Use Python for…
 

@@ -74,9 +74,11 @@ Looking for work or have a Python related position that you're trying to hire fo
 
 [More](https://www.python.org/success-stories/)
 
-[Prioritizing cutting-edge speed and supporting the rapid growth of Hudson River Trading’s codebase can have unintended effects that require innovative solutions. For those working on our Python codebase, this means addressing “code tangling,” the coupling of unrelated code through unintuitive import cycles. In this article, George Farcasiu, Noah Kim, Jacob Brugh, and Jiahao Li discuss how they mitigate the cost and time burden of this issue by creating new tools to analyze and untangle dependencies efficiently.](https://www.python.org/success-stories/building-a-dependency-graph-of-our-python-codebase/)
+[Maintaining our ever-evolving Python codebase poses an intricate challenge: how do we make updates to reflect the changing rules and regulations of 200+ global markets without compromising access to the systems that our engineers and traders use on a daily basis? While an inner layer of shared business logic enables coherency in our codebase performance, it also means small regulatory changes can impact many systems.
 
-[Building a Dependency Graph of Our Python Codebase](https://www.python.org/success-stories/building-a-dependency-graph-of-our-python-codebase/) _by George Farcasiu, Noah Kim, Jacon Brugh, Jiahao Li_
+In this article, Python Engineer John Lekberg details how we use Python type annotations to minimize the time and risk involved in manual verification.](https://www.python.org/success-stories/building-robust-codebases-with-pythons-type-annotations/)
+
+[Building Robust Codebases with Python&#x27;s Type Annotations](https://www.python.org/success-stories/building-robust-codebases-with-pythons-type-annotations/) _by John Lekberg_
 
 ## Use Python for…
 

@@ -1,5 +1,5 @@
-[REGISTER FOR PYCON US!](https://us.pycon.org/2026/attend/information/)
-Get Started
+Join us in Long Beach, CA starting May 13, 2026. Grab your ticket and discounted hotel today before they’re gone!
+[REGISTER FOR PYCON US!](https://us.pycon.org/2026/attend/information/)Get Started
 Whether you're new to programming or an experienced developer, it's easy to learn and use Python.
 Download
 Python source code and installers are available for download for all versions!
@@ -9,7 +9,7 @@ Documentation for Python's standard library, along with tutorials and guides, ar
 Jobs
 Looking for work or have a Python related position that you're trying to hire for? Our relaunched community-run job board is the place to go.
 Success Stories
-[Prioritizing cutting-edge speed and supporting the rapid growth of Hudson River Trading’s codebase can have unintended effects that require innovative solutions. For those working on our Python codebase, this means addressing “code tangling,” the coupling of unrelated code through unintuitive import cycles. In this article, George Farcasiu, Noah Kim, Jacob Brugh, and Jiahao Li discuss how they mitigate the cost and time burden of this issue by creating new tools to analyze and untangle dependencies efficiently.]
+[Maintaining our ever-evolving Python codebase poses an intricate challenge: how do we make updates to reflect the changing rules and regulations of 200+ global markets without compromising access to the systems that our engineers and traders use on a daily basis? While an inner layer of shared business logic enables coherency in our codebase performance, it also means small regulatory changes can impact many systems. In this article, Python Engineer John Lekberg details how we use Python type annotations to minimize the time and risk involved in manual verification.]
 |
 Use Python for…
 - Web Development:

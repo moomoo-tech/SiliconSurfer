@@ -100,7 +100,7 @@ impl Fetcher {
             let title = self.distiller.extract_title(&raw_html);
             let content = match opts.output.as_str() {
                 "text" => self.distiller.to_text(&raw_html),
-                _ => self.distiller.to_markdown(&raw_html),
+                _ => self.distiller.to_markdown_with_base(&raw_html, Some(&opts.url)),
             };
             (title, content)
         };

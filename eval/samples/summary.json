@@ -10,17 +10,17 @@
   },
   "hn": {
     "url": "https://news.ycombinator.com/",
-    "raw_html_chars": 34447,
-    "our_scraper_chars": 5714,
-    "our_lol_html_chars": 5713,
-    "trafilatura_chars": 3856,
-    "readability_js_chars": 3587,
-    "playwright_innertext_chars": 3930
+    "raw_html_chars": 34503,
+    "our_scraper_chars": 5686,
+    "our_lol_html_chars": 5678,
+    "trafilatura_chars": 3838,
+    "readability_js_chars": 3567,
+    "playwright_innertext_chars": 3910
   },
   "wikipedia": {
     "url": "https://en.wikipedia.org/wiki/Rust_(programming_language)",
     "raw_html_chars": 126,
-    "our_scraper_chars": 77023,
+    "our_scraper_chars": 134465,
     "our_lol_html_chars": 134459,
     "trafilatura_chars": 0,
     "readability_js_chars": 71095,
@@ -28,17 +28,17 @@
   },
   "python_org": {
     "url": "https://www.python.org/",
-    "raw_html_chars": 49471,
-    "our_scraper_chars": 2698,
-    "our_lol_html_chars": 4992,
-    "trafilatura_chars": 2725,
+    "raw_html_chars": 49514,
+    "our_scraper_chars": 4812,
+    "our_lol_html_chars": 5027,
+    "trafilatura_chars": 2894,
     "readability_js_chars": 2657,
-    "playwright_innertext_chars": 7054
+    "playwright_innertext_chars": 7079
   },
   "blog": {
     "url": "https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess",
     "raw_html_chars": 40987,
-    "our_scraper_chars": 20835,
+    "our_scraper_chars": 20979,
     "our_lol_html_chars": 25513,
     "trafilatura_chars": 20809,
     "readability_js_chars": 15905,
@@ -46,8 +46,8 @@
   },
   "github": {
     "url": "https://github.com/nickel-org/nickel.rs",
-    "raw_html_chars": 294250,
-    "our_scraper_chars": 2183,
+    "raw_html_chars": 294248,
+    "our_scraper_chars": 2232,
     "our_lol_html_chars": 5265,
     "trafilatura_chars": 2079,
     "readability_js_chars": 1741,
@@ -56,7 +56,7 @@
   "mdn": {
     "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions",
     "raw_html_chars": 219766,
-    "our_scraper_chars": 23943,
+    "our_scraper_chars": 27415,
     "our_lol_html_chars": 27471,
     "trafilatura_chars": 24222,
     "readability_js_chars": 22308,

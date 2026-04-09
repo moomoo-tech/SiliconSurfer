@@ -1,6 +1,7 @@
 pub mod browser;
 pub mod distiller;
 pub mod distiller_fast;
+pub mod extract;
 pub mod fetcher;
 pub mod probe;
 pub mod router;

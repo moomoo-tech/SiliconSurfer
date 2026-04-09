@@ -14,180 +14,193 @@ jobs
 submit
 login
 1.
-LittleSnitch for Linux
+Session is shutting down in 90 days
 (
-obdev.at
+getsession.org
 )
-912 points
+34 points
 by
-pluc
-12 hours ago
+balamatom
+27 minutes ago
 |
 hide
 |
-322 comments
+37 comments
 2.
 Show HN: CSS Studio. Design by hand, code by agent
 (
 cssstudio.ai
 )
-32 points
+45 points
 by
 SirHound
 1 hour ago
 |
 hide
 |
-28 comments
+35 comments
 3.
+LittleSnitch for Linux
+(
+obdev.at
+)
+938 points
+by
+pluc
+12 hours ago
+|
+hide
+|
+329 comments
+4.
+Show HN: 41 years sea surface temperature anomalies
+(
+willhelps.org
+)
+19 points
+by
+willmeyers
+53 minutes ago
+|
+hide
+|
+2 comments
+5.
+Wit, unker, Git: The lost medieval pronouns of English intimacy
+(
+bbc.com
+)
+54 points
+by
+eigenspace
+3 hours ago
+|
+hide
+|
+22 comments
+6.
 I ported Mac OS X to the Nintendo Wii
 (
 bryankeller.github.io
 )
-1682 points
+1693 points
 by
 blkhp19
 21 hours ago
 |
 hide
 |
-290 comments
-4.
-Help Keep Thunderbird Alive
-(
-thunderbird.net
-)
-205 points
-by
-playfultones
-5 hours ago
-|
-hide
-|
-138 comments
-5.
-Wit, unker, Git: The lost medieval pronouns of English intimacy
-(
-bbc.com
-)
-44 points
-by
-eigenspace
-2 hours ago
-|
-hide
-|
-17 comments
-6.
-Creating the Futurescape for the Fifth Element [2019]
-(
-theasc.com
-)
-59 points
-by
-nixass
-3 hours ago
-|
-hide
-|
-22 comments
+293 comments
 7.
-Launch HN: Relvy (YC F24) – On-call runbooks, automated
-(
-relvy.ai
-)
-6 points
-by
-behat
-44 minutes ago
-|
-hide
-|
-6 comments
-8.
 Introduction to Nintendo DS Programming
 (
 patater.com
 )
-33 points
+41 points
 by
 medbar
 3 hours ago
 |
 hide
 |
-2 comments
+4 comments
+8.
+Help Keep Thunderbird Alive
+(
+thunderbird.net
+)
+216 points
+by
+playfultones
+5 hours ago
+|
+hide
+|
+148 comments
 9.
+Creating the Futurescape for the Fifth Element [2019]
+(
+theasc.com
+)
+62 points
+by
+nixass
+4 hours ago
+|
+hide
+|
+29 comments
+10.
+Launch HN: Relvy (YC F24) – On-call runbooks, automated
+(
+relvy.ai
+)
+9 points
+by
+behat
+1 hour ago
+|
+hide
+|
+8 comments
+11.
 Open Source Security at Astral
 (
 astral.sh
 )
-236 points
+243 points
 by
 vinhnx
-8 hours ago
+9 hours ago
 |
 hide
 |
-52 comments
-10.
+53 comments
+12.
 Haunted Paper Toys
 (
 ravensblight.com
 )
-138 points
+146 points
 by
 exvi
 8 hours ago
 |
 hide
 |
-14 comments
-11.
-Show HN: 41 years sea surface temperature anomalies
-(
-willhelps.org
-)
-7 points
-by
-willmeyers
-30 minutes ago
-|
-hide
-|
-discuss
-12.
+17 comments
+13.
 Tree Calculus
 (
 treecalcul.us
 )
-17 points
+29 points
 by
 tosh
 3 hours ago
 |
 hide
 |
-6 comments
-13.
-Dr. Dobb's Developer Library DVD 6
+7 comments
+14.
+Am I German or Autistic?
 (
-archive.org
+millermanschool.com
 )
-82 points
+7 points
 by
-kristianp
-8 hours ago
+doener
+26 minutes ago
 |
 hide
 |
-26 comments
-14.
+discuss
+15.
 Show HN: Moon simulator game, ray-casting
 (
 mooncraft2000.com
 )
-38 points
+42 points
 by
 JKCalhoun
 4 hours ago
@@ -195,12 +208,51 @@ JKCalhoun
 hide
 |
 10 comments
-15.
+16.
+Dr. Dobb's Developer Library DVD 6
+(
+archive.org
+)
+86 points
+by
+kristianp
+8 hours ago
+|
+hide
+|
+30 comments
+17.
+FreeBSD Laptop Compatibility: Top Laptops to Use with FreeBSD
+(
+freebsdfoundation.github.io
+)
+21 points
+by
+fork-bomber
+4 hours ago
+|
+hide
+|
+2 comments
+18.
+Claude mixes up who said what and that's not OK
+(
+dwyer.co.za
+)
+190 points
+by
+sixhobbits
+3 hours ago
+|
+hide
+|
+180 comments
+19.
 USB for Software Developers: An introduction to writing userspace USB drivers
 (
 werwolv.net
 )
-332 points
+336 points
 by
 WerWolv
 17 hours ago
@@ -208,116 +260,103 @@ WerWolv
 hide
 |
 39 comments
-16.
+20.
 Understanding the Kalman filter with a simple radar example
 (
 kalmanfilter.net
 )
-374 points
+376 points
 by
 alex_be
-19 hours ago
+20 hours ago
 |
 hide
 |
-46 comments
-17.
+47 comments
+21.
 Improving storage efficiency in Magic Pocket, Dropbox's immutable blob store
 (
 dropbox.tech
 )
-31 points
+34 points
 by
 laluser
 6 hours ago
 |
 hide
 |
-3 comments
-18.
-Claude mixes up who said what and that's not OK
-(
-dwyer.co.za
-)
-172 points
-by
-sixhobbits
-3 hours ago
-|
-hide
-|
-164 comments
-19.
+4 comments
+22.
 They're made out of meat (1991)
 (
 terrybisson.com
 )
-582 points
+585 points
 by
 surprisetalk
 1 day ago
 |
 hide
 |
-154 comments
-20.
-FreeBSD Laptop Compatibility: Top Laptops to Use with FreeBSD
+155 comments
+23.
+How Pizza Tycoon simulated traffic on a 25 MHz CPU
 (
-freebsdfoundation.github.io
+pizzalegacy.nl
 )
-11 points
+13 points
 by
-fork-bomber
-3 hours ago
+FinnKuhn
+21 minutes ago
 |
 hide
 |
 discuss
-21.
+24.
 Who is Satoshi Nakamoto? My quest to unmask Bitcoin's creator
 (
 nytimes.com
 )
-541 points
+546 points
 by
 jfirebaugh
 1 day ago
 |
 hide
 |
-669 comments
-22.
-The Importance of Being Idle
-(
-theamericanscholar.org
-)
-225 points
-by
-Caiero
-11 hours ago
-|
-hide
-|
-130 comments
-23.
+679 comments
+25.
 ML promises to be profoundly weird
 (
 aphyr.com
 )
-531 points
+534 points
 by
 pabs3
-23 hours ago
+1 day ago
 |
 hide
 |
-528 comments
-24.
+531 comments
+26.
+The Importance of Being Idle
+(
+theamericanscholar.org
+)
+226 points
+by
+Caiero
+12 hours ago
+|
+hide
+|
+134 comments
+27.
 Git commands I run before reading any code
 (
 piechowski.io
 )
-2101 points
+2106 points
 by
 grepsedawk
 1 day ago
@@ -325,20 +364,20 @@ grepsedawk
 hide
 |
 454 comments
-25.
+28.
 Muse Spark: Scaling towards personal superintelligence
 (
 meta.com
 )
-362 points
+364 points
 by
 chabons
-20 hours ago
+21 hours ago
 |
 hide
 |
-342 comments
-26.
+345 comments
+29.
 Six (and a half) intuitions for KL divergence
 (
 perfectlynormal.co.uk
@@ -346,30 +385,17 @@ perfectlynormal.co.uk
 97 points
 by
 jxmorris12
-12 hours ago
+13 hours ago
 |
 hide
 |
-14 comments
-27.
-C# in Unity 2026: Features Most Developers Still Don't Use
-(
-darkounity.com
-)
-43 points
-by
-hacker_13
-5 hours ago
-|
-hide
-|
-42 comments
-28.
+15 comments
+30.
 MegaTrain: Full Precision Training of 100B+ Parameter LLMs on a Single GPU
 (
 arxiv.org
 )
-311 points
+312 points
 by
 chrsw
 1 day ago
@@ -377,29 +403,6 @@ chrsw
 hide
 |
 55 comments
-29.
-I imported the full Linux kernel git history into pgit
-(
-oseifert.ch
-)
-144 points
-by
-ImGajeed76
-17 hours ago
-|
-hide
-|
-29 comments
-30.
-Ask HN: Any interesting niche hobbies?
-413 points
-by
-e-topy
-1 day ago
-|
-hide
-|
-608 comments
 More
 Guidelines
 |

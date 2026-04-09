@@ -5,11 +5,11 @@
     "html_tokens": 10246,
     "html_links": 87,
     "our_scraper": {
-      "chars": 20577,
-      "tokens": 5144,
-      "compression_ratio": 0.502,
-      "links": 34,
-      "link_retention": 0.391,
+      "chars": 21204,
+      "tokens": 5301,
+      "compression_ratio": 0.517,
+      "links": 51,
+      "link_retention": 0.586,
       "noise_keywords": {},
       "noise_count": 0,
       "code_blocks": {
@@ -25,15 +25,15 @@
         "h3": 0,
         "list_items": 0,
         "bold": 0,
-        "italic": 21
+        "italic": 25
       }
     },
     "our_lol_html": {
-      "chars": 26016,
-      "tokens": 6504,
-      "compression_ratio": 0.635,
-      "links": 68,
-      "link_retention": 0.782,
+      "chars": 25209,
+      "tokens": 6302,
+      "compression_ratio": 0.615,
+      "links": 47,
+      "link_retention": 0.54,
       "noise_keywords": {},
       "noise_count": 0,
       "code_blocks": {
@@ -257,22 +257,22 @@
     "html_tokens": 73563,
     "html_links": 171,
     "our_scraper": {
-      "chars": 2183,
-      "tokens": 545,
-      "compression_ratio": 0.007,
-      "links": 9,
-      "link_retention": 0.053,
+      "chars": 2232,
+      "tokens": 558,
+      "compression_ratio": 0.008,
+      "links": 11,
+      "link_retention": 0.064,
       "noise_keywords": {},
       "noise_count": 0,
       "code_blocks": {
         "fence_count": 4,
         "balanced": true,
         "block_count": 2,
-        "has_indentation": false
+        "has_indentation": true
       },
       "structure": {
-        "headings": 7,
-        "h1": 2,
+        "headings": 13,
+        "h1": 8,
         "h2": 3,
         "h3": 2,
         "list_items": 0,
@@ -281,11 +281,11 @@
       }
     },
     "our_lol_html": {
-      "chars": 5466,
-      "tokens": 1366,
-      "compression_ratio": 0.019,
-      "links": 46,
-      "link_retention": 0.269,
+      "chars": 5263,
+      "tokens": 1315,
+      "compression_ratio": 0.018,
+      "links": 42,
+      "link_retention": 0.246,
       "noise_keywords": {
         "skip to content": 1
       },
@@ -355,9 +355,9 @@
       }
     },
     "playwright": {
-      "chars": 4833,
-      "tokens": 1208,
-      "compression_ratio": 0.016,
+      "chars": 4871,
+      "tokens": 1217,
+      "compression_ratio": 0.017,
       "links": 0,
       "link_retention": 0.0,
       "noise_keywords": {
@@ -386,15 +386,41 @@
   },
   {
     "name": "hn",
-    "html_chars": 34446,
-    "html_tokens": 8611,
-    "html_links": 228,
+    "html_chars": 34540,
+    "html_tokens": 8635,
+    "html_links": 229,
     "our_scraper": {
-      "chars": 5711,
-      "tokens": 1427,
-      "compression_ratio": 0.166,
-      "links": 31,
-      "link_retention": 0.136,
+      "chars": 14152,
+      "tokens": 3538,
+      "compression_ratio": 0.41,
+      "links": 196,
+      "link_retention": 0.856,
+      "noise_keywords": {
+        "login": 2
+      },
+      "noise_count": 2,
+      "code_blocks": {
+        "fence_count": 0,
+        "balanced": true,
+        "block_count": 0,
+        "has_indentation": false
+      },
+      "structure": {
+        "headings": 0,
+        "h1": 0,
+        "h2": 0,
+        "h3": 0,
+        "list_items": 0,
+        "bold": 1,
+        "italic": 3
+      }
+    },
+    "our_lol_html": {
+      "chars": 5712,
+      "tokens": 1428,
+      "compression_ratio": 0.165,
+      "links": 32,
+      "link_retention": 0.14,
       "noise_keywords": {
         "login": 1,
         "| hide |": 30
@@ -416,35 +442,9 @@
         "italic": 3
       }
     },
-    "our_lol_html": {
-      "chars": 14483,
-      "tokens": 3620,
-      "compression_ratio": 0.42,
-      "links": 195,
-      "link_retention": 0.855,
-      "noise_keywords": {
-        "login": 2
-      },
-      "noise_count": 2,
-      "code_blocks": {
-        "fence_count": 0,
-        "balanced": true,
-        "block_count": 0,
-        "has_indentation": false
-      },
-      "structure": {
-        "headings": 0,
-        "h1": 0,
-        "h2": 0,
-        "h3": 0,
-        "list_items": 0,
-        "bold": 1,
-        "italic": 4
-      }
-    },
     "trafilatura": {
-      "chars": 3855,
-      "tokens": 963,
+      "chars": 3867,
+      "tokens": 966,
       "compression_ratio": 0.112,
       "links": 0,
       "link_retention": 0.0,
@@ -465,12 +465,12 @@
         "h3": 0,
         "list_items": 0,
         "bold": 0,
-        "italic": 1
+        "italic": 0
       }
     },
     "readability_js": {
-      "chars": 3586,
-      "tokens": 896,
+      "chars": 3596,
+      "tokens": 899,
       "compression_ratio": 0.104,
       "links": 0,
       "link_retention": 0.0,
@@ -491,12 +491,12 @@
         "h3": 0,
         "list_items": 0,
         "bold": 0,
-        "italic": 1
+        "italic": 0
       }
     },
     "playwright": {
-      "chars": 3929,
-      "tokens": 982,
+      "chars": 3939,
+      "tokens": 984,
       "compression_ratio": 0.114,
       "links": 0,
       "link_retention": 0.0,
@@ -518,7 +518,7 @@
         "h3": 0,
         "list_items": 0,
         "bold": 0,
-        "italic": 1
+        "italic": 0
       }
     }
   },
@@ -528,35 +528,35 @@
     "html_tokens": 54941,
     "html_links": 588,
     "our_scraper": {
-      "chars": 23925,
-      "tokens": 5981,
-      "compression_ratio": 0.109,
-      "links": 2,
-      "link_retention": 0.003,
+      "chars": 27783,
+      "tokens": 6945,
+      "compression_ratio": 0.126,
+      "links": 36,
+      "link_retention": 0.061,
       "noise_keywords": {},
       "noise_count": 0,
       "code_blocks": {
         "fence_count": 72,
         "balanced": true,
         "block_count": 36,
-        "has_indentation": false
+        "has_indentation": true
       },
       "structure": {
         "headings": 20,
         "h1": 1,
         "h2": 7,
         "h3": 12,
-        "list_items": 16,
+        "list_items": 14,
         "bold": 9,
-        "italic": 22
+        "italic": 45
       }
     },
     "our_lol_html": {
-      "chars": 29540,
-      "tokens": 7385,
-      "compression_ratio": 0.134,
-      "links": 56,
-      "link_retention": 0.095,
+      "chars": 27453,
+      "tokens": 6863,
+      "compression_ratio": 0.125,
+      "links": 32,
+      "link_retention": 0.054,
       "noise_keywords": {
         "skip to main": 1
       },
@@ -574,7 +574,7 @@
         "h3": 12,
         "list_items": 17,
         "bold": 9,
-        "italic": 57
+        "italic": 40
       }
     },
     "trafilatura": {
@@ -658,11 +658,11 @@
     "html_tokens": 12349,
     "html_links": 215,
     "our_scraper": {
-      "chars": 2679,
-      "tokens": 669,
-      "compression_ratio": 0.054,
-      "links": 3,
-      "link_retention": 0.014,
+      "chars": 4763,
+      "tokens": 1190,
+      "compression_ratio": 0.096,
+      "links": 53,
+      "link_retention": 0.247,
       "noise_keywords": {},
       "noise_count": 0,
       "code_blocks": {
@@ -677,8 +677,8 @@
         "h2": 8,
         "h3": 0,
         "list_items": 16,
-        "bold": 1,
-        "italic": 1
+        "bold": 7,
+        "italic": 2
       }
     },
     "our_lol_html": {
@@ -786,34 +786,36 @@
     "html_tokens": 31,
     "html_links": 0,
     "our_scraper": {
-      "chars": 76850,
-      "tokens": 19212,
-      "compression_ratio": 619.742,
-      "links": 2,
+      "chars": 173470,
+      "tokens": 43367,
+      "compression_ratio": 1398.935,
+      "links": 1225,
       "link_retention": 0,
-      "noise_keywords": {},
-      "noise_count": 0,
+      "noise_keywords": {
+        "login": 1
+      },
+      "noise_count": 1,
       "code_blocks": {
         "fence_count": 58,
         "balanced": true,
         "block_count": 29,
-        "has_indentation": false
+        "has_indentation": true
       },
       "structure": {
         "headings": 41,
         "h1": 0,
         "h2": 12,
         "h3": 29,
-        "list_items": 47,
-        "bold": 2,
-        "italic": 47
+        "list_items": 91,
+        "bold": 204,
+        "italic": 990
       }
     },
     "our_lol_html": {
-      "chars": 176289,
-      "tokens": 44072,
-      "compression_ratio": 1421.677,
-      "links": 1505,
+      "chars": 134286,
+      "tokens": 33571,
+      "compression_ratio": 1082.935,
+      "links": 875,
       "link_retention": 0,
       "noise_keywords": {
         "login": 1
@@ -832,7 +834,7 @@
         "h3": 29,
         "list_items": 303,
         "bold": 289,
-        "italic": 1081
+        "italic": 680
       }
     },
     "trafilatura": {
