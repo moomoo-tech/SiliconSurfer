@@ -1,7 +1,7 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 
 use agent_browser_core::distiller::Distiller;
-use agent_browser_core::distiller_fast::FastDistiller;
+use agent_browser_core::distiller_fast::{DistillMode, FastDistiller};
 
 // Test HTML samples of varying sizes
 fn small_html() -> &'static str {
@@ -96,5 +96,29 @@ fn bench_comparison(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, bench_scraper, bench_lol_html, bench_comparison);
+fn bench_all_modes(c: &mut Criterion) {
+    let medium = medium_html();
+
+    let mut group = c.benchmark_group("modes_50KB");
+
+    group.bench_function("reader", |b| {
+        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Reader, Some("https://example.com")))
+    });
+    group.bench_function("operator", |b| {
+        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Operator, Some("https://example.com")))
+    });
+    group.bench_function("spider", |b| {
+        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Spider, Some("https://example.com")))
+    });
+    group.bench_function("developer", |b| {
+        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Developer, None))
+    });
+    group.bench_function("data", |b| {
+        b.iter(|| FastDistiller::distill(black_box(&medium), DistillMode::Data, None))
+    });
+
+    group.finish();
+}
+
+criterion_group!(benches, bench_scraper, bench_lol_html, bench_comparison, bench_all_modes);
 criterion_main!(benches);
