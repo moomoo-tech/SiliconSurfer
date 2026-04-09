@@ -1,4 +1,5 @@
 pub mod browser;
+pub mod cdp;
 pub mod distiller;
 pub mod distiller_fast;
 pub mod extract;
