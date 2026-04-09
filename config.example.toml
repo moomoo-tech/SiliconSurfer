@@ -1,3 +1,7 @@
 [gemini]
 api_key = "your-gemini-api-key-here"
 model = "gemini-3.1-flash-lite-preview"
+
+[openai]
+api_key = "your-openai-api-key-here"
+model = "gpt-4o-mini"

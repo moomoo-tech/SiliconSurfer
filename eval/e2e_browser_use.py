@@ -10,7 +10,7 @@ import tomllib
 import httpx
 from pathlib import Path
 from browser_use import Agent
-from browser_use.llm.google import ChatGoogle
+from browser_use.llm.models import ChatOpenAI
 
 _config = tomllib.load(open(Path(__file__).parent.parent / "config.toml", "rb"))
 GEMINI_API_KEY = _config["gemini"]["api_key"]
@@ -30,9 +30,11 @@ async def run_browser_use(goal: str, timeout: int = 120) -> dict:
     """Run a goal with browser-use."""
     t0 = time.perf_counter()
 
-    llm = ChatGoogle(
-        model="gemini-2.0-flash",
-        api_key=GEMINI_API_KEY,
+    openai_key = _config["openai"]["api_key"]
+    openai_model = _config["openai"]["model"]
+    llm = ChatOpenAI(
+        model=openai_model,
+        api_key=openai_key,
     )
 
     agent = Agent(

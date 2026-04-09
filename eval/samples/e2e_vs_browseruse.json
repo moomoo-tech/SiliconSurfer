@@ -4,31 +4,31 @@
       "success": true,
       "result": "The username field name is 'username' and the password field name is 'password'.",
       "steps": 1,
-      "elapsed_s": 3.2
-    },
-    {
-      "success": false,
-      "result": "timeout",
-      "steps": 10,
-      "elapsed_s": 21.2
+      "elapsed_s": 3.1
     },
     {
       "success": true,
-      "result": "",
+      "result": "I am unable to determine the overall cheapest book on the entire website because the page only displays a subset of the products. However, among the visible books provided on the initial page, 'The Re",
+      "steps": 10,
+      "elapsed_s": 18.9
+    },
+    {
+      "success": true,
+      "result": "I found 10 quotes on the first page. The first quote is: 'The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking.'",
       "steps": 1,
       "elapsed_s": 2.9
     },
     {
-      "success": false,
-      "result": "timeout",
+      "success": true,
+      "result": "To access the 'Travel' category, the navigation menu must be utilized. Since the previous attempts repeatedly clicked the home page, the correct action is to click on the 'Travel' link located within ",
       "steps": 10,
-      "elapsed_s": 17.4
+      "elapsed_s": 17.3
     },
     {
-      "success": false,
-      "result": "timeout",
+      "success": true,
+      "result": "I have identified the credentials provided on the login page: Username: tomsmith, Password: SuperSecretPassword!. To complete the goal, one must input these into the corresponding form fields (typical",
       "steps": 10,
-      "elapsed_s": 21.6
+      "elapsed_s": 20.3
     }
   ],
   "browser_use": [
@@ -36,31 +36,31 @@
       "success": false,
       "result": "'AgentHistoryList' object has no attribute 'n_steps'",
       "steps": 0,
-      "elapsed_s": 6.2
+      "elapsed_s": 49.9
+    },
+    {
+      "success": false,
+      "result": "TIMEOUT",
+      "steps": 0,
+      "elapsed_s": 120.4
     },
     {
       "success": false,
       "result": "'AgentHistoryList' object has no attribute 'n_steps'",
       "steps": 0,
-      "elapsed_s": 7.0
+      "elapsed_s": 8.5
     },
     {
       "success": false,
       "result": "'AgentHistoryList' object has no attribute 'n_steps'",
       "steps": 0,
-      "elapsed_s": 5.9
+      "elapsed_s": 40.4
     },
     {
       "success": false,
       "result": "'AgentHistoryList' object has no attribute 'n_steps'",
       "steps": 0,
-      "elapsed_s": 13.9
-    },
-    {
-      "success": false,
-      "result": "'AgentHistoryList' object has no attribute 'n_steps'",
-      "steps": 0,
-      "elapsed_s": 13.4
+      "elapsed_s": 16.0
     }
   ]
 }
