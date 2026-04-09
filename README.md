@@ -1,12 +1,13 @@
-# Agent Browser
+# SiliconSurfer 🏄
 
-专为 AI Agent 打造的高并发网页抓取与交互引擎，Rust 实现。
+> The MCP-compatible browser built for silicon-based lifeforms.
+> 专为硅基生物打造的 MCP 兼容浏览器。
 
 ## 定位
 
 AI Agent 需要从互联网获取信息和执行操作，但不需要 CSS 渲染、可视化调试等面向人类的功能。现有方案（Playwright/Puppeteer）太重，无法支撑大规模并发。
 
-Agent Browser 只做一件事：**让 AI 高效地访问和理解网页**。
+SiliconSurfer 让 AI 用**硅基生物的方式**看网页——5 种视觉模式，@e 元素引用，毫秒级响应。
 
 ## 双层架构
 
