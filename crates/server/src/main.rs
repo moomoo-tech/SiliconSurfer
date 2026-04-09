@@ -89,6 +89,33 @@ async fn fetch_page(
     }
 }
 
+/// Distill raw HTML directly (no HTTP fetch). Used when Agent already has the page
+/// via Playwright/CDP and just needs our distiller to process it.
+#[derive(Deserialize)]
+struct DistillRequest {
+    html: String,
+    url: Option<String>,
+    #[serde(default)]
+    distill: agent_browser_core::distiller_fast::DistillMode,
+}
+
+async fn distill_html(
+    Json(req): Json<DistillRequest>,
+) -> Json<FetchResponse> {
+    let base_url = req.url.as_deref();
+    let title = agent_browser_core::distiller_fast::FastDistiller::extract_title(&req.html);
+    let content = agent_browser_core::distiller_fast::FastDistiller::distill(&req.html, req.distill, base_url);
+    let content_length = content.len();
+
+    Json(FetchResponse {
+        url: req.url.unwrap_or_default(),
+        title,
+        content,
+        content_length,
+        mode_used: format!("{:?}", req.distill).to_lowercase(),
+    })
+}
+
 async fn probe_page(
     State(state): State<Arc<AppState>>,
     Json(req): Json<ProbeRequest>,
@@ -127,6 +154,7 @@ async fn main() {
         .route("/health", get(health))
         .route("/probe", post(probe_page))
         .route("/fetch", post(fetch_page))
+        .route("/distill", post(distill_html))
         .layer(CorsLayer::permissive())
         .with_state(state);
 

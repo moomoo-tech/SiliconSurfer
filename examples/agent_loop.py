@@ -20,9 +20,17 @@ SERVER = "http://localhost:9883"
 MAX_STEPS = 15
 
 
-def see(url: str, mode: str) -> str:
-    """Agent's eyes — our distiller."""
+def see_url(url: str, mode: str) -> str:
+    """See a URL via HTTP fetch + distiller (no session state)."""
     r = httpx.post(f"{SERVER}/fetch", json={"url": url, "fast": True, "distill": mode}, timeout=60)
+    return r.json().get("content", "")
+
+
+def see_page(pw_page, mode: str) -> str:
+    """See current Playwright page via distiller (preserves session/cookies)."""
+    html = pw_page.content()
+    url = pw_page.url
+    r = httpx.post(f"{SERVER}/distill", json={"html": html, "url": url, "distill": mode}, timeout=60)
     return r.json().get("content", "")
 
 
@@ -53,11 +61,9 @@ def agent_loop(goal: str, start_url: str, pw_page):
     collected_data = []
 
     for step in range(1, MAX_STEPS + 1):
-        # ---- SEE: Agent looks at the page ----
-        # First, quick spider to know what links exist
-        spider_json = see(current_url, "spider")
-        # Then operator view for full picture (forms, buttons, content, links)
-        operator_view = see(current_url, "operator")
+        # ---- SEE: Agent looks at the CURRENT page (with session state) ----
+        spider_json = see_page(pw_page, "spider")
+        operator_view = see_page(pw_page, "operator")
 
         page_info = f"URL: {current_url}\n\nPage content (operator view):\n{operator_view[:3000]}\n\nLinks on page:\n{spider_json[:2000]}"
 

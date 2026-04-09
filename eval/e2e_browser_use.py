@@ -93,8 +93,11 @@ async def _agent_loop_async(goal, start_url, pw_page, max_steps=10):
     """Async version of agent_loop."""
     GEMINI_URL_LOCAL = f"https://generativelanguage.googleapis.com/v1beta/models/{_config['gemini']['model']}:generateContent?key={GEMINI_API_KEY}"
 
-    def see(url, mode="operator"):
-        r = httpx.post(f"{SERVER}/fetch", json={"url": url, "fast": True, "distill": mode}, timeout=60)
+    async def see(mode="operator"):
+        """See current page through Playwright's eyes + our distiller."""
+        html = await pw_page.content()
+        url = pw_page.url
+        r = httpx.post(f"{SERVER}/distill", json={"html": html, "url": url, "distill": mode}, timeout=60)
         return r.json().get("content", "")
 
     def think(prompt):
@@ -107,8 +110,8 @@ async def _agent_loop_async(goal, start_url, pw_page, max_steps=10):
     collected = []
 
     for step in range(1, max_steps + 1):
-        spider = see(current_url, "spider")
-        operator = see(current_url, "operator")
+        spider = await see("spider")
+        operator = await see("operator")
 
         history_str = "\n".join(f"  Step {h['step']}: {h['action']} at {h['url']}" for h in history[-5:])
         recent_urls = [h['url'] for h in history[-4:]]
@@ -170,7 +173,31 @@ If goal achieved, use "done". Don't revisit URLs."""
         elif action == "collect":
             collected.append(decision.get("data", {}))
 
-    return False, {"steps": max_steps, "result": "timeout", "data": collected}
+    # Max steps reached — let LLM summarize from what it already has
+    last_page = await see("reader")
+    summary = think(f"""You ran out of steps trying to achieve: "{goal}"
+
+Here is everything you collected:
+{json.dumps(collected, indent=2)[:2000] if collected else 'nothing collected'}
+
+Here is the last page you were on:
+{last_page[:2000]}
+
+Your action history:
+{json.dumps([{"step": h["step"], "action": h["action"], "url": h["url"]} for h in history], indent=2)}
+
+Based on ALL the information above, give your best answer for the goal.
+Return JSON: {{"result": "your answer", "data": [any structured data]}}""")
+
+    try:
+        c = summary.strip()
+        if "```" in c: c = c.split("```")[1].replace("json\n","").strip()
+        si = c.find("{"); ei = c.rfind("}") + 1
+        final = json.loads(c[si:ei]) if si >= 0 else {"result": summary[:200]}
+    except Exception:
+        final = {"result": summary[:200]}
+
+    return True, {"steps": max_steps, "result": final.get("result", ""), "data": final.get("data", collected)}
 
 
 async def main():
