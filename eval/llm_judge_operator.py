@@ -195,10 +195,11 @@ def _check_herokuapp_links(result, source):
 
 
 def main():
-    # Test both Reader and Scraper outputs
     tools = {
-        "reader_lol": "reader.md",
-        "reader_scraper": "scraper.md",
+        "reader": "reader.md",
+        "operator": "operator.md",
+        "scraper": "scraper.md",
+        "playwright": "playwright.txt",
     }
 
     all_results = []

@@ -2,7 +2,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::distiller::Distiller;
-use crate::distiller_fast::FastDistiller;
+use crate::distiller_fast::{DistillMode, FastDistiller};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FetchOptions {
@@ -15,6 +15,9 @@ pub struct FetchOptions {
     /// Request timeout in seconds
     #[serde(default = "default_timeout")]
     pub timeout_secs: u64,
+    /// Distill mode (llm_friendly, reader, operator, spider, developer, data)
+    #[serde(default)]
+    pub distill_mode: DistillMode,
 }
 
 fn default_output() -> String {
@@ -93,7 +96,7 @@ impl Fetcher {
             let title = FastDistiller::extract_title(&raw_html);
             let content = match opts.output.as_str() {
                 "text" => FastDistiller::to_text(&raw_html),
-                _ => FastDistiller::to_markdown_with_base(&raw_html, Some(&opts.url)),
+                _ => FastDistiller::distill(&raw_html, opts.distill_mode, Some(&opts.url)),
             };
             (title, content)
         } else {

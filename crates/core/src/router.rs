@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
 use crate::browser::BrowserPool;
+use crate::distiller_fast::DistillMode;
 use crate::fetcher::{FetchOptions, Fetcher};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
@@ -64,17 +65,29 @@ impl Engine {
         output: &str,
         mode: FetchMode,
     ) -> Result<EngineResult, EngineError> {
-        self.fetch_with_opts(url, output, mode, false).await
+        self.fetch_with_opts(url, output, mode, false, DistillMode::default()).await
     }
 
-    /// Fetch with fast distiller option.
+    /// Fetch with fast distiller + distill mode.
     pub async fn fetch_fast(
         &self,
         url: &str,
         output: &str,
         mode: FetchMode,
     ) -> Result<EngineResult, EngineError> {
-        self.fetch_with_opts(url, output, mode, true).await
+        self.fetch_with_opts(url, output, mode, true, DistillMode::default()).await
+    }
+
+    /// Fetch with full options.
+    pub async fn fetch_full(
+        &self,
+        url: &str,
+        output: &str,
+        mode: FetchMode,
+        fast: bool,
+        distill: DistillMode,
+    ) -> Result<EngineResult, EngineError> {
+        self.fetch_with_opts(url, output, mode, fast, distill).await
     }
 
     async fn fetch_with_opts(
@@ -83,21 +96,23 @@ impl Engine {
         output: &str,
         mode: FetchMode,
         fast: bool,
+        distill: DistillMode,
     ) -> Result<EngineResult, EngineError> {
         match mode {
-            FetchMode::T0 => self.fetch_t0(url, output, fast).await,
+            FetchMode::T0 => self.fetch_t0(url, output, fast, distill).await,
             FetchMode::T1 => self.fetch_t1(url, output).await,
-            FetchMode::Auto => self.fetch_auto(url, output, fast).await,
+            FetchMode::Auto => self.fetch_auto(url, output, fast, distill).await,
         }
     }
 
     /// T0: reqwest + Rust distiller
-    async fn fetch_t0(&self, url: &str, output: &str, fast: bool) -> Result<EngineResult, EngineError> {
+    async fn fetch_t0(&self, url: &str, output: &str, fast: bool, distill: DistillMode) -> Result<EngineResult, EngineError> {
         let opts = FetchOptions {
             url: url.to_string(),
             output: output.to_string(),
             user_agent: None,
             timeout_secs: 30,
+            distill_mode: distill,
         };
         let result = if fast {
             self.t0.fetch_fast(opts).await?
@@ -126,9 +141,8 @@ impl Engine {
     }
 
     /// Auto: T0 first, fallback to T1 if content looks empty/too short
-    async fn fetch_auto(&self, url: &str, output: &str, fast: bool) -> Result<EngineResult, EngineError> {
-        // Try T0 first
-        match self.fetch_t0(url, output, fast).await {
+    async fn fetch_auto(&self, url: &str, output: &str, fast: bool, distill: DistillMode) -> Result<EngineResult, EngineError> {
+        match self.fetch_t0(url, output, fast, distill).await {
             Ok(result) if result.content_length > 100 => Ok(result),
             Ok(_sparse) => {
                 // T0 got almost nothing — likely a JS-rendered page, try T1

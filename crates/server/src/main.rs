@@ -25,6 +25,9 @@ struct FetchRequest {
     /// Use fast (lol_html) distiller instead of default (scraper)
     #[serde(default)]
     fast: bool,
+    /// Distill mode: "llm_friendly", "reader", "operator", "spider", "developer", "data"
+    #[serde(default)]
+    distill: agent_browser_core::distiller_fast::DistillMode,
 }
 
 fn default_output() -> String {
@@ -68,12 +71,8 @@ async fn fetch_page(
     State(state): State<Arc<AppState>>,
     Json(req): Json<FetchRequest>,
 ) -> Result<Json<FetchResponse>, (StatusCode, Json<ErrorResponse>)> {
-    if req.fast {
-        // Fast path: reqwest + lol_html streaming distiller
-        return fetch_fast_handler(&state, &req).await;
-    }
-
-    match state.engine.fetch(&req.url, &req.output, req.mode).await {
+    // Use fetch_full to pass distill mode
+    match state.engine.fetch_full(&req.url, &req.output, req.mode, req.fast, req.distill).await {
         Ok(result) => Ok(Json(FetchResponse {
             url: result.url,
             title: result.title,
@@ -86,25 +85,6 @@ async fn fetch_page(
             Json(ErrorResponse {
                 error: e.to_string(),
             }),
-        )),
-    }
-}
-
-async fn fetch_fast_handler(
-    state: &AppState,
-    req: &FetchRequest,
-) -> Result<Json<FetchResponse>, (StatusCode, Json<ErrorResponse>)> {
-    match state.engine.fetch_fast(&req.url, &req.output, req.mode.clone()).await {
-        Ok(result) => Ok(Json(FetchResponse {
-            url: result.url,
-            title: result.title,
-            content: result.content,
-            content_length: result.content_length,
-            mode_used: format!("{}-fast", result.mode_used),
-        })),
-        Err(e) => Err((
-            StatusCode::BAD_GATEWAY,
-            Json(ErrorResponse { error: e.to_string() }),
         )),
     }
 }
