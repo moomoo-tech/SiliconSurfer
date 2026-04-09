@@ -286,6 +286,31 @@ mod tests {
         assert!(!md.contains("Copy"), "copy button should be removed, got: {md}");
     }
 
+    // ---- @e element references ----
+    #[test]
+    fn test_operator_element_refs() {
+        let html = r#"<form action="/login" method="POST">
+            <input type="text" name="user">
+            <input type="password" name="pass">
+            <button type="submit">Login</button>
+        </form>"#;
+        let md = FastDistiller::distill(html, DistillMode::Operator, None);
+        // Each interactive element should have @eN
+        assert!(md.contains("@e1"), "first element should be @e1, got: {md}");
+        assert!(md.contains("@e2"), "got: {md}");
+        assert!(md.contains("@e3"), "got: {md}");
+        assert!(md.contains("[Input:"), "got: {md}");
+        assert!(md.contains("[Button:"), "got: {md}");
+    }
+
+    #[test]
+    fn test_operator_links_have_refs() {
+        let html = r#"<a href="https://example.com">Click</a><a href="/page2">Next</a>"#;
+        let md = FastDistiller::distill(html, DistillMode::Operator, Some("https://test.com"));
+        assert!(md.contains("@e1"), "links should have @e refs, got: {md}");
+        assert!(md.contains("@e2"), "got: {md}");
+    }
+
     // ---- LlmFriendly = Reader ----
     #[test]
     fn test_llm_friendly_same_as_reader() {

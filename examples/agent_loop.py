@@ -64,39 +64,56 @@ def agent_loop(goal: str, start_url: str, pw_page):
         print(f"\n  Step {step}: SEE {current_url} ({len(operator_view)} chars)")
 
         # ---- THINK: Agent decides what to do ----
+        # Build full action history for context
+        history_summary = ""
+        if history:
+            history_summary = "ACTION HISTORY (what you already did):\n"
+            for h in history:
+                history_summary += f"  Step {h['step']}: {h['action']} at {h['url']}"
+                if h.get('detail'):
+                    history_summary += f" — {h['detail']}"
+                history_summary += "\n"
+            # Detect loops
+            recent_urls = [h['url'] for h in history[-4:]]
+            if len(recent_urls) >= 4 and len(set(recent_urls)) <= 2:
+                history_summary += "\n⚠️ WARNING: You are going back and forth between the same pages. STOP and try a different approach or use 'done' with what you have.\n"
+
         action_prompt = f"""You are an autonomous web Agent. Your goal is:
 "{goal}"
 
-You are currently at: {current_url}
-Steps taken so far: {len(history)}
-Data collected so far: {json.dumps(collected_data[:5]) if collected_data else 'none'}
-Previous actions: {json.dumps([h['action'] for h in history[-3:]]) if history else 'none'}
+STEP 1 — ANALYZE CURRENT STATE (mandatory):
+Before deciding your action, you MUST first analyze:
+- What page am I on? What do I see?
+- Have I already achieved my goal? (Check collected data and page content)
+- Am I stuck in a loop? (Check action history)
 
-Here is what you see on the current page:
+{history_summary}
+Data collected so far: {json.dumps(collected_data[:5], indent=2) if collected_data else 'none'}
+
+Current URL: {current_url}
+What you see:
 {page_info}
 
-Decide your next action. Return a JSON object with EXACTLY one of these action types:
+STEP 2 — DECIDE ACTION:
+Return a JSON object. You MUST include "state_analysis" first:
 
-1. Navigate to a URL:
-   {{"action": "navigate", "url": "https://...", "reason": "..."}}
+{{"state_analysis": "I see [describe what you observe]. My goal is [X]. I have [already done Y / not yet done Z].",
+  "is_goal_achieved": true/false,
+  "action": "...",
+  ...}}
 
-2. Fill a form and submit:
-   {{"action": "fill_form", "fields": {{"field_name": "value", ...}}, "submit_selector": "button[type=submit]", "reason": "..."}}
-
-3. Click an element:
-   {{"action": "click", "selector": "css selector", "reason": "..."}}
-
-4. Collect data from current page:
-   {{"action": "collect", "data": {{...extracted data...}}, "reason": "..."}}
-
-5. Declare goal completed:
-   {{"action": "done", "result": "...summary of what was accomplished...", "data": [...]}}
+Action types:
+1. {{"action": "navigate", "url": "https://...", "reason": "..."}}
+2. {{"action": "fill_form", "fields": {{"name": "value"}}, "submit_selector": "button[type=submit]", "reason": "..."}}
+3. {{"action": "click", "selector": "css selector", "reason": "..."}}
+4. {{"action": "collect", "data": {{...}}, "reason": "..."}}
+5. {{"action": "done", "result": "summary", "data": [...]}}
 
 Rules:
-- Only use URLs that appear in the page content above
-- Only use form field names that appear in the page content
-- If you already have enough data, use "done"
-- Be efficient — don't revisit pages"""
+- If is_goal_achieved is true, you MUST use "done"
+- If you see yourself repeating the same actions, use "done" with what you have
+- Only use URLs and field names that appear in the page content
+- NEVER revisit a URL you already visited"""
 
         raw_decision = think(action_prompt)
         print(f"  Step {step}: THINK")
@@ -121,7 +138,13 @@ Rules:
         reason = decision.get("reason", "")
         print(f"  Step {step}: ACT — {action}: {reason[:60]}")
 
-        history.append({"step": step, "url": current_url, "action": action, "decision": decision})
+        # Check if LLM says goal is achieved
+        if decision.get("is_goal_achieved") and action != "done":
+            print(f"  Step {step}: Goal achieved but action is '{action}' — forcing done")
+            action = "done"
+
+        history.append({"step": step, "url": current_url, "action": action,
+                        "detail": reason[:60]})
 
         # ---- ACT: Execute the decision ----
         if action == "done":
