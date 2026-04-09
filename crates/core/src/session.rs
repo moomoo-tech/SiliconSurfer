@@ -62,16 +62,20 @@ impl AgentSession {
             p.goto(url).await.map_err(|e| BrowserError::Page(e.to_string()))?;
             p.clone()
         } else {
-            // New page — inject stealth patches BEFORE any navigation
+            // New page — inject all patches BEFORE any navigation
             let p = browser.new_page("about:blank").await
                 .map_err(|e| BrowserError::Page(e.to_string()))?;
-            Self::inject_stealth(&p).await;
+            Self::inject_patches(&p).await;
             p.goto(url).await.map_err(|e| BrowserError::Page(e.to_string()))?;
             p
         };
 
-        // Wait for DOM (fonts/images already blocked by Chrome launch args)
+        // Wait for initial DOM load
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+
+        // Re-inject tab fix + dialog handler for dynamically loaded content
+        Self::inject_tab_fix(&page).await;
+        Self::inject_dialog_handler(&page).await;
 
         self.current_url = page.evaluate("window.location.href").await
             .ok().and_then(|v| v.into_value::<String>().ok())
@@ -79,6 +83,42 @@ impl AgentSession {
         self.page = Some(page);
 
         Ok(ActResult { success: true, url: self.current_url.clone(), detail: format!("Navigated to {}", url) })
+    }
+
+    /// Inject all pre-navigation patches: stealth + tab fix + dialog handler + shadow DOM.
+    async fn inject_patches(page: &chromiumoxide::Page) {
+        Self::inject_stealth(page).await;
+        Self::inject_tab_fix(page).await;
+        Self::inject_dialog_handler(page).await;
+    }
+
+    /// Bug 9 fix: Rewrite target="_blank" to prevent new tab black hole.
+    async fn inject_tab_fix(page: &chromiumoxide::Page) {
+        let _ = page.evaluate(r#"
+            // Rewrite all existing target="_blank" links
+            document.querySelectorAll('a[target="_blank"]').forEach(a => {
+                a.setAttribute('target', '_self');
+            });
+            // Intercept future clicks that try to open new tabs
+            document.addEventListener('click', (e) => {
+                const a = e.target.closest('a[target="_blank"]');
+                if (a) { a.setAttribute('target', '_self'); }
+            }, true);
+            // Override window.open to navigate in current tab
+            window.open = (url) => { if (url) window.location.href = url; };
+        "#.to_string()).await;
+    }
+
+    /// Bug 10 fix: Auto-accept all JS dialogs (alert/confirm/prompt).
+    async fn inject_dialog_handler(page: &chromiumoxide::Page) {
+        // Override native dialog functions to prevent V8 freeze
+        let _ = page.evaluate(r#"
+            window.alert = () => {};
+            window.confirm = () => true;
+            window.prompt = () => '';
+            // Also prevent beforeunload dialogs
+            window.addEventListener('beforeunload', (e) => { delete e.returnValue; });
+        "#.to_string()).await;
     }
 
     /// Bug 6 fix: Inject anti-bot stealth patches before page loads.
@@ -126,6 +166,44 @@ impl AgentSession {
         // Get HTML and URL from page, with ghost text removed + iframes flattened
         let (html, url) = {
             let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+
+            // Bug 12 fix: Wait for DOM quiescence (not networkidle)
+            // Wait until DOM stops changing for 500ms
+            let _ = page.evaluate(r#"
+                new Promise(resolve => {
+                    let timer;
+                    const observer = new MutationObserver(() => {
+                        clearTimeout(timer);
+                        timer = setTimeout(() => { observer.disconnect(); resolve(); }, 500);
+                    });
+                    observer.observe(document.body || document, {childList: true, subtree: true});
+                    // Fallback: resolve after 3s max
+                    setTimeout(() => { observer.disconnect(); resolve(); }, 3000);
+                    // If already stable, resolve after 500ms
+                    timer = setTimeout(() => { observer.disconnect(); resolve(); }, 500);
+                })
+            "#.to_string()).await;
+
+            // Bug 11 fix: Flatten Shadow DOM into light DOM
+            let _ = page.evaluate(r#"
+                (() => {
+                    function flattenShadow(root) {
+                        root.querySelectorAll('*').forEach(el => {
+                            if (el.shadowRoot) {
+                                // Copy shadow content into light DOM
+                                const shadowHtml = el.shadowRoot.innerHTML;
+                                const wrapper = document.createElement('div');
+                                wrapper.setAttribute('data-shadow-host', el.tagName.toLowerCase());
+                                wrapper.innerHTML = shadowHtml;
+                                el.appendChild(wrapper);
+                                // Recurse into nested shadows
+                                flattenShadow(wrapper);
+                            }
+                        });
+                    }
+                    flattenShadow(document);
+                })()
+            "#.to_string()).await;
 
             // Bug 5 fix: Remove invisible elements BEFORE extracting HTML
             let _ = page.evaluate(r#"

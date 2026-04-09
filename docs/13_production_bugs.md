@@ -58,8 +58,30 @@ Deferred for architectural discussion.
 Chrome JS blocking → WebSocket timeout → Rust panic.
 Fix: tokio::time::timeout on all CDP calls + retry/self-heal.
 
+## Bug 9: target="_blank" New Tab Black Hole 🔴
+
+Click opens new tab, but session.page still points to old tab.
+Agent thinks click failed, loops forever, spawns infinite tabs.
+Fix: Rewrite all target="_blank" to target="_self" via JS injection.
+
+## Bug 10: JS Dialog Deadlock (alert/confirm/prompt) 🔴
+
+Native JS dialogs freeze V8 engine. All CDP commands hang.
+Fix: Auto-accept all dialogs via CDP Page.javascriptDialogOpening listener.
+
+## Bug 11: Shadow DOM Invisibility 🟡
+
+Web Components hide DOM inside shadowRoot. page.content() returns empty shells.
+Fix: Recursive JS to flatten shadowRoot contents into light DOM before extraction.
+
+## Bug 12: networkidle Trap 🟡
+
+WebSocket heartbeats / SSE / retry loops = networkidle never fires.
+Fix: Replace with DOM MutationObserver quiescence (800ms no changes = stable).
+
 ## Priority (remaining)
 
-1. Bug 5 (ghost text) — data accuracy
-2. Bug 6 (anti-bot) — site coverage
-3. Bug 8 (CDP timeout) — stability
+1. Bug 9 (new tab) + Bug 10 (dialogs) — easiest, most impactful
+2. Bug 12 (load detection) — affects reliability
+3. Bug 11 (Shadow DOM) — hard, affects modern sites
+4. Bug 7 (token explosion) — deferred for architecture discussion
