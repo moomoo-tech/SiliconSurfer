@@ -190,9 +190,12 @@ fn hash_fast(s: &str) -> u64 {
 /// Common noise selectors for Reader mode.
 pub fn reader_noise_selectors() -> &'static [&'static str] {
     &[
+        // Core noise tags
         "script", "style", "nav", "footer", "header", "iframe",
         "noscript", "svg", "form", "button", "input", "select", "textarea",
-        "head", "img", "picture", "video", "audio", "canvas",
+        "head", "picture", "video", "audio", "canvas",
+        // NOTE: "img" removed from noise — handled separately to extract alt text
+        // Ad / tracking
         "[class*='ad-']", "[class*='ads-']",
         "[class*='cookie-']", "[class*='cookie_']",
         ".popup", ".modal", "[class*='-popup']", "[class*='-modal']",
@@ -201,6 +204,17 @@ pub fn reader_noise_selectors() -> &'static [&'static str] {
         "[class*='-banner'][class*='ad']",
         "[role='navigation']", "[role='complementary']",
         "[role='search']", "[aria-hidden='true']",
+        // Code block UI noise (line numbers, copy buttons)
+        ".line-numbers", "[class*='numbering']", "[class*='line-number']",
+        ".copy-button", "[class*='copy-btn']", "[class*='copy-code']",
+        "[class*='toolbar']",
+        // Chinese tech blog noise (腾讯云/CSDN/掘金/博客园)
+        ".recommend-box", "[class*='recommend']",
+        ".toc", "[class*='catalog']", "[class*='sidebar-toc']",
+        ".author-info", ".profile-box", "[class*='author-card']",
+        "[class*='article-tag']", ".tag-list",
+        "[class*='related-article']", "[class*='hot-article']",
+        "[class*='comment-box']", "[class*='comment-list']",
     ]
 }
 
@@ -208,6 +222,10 @@ pub fn reader_noise_selectors() -> &'static [&'static str] {
 pub fn operator_noise_selectors() -> &'static [&'static str] {
     &[
         "script", "style", "head", "noscript", "svg",
-        "img", "picture", "video", "audio", "canvas",
+        "picture", "video", "audio", "canvas",
+        // NOTE: "img" handled separately (extract alt text)
+        // Code block UI noise
+        ".line-numbers", "[class*='numbering']", "[class*='line-number']",
+        ".copy-button", "[class*='copy-btn']", "[class*='copy-code']",
     ]
 }

@@ -68,6 +68,26 @@ fn rewrite(html: &str, base_url: Option<&str>) -> String {
     handlers.push(element!("hr", |el| { el.before("\n\n---\n\n", Text); Ok(()) }));
     handlers.push(element!("br", |el| { el.before("\n", Text); Ok(()) }));
 
+    // Images — extract alt text + src as markdown image placeholder
+    handlers.push(element!("img", |el| {
+        let alt = el.get_attribute("alt").unwrap_or_default();
+        let src = el.get_attribute("data-src")
+            .or_else(|| el.get_attribute("data-original"))
+            .or_else(|| el.get_attribute("src"))
+            .unwrap_or_default();
+        if !alt.is_empty() {
+            if !src.is_empty() {
+                el.before(&format!("\n[image: {}]({})\n", alt, src), Text);
+            } else {
+                el.before(&format!("\n[image: {}]\n", alt), Text);
+            }
+        } else if !src.is_empty() && !src.starts_with("data:") {
+            el.before(&format!("\n[image]({})\n", src), Text);
+        }
+        el.remove();
+        Ok(())
+    }));
+
     rewrite_str(html, RewriteStrSettings {
         element_content_handlers: handlers,
         ..RewriteStrSettings::new()

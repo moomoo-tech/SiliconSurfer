@@ -252,6 +252,40 @@ mod tests {
         assert!(!data["lists"].as_array().unwrap().is_empty(), "got: {json}");
     }
 
+    // ---- Image handling ----
+    #[test]
+    fn test_reader_img_alt_text() {
+        let html = r#"<p>Check this:</p><img alt="Architecture diagram" src="https://example.com/arch.png"><p>More text</p>"#;
+        let md = FastDistiller::distill(html, DistillMode::Reader, None);
+        assert!(md.contains("[image: Architecture diagram]"), "should preserve alt text, got: {md}");
+        assert!(md.contains("arch.png"), "should preserve src, got: {md}");
+    }
+
+    #[test]
+    fn test_reader_img_lazy_load() {
+        let html = r#"<img data-src="https://cdn.example.com/real.png" src="placeholder.gif" alt="Flow chart">"#;
+        let md = FastDistiller::distill(html, DistillMode::Reader, None);
+        assert!(md.contains("[image: Flow chart]"), "got: {md}");
+        assert!(md.contains("cdn.example.com/real.png"), "should use data-src over src, got: {md}");
+        assert!(!md.contains("placeholder.gif"), "should prefer data-src, got: {md}");
+    }
+
+    #[test]
+    fn test_reader_img_no_alt_no_src() {
+        let html = r#"<img src="data:image/gif;base64,R0lGOD"><p>Text</p>"#;
+        let md = FastDistiller::distill(html, DistillMode::Reader, None);
+        assert!(!md.contains("data:image"), "should skip base64 images, got: {md}");
+        assert!(md.contains("Text"), "got: {md}");
+    }
+
+    #[test]
+    fn test_reader_code_block_noise() {
+        let html = r#"<pre><code>fn main() {}</code></pre><div class="copy-btn">Copy</div><ul class="line-numbers"><li>1</li></ul>"#;
+        let md = FastDistiller::distill(html, DistillMode::Reader, None);
+        assert!(md.contains("fn main()"), "code should be preserved, got: {md}");
+        assert!(!md.contains("Copy"), "copy button should be removed, got: {md}");
+    }
+
     // ---- LlmFriendly = Reader ----
     #[test]
     fn test_llm_friendly_same_as_reader() {
