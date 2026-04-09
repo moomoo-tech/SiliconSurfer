@@ -7,6 +7,7 @@ pub mod extract;
 pub mod fetcher;
 pub mod probe;
 pub mod router;
+pub mod session;
 pub mod strategy;
 
 pub use browser::BrowserPool;
