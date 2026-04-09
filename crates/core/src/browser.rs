@@ -41,6 +41,8 @@ pub struct BrowserFetchResult {
 pub struct BrowserPool {
     browser: Arc<Mutex<Option<Browser>>>,
     distiller: Distiller,
+    /// If true, strip images/fonts/canvas for max speed. If false, load everything (for vision/captcha).
+    performance_mode: bool,
 }
 
 impl BrowserPool {
@@ -48,49 +50,64 @@ impl BrowserPool {
         Self {
             browser: Arc::new(Mutex::new(None)),
             distiller: Distiller::new(),
+            performance_mode: true,
+        }
+    }
+
+    /// Create with explicit performance mode setting.
+    pub fn with_performance_mode(performance: bool) -> Self {
+        Self {
+            browser: Arc::new(Mutex::new(None)),
+            distiller: Distiller::new(),
+            performance_mode: performance,
         }
     }
 
     /// Start the Chrome daemon with aggressive resource stripping.
     pub async fn start(&self) -> Result<(), BrowserError> {
-        let config = BrowserConfig::builder()
-            .no_sandbox()
-            // --- Performance mode: strip everything AI doesn't need ---
-            // Disable rendering pipeline
-            .arg("--disable-gpu")
-            .arg("--disable-software-rasterizer")
+        let mut builder = BrowserConfig::builder();
+        builder = builder.no_sandbox();
+
+        // --- Always-on: basic sanity flags ---
+        builder = builder
             .arg("--disable-dev-shm-usage")
-            // Kill media loading
-            .arg("--blink-settings=imagesEnabled=false")
-            .arg("--mute-audio")
-            // Kill background services
             .arg("--disable-extensions")
-            .arg("--disable-background-networking")
-            .arg("--disable-background-timer-throttling")
-            .arg("--disable-backgrounding-occluded-windows")
             .arg("--disable-default-apps")
             .arg("--disable-sync")
             .arg("--disable-translate")
-            .arg("--metrics-recording-only")
             .arg("--no-first-run")
-            // Kill font loading (saves bandwidth + rendering time)
-            .arg("--disable-remote-fonts")
-            // Kill canvas/drawing overhead (AI doesn't look at pixels)
-            .arg("--disable-canvas-aa")
-            .arg("--disable-2d-canvas-clip-aa")
-            .arg("--disable-gl-drawing-for-tests")
-            // Disable popups, notifications, prompts
+            .arg("--mute-audio")
             .arg("--disable-popup-blocking")
             .arg("--disable-notifications")
             .arg("--disable-prompt-on-repost")
-            .arg("--disable-hang-monitor")
-            // Disable component updates
-            .arg("--disable-component-update")
-            .arg("--disable-domain-reliability")
-            // Memory optimization
-            .arg("--aggressive-cache-discard")
-            .arg("--disable-ipc-flooding-protection")
-            .build()
+            .arg("--disable-hang-monitor");
+
+        if self.performance_mode {
+            // --- Performance mode: strip everything AI doesn't need ---
+            builder = builder
+                // Kill images
+                .arg("--blink-settings=imagesEnabled=false")
+                // Kill GPU/rendering
+                .arg("--disable-gpu")
+                .arg("--disable-software-rasterizer")
+                .arg("--disable-canvas-aa")
+                .arg("--disable-2d-canvas-clip-aa")
+                .arg("--disable-gl-drawing-for-tests")
+                // Kill fonts
+                .arg("--disable-remote-fonts")
+                // Kill background services
+                .arg("--disable-background-networking")
+                .arg("--disable-background-timer-throttling")
+                .arg("--disable-backgrounding-occluded-windows")
+                .arg("--metrics-recording-only")
+                .arg("--disable-component-update")
+                .arg("--disable-domain-reliability")
+                .arg("--aggressive-cache-discard")
+                .arg("--disable-ipc-flooding-protection");
+        }
+        // else: Vision mode — load everything (images, fonts, CSS) for captcha/screenshots
+
+        let config = builder.build()
             .map_err(|e| BrowserError::Launch(e.to_string()))?;
 
         let (browser, mut handler) =
