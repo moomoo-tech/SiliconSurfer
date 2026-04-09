@@ -1,0 +1,170 @@
+{
+  "Our Multi-mode": {
+    "pass": 10,
+    "total": 10,
+    "details": [
+      {
+        "test": "Login form fields",
+        "pass": true,
+        "detail": "user=\u2713 pass=\u2713"
+      },
+      {
+        "test": "Find pagination URL",
+        "pass": true,
+        "detail": "https://quotes.toscrape.com/page/2/"
+      },
+      {
+        "test": "Find category URL",
+        "pass": true,
+        "detail": "https://books.toscrape.com/catalogue/category/books/travel_2"
+      },
+      {
+        "test": "Extract book price",
+        "pass": true,
+        "detail": "price=\u2713 title=\u2713"
+      },
+      {
+        "test": "Find form field names",
+        "pass": true,
+        "detail": "custname=\u2713 custtel=\u2713"
+      },
+      {
+        "test": "Find CSRF token",
+        "pass": true,
+        "detail": "```json\n{\"has_csrf\": true, \"name\": \"csrf_token\"}\n```"
+      },
+      {
+        "test": "Find author link",
+        "pass": true,
+        "detail": "https://quotes.toscrape.com/author/Albert-Einstein"
+      },
+      {
+        "test": "Count page items",
+        "pass": true,
+        "detail": "44"
+      },
+      {
+        "test": "Radio button options",
+        "pass": true,
+        "detail": "```json\n[\n  \"Small\",\n  \"Medium\",\n  \"Large\"\n]\n```"
+      },
+      {
+        "test": "Find external link",
+        "pass": true,
+        "detail": "https://www.goodreads.com/quotes"
+      }
+    ]
+  },
+  "Jina Reader": {
+    "pass": 5,
+    "total": 10,
+    "details": [
+      {
+        "test": "Login form fields",
+        "pass": false,
+        "detail": "user=\u2717 pass=\u2717"
+      },
+      {
+        "test": "Find pagination URL",
+        "pass": true,
+        "detail": "https://quotes.toscrape.com/page/2/"
+      },
+      {
+        "test": "Find category URL",
+        "pass": true,
+        "detail": "https://books.toscrape.com/catalogue/category/books/travel_2"
+      },
+      {
+        "test": "Extract book price",
+        "pass": true,
+        "detail": "price=\u2713 title=\u2713"
+      },
+      {
+        "test": "Find form field names",
+        "pass": false,
+        "detail": "EMPTY page"
+      },
+      {
+        "test": "Find CSRF token",
+        "pass": false,
+        "detail": "```json\n{\"has_csrf\": false, \"name\": null}\n```"
+      },
+      {
+        "test": "Find author link",
+        "pass": true,
+        "detail": "https://quotes.toscrape.com/author/Albert-Einstein"
+      },
+      {
+        "test": "Count page items",
+        "pass": true,
+        "detail": "44"
+      },
+      {
+        "test": "Radio button options",
+        "pass": false,
+        "detail": "EMPTY page"
+      },
+      {
+        "test": "Find external link",
+        "pass": false,
+        "detail": "MISSING"
+      }
+    ]
+  },
+  "Trafilatura": {
+    "pass": 4,
+    "total": 10,
+    "details": [
+      {
+        "test": "Login form fields",
+        "pass": true,
+        "detail": "user=\u2713 pass=\u2713"
+      },
+      {
+        "test": "Find pagination URL",
+        "pass": false,
+        "detail": "MISSING"
+      },
+      {
+        "test": "Find category URL",
+        "pass": false,
+        "detail": "MISSING"
+      },
+      {
+        "test": "Extract book price",
+        "pass": true,
+        "detail": "price=\u2713 title=\u2713"
+      },
+      {
+        "test": "Find form field names",
+        "pass": false,
+        "detail": "custname=\u2717 custtel=\u2717"
+      },
+      {
+        "test": "Find CSRF token",
+        "pass": false,
+        "detail": "{\"has_csrf\": false, \"name\": null}"
+      },
+      {
+        "test": "Find author link",
+        "pass": false,
+        "detail": "MISSING"
+      },
+      {
+        "test": "Count page items",
+        "pass": true,
+        "detail": "44"
+      },
+      {
+        "test": "Radio button options",
+        "pass": true,
+        "detail": "```json\n[\n  \"Small\",\n  \"Medium\",\n  \"Large\"\n]\n```"
+      },
+      {
+        "test": "Find external link",
+        "pass": false,
+        "detail": "MISSING"
+      }
+    ]
+  }
+}
