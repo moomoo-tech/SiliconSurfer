@@ -1,0 +1,16 @@
+name = "tencent_cloud"
+domains = ["cloud.tencent.com"]
+extra_noise = [
+    "[class*='header-nav']", "[class*='top-bar']",
+    "[class*='com-header']", "[class*='c-header']",
+    "[class*='aside']", "[class*='sidebar']", "[class*='catalog']",
+    "[class*='toc-']", "[class*='right-sidebar']",
+    "[class*='author-info']", "[class*='article-info']",
+    "[class*='mod-tag']", "[class*='tag-list']",
+    "[class*='comment']", "[class*='recommend']",
+    "[class*='related']", "[class*='hot-article']",
+    "[class*='com-footer']", "[class*='c-footer']",
+    "[class*='copyright']", "[class*='footer-nav']",
+    "[class*='product-card']", "[class*='ad-banner']",
+    "[class*='act-banner']", "[class*='featured']",
+]

@@ -1,0 +1,9 @@
+name = "eastmoney"
+domains = ["eastmoney.com", "quote.eastmoney.com"]
+force_t1 = true
+wait_ms = 3000
+wait_for_selector = "#quote_price"
+extra_noise = [
+    "#footer", "[class*='ad_']",
+    "[class*='ewm-box']", "[class*='recom']",
+]

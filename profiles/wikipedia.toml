@@ -1,0 +1,7 @@
+name = "wikipedia"
+domains = ["wikipedia.org"]
+extra_noise = [
+    "#mw-navigation", "#mw-panel", "#footer",
+    ".navbox", ".mw-jump-link", ".sistersitebox",
+    "#catlinks", ".mw-editsection",
+]

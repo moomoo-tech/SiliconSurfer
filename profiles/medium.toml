@@ -1,0 +1,7 @@
+name = "medium"
+domains = ["medium.com"]
+extra_noise = [
+    "[class*='metabar']", "[class*='postActions']",
+    "[class*='recomm']", "[class*='responsesWrapper']",
+    ".branch-journeys-top",
+]

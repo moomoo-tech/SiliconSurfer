@@ -1,0 +1,8 @@
+name = "zhihu"
+domains = ["zhihu.com", "zhuanlan.zhihu.com"]
+extra_noise = [
+    ".ColumnPageHeader", ".Post-SideActions",
+    ".Recommendations", ".RelatedReadings",
+    ".Comments-container", "[class*='RichContent-actions']",
+    "[class*='BottomActions']", ".ContentItem-actions",
+]

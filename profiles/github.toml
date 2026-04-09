@@ -1,0 +1,8 @@
+name = "github"
+domains = ["github.com"]
+extra_noise = [
+    ".js-header-wrapper", ".footer",
+    ".file-navigation", ".Box-header",
+    ".signup-prompt", "[class*='flash']",
+    ".reponav", ".UnderlineNav",
+]

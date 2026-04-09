@@ -1,0 +1,12 @@
+name = "csdn"
+domains = ["blog.csdn.net", "csdn.net"]
+extra_noise = [
+    ".recommend-box", ".recommend-item-box",
+    ".aside-box", "#asideArchive", "#asideCategory",
+    ".comment-box", ".comment-list-box",
+    ".tool-active", ".tool-item",
+    ".article-type-img", "[class*='toolbar']",
+    "[class*='blogColumn']", "[class*='more-toolbox']",
+    ".passport-container", ".left-toolbox",
+    "#blogExtensionBox", "#treeSkill",
+]

@@ -1,0 +1,5 @@
+name = "hacker_news"
+domains = ["news.ycombinator.com"]
+extra_noise = [
+    ".pagetop", ".yclinks",
+]

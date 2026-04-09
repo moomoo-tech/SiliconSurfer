@@ -28,7 +28,7 @@ python/           — Python API + Agent tools
 tests/            — Python tests (pytest)
 eval/             — Evaluation pipeline (heuristic + LLM judge)
 mcp_server.py     — MCP server (2 tools: observe + act)
-profiles.toml     — Site noise database (add sites without recompiling)
+profiles/         — Site profiles (one .toml per site: noise, force_t1, wait_ms)
 config.toml       — API keys (gitignored)
 .github/workflows/ci.yml — GitHub Actions CI
 ```
@@ -78,7 +78,7 @@ MCP tools: `observe(url, mode)` + `act(action, target, value)`
 
 - `config.toml` — API keys (Gemini, OpenAI). Gitignored.
 - `config.example.toml` — Template.
-- `profiles.toml` — Site-specific noise selectors. Add new sites here.
+- `profiles/` — Site profiles (one .toml per site). Supports: extra_noise, force_t1, wait_ms, wait_for_selector.
 - `.mcp.json` — MCP server registration for Claude Code.
 
 ## Benchmark Results

@@ -1,0 +1,10 @@
+name = "xueqiu"
+domains = ["xueqiu.com"]
+force_t1 = true
+wait_ms = 5000
+wait_for_selector = ".stock-current"
+extra_noise = [
+    "[class*='nav__']", "[class*='header__']",
+    "[class*='aside']", "[class*='ad-']",
+    "[class*='hot-stock']", "[class*='footer']",
+]

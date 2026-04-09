@@ -1,0 +1,9 @@
+name = "juejin"
+domains = ["juejin.cn"]
+extra_noise = [
+    ".sidebar", ".recommended-area",
+    ".article-suspended-panel", ".comment-box",
+    ".tag-list", ".author-info-block",
+    "[class*='catalog']", "[class*='sidebar']",
+    ".related-entry", ".stacked-area",
+]

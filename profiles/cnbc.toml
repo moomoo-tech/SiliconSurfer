@@ -1,0 +1,6 @@
+name = "cnbc"
+domains = ["cnbc.com"]
+extra_noise = [
+    "[class*='InlineVideo']", "[class*='BreakingNews']",
+    "[class*='Ad-']", "[class*='StickyNav']",
+]

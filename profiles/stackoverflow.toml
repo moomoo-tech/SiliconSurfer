@@ -1,0 +1,7 @@
+name = "stackoverflow"
+domains = ["stackoverflow.com", "stackexchange.com"]
+extra_noise = [
+    ".s-sidebarwidget", "#hot-network-questions",
+    ".post-menu", ".js-post-menu",
+    "#sidebar", ".community-bulletin",
+]
