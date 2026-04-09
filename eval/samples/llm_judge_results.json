@@ -1,0 +1,218 @@
+[
+  {
+    "test": "HN: Extract top 3 stories",
+    "tool": "our_scraper",
+    "passed": true,
+    "prompt_tokens": 2070,
+    "output_tokens": 225,
+    "elapsed_ms": 1957.7862909936812,
+    "response_preview": "[\n  {\n    \"title\": \"Git commands I run before reading any code\",\n    \"url\": \"https://piechowski.io/post/git-commands-before-reading-code/\",\n    \"points\": 2082,\n    \"comments_count\": 452\n  },\n  {\n    \""
+  },
+  {
+    "test": "HN: Extract top 3 stories",
+    "tool": "our_lol_html",
+    "passed": true,
+    "prompt_tokens": 2100,
+    "output_tokens": 225,
+    "elapsed_ms": 1995.202167003299,
+    "response_preview": "[\n  {\n    \"title\": \"Git commands I run before reading any code\",\n    \"url\": \"https://piechowski.io/post/git-commands-before-reading-code/\",\n    \"points\": 2082,\n    \"comments_count\": 452\n  },\n  {\n    \""
+  },
+  {
+    "test": "HN: Extract top 3 stories",
+    "tool": "trafilatura",
+    "passed": true,
+    "prompt_tokens": 1602,
+    "output_tokens": 166,
+    "elapsed_ms": 1501.0103749955306,
+    "response_preview": "[\n  {\n    \"title\": \"Git commands I run before reading any code\",\n    \"url\": \"piechowski.io\",\n    \"points\": 2082,\n    \"comments_count\": 452\n  },\n  {\n    \"title\": \"I ported Mac OS X to the Nintendo Wii\""
+  },
+  {
+    "test": "HN: Extract top 3 stories",
+    "tool": "playwright",
+    "passed": true,
+    "prompt_tokens": 1484,
+    "output_tokens": 166,
+    "elapsed_ms": 1336.7909170046914,
+    "response_preview": "[\n  {\n    \"title\": \"Git commands I run before reading any code\",\n    \"url\": \"piechowski.io\",\n    \"points\": 2082,\n    \"comments_count\": 452\n  },\n  {\n    \"title\": \"I ported Mac OS X to the Nintendo Wii\""
+  },
+  {
+    "test": "HN: Find comment URL",
+    "tool": "our_scraper",
+    "passed": true,
+    "prompt_tokens": 2058,
+    "output_tokens": 22,
+    "elapsed_ms": 919.2008750105742,
+    "response_preview": "https://news.ycombinator.com/item?id=43635438"
+  },
+  {
+    "test": "HN: Find comment URL",
+    "tool": "our_lol_html",
+    "passed": true,
+    "prompt_tokens": 2088,
+    "output_tokens": 22,
+    "elapsed_ms": 968.8007500080857,
+    "response_preview": "https://news.ycombinator.com/item?id=43657388"
+  },
+  {
+    "test": "HN: Find comment URL",
+    "tool": "trafilatura",
+    "passed": true,
+    "prompt_tokens": 1590,
+    "output_tokens": 22,
+    "elapsed_ms": 1054.8039169952972,
+    "response_preview": "https://news.ycombinator.com/item?id=42702585"
+  },
+  {
+    "test": "HN: Find comment URL",
+    "tool": "playwright",
+    "passed": true,
+    "prompt_tokens": 1472,
+    "output_tokens": 22,
+    "elapsed_ms": 1067.2386249934789,
+    "response_preview": "https://news.ycombinator.com/item?id=42700346"
+  },
+  {
+    "test": "Example: Summarize page",
+    "tool": "our_scraper",
+    "passed": true,
+    "prompt_tokens": 49,
+    "output_tokens": 19,
+    "elapsed_ms": 950.4173330060439,
+    "response_preview": "This domain serves as a reserved space for documentation examples that do not require prior permission to use."
+  },
+  {
+    "test": "Example: Summarize page",
+    "tool": "our_lol_html",
+    "passed": true,
+    "prompt_tokens": 49,
+    "output_tokens": 17,
+    "elapsed_ms": 1186.7474590108031,
+    "response_preview": "This webpage serves as an example domain intended for use in documentation without requiring special permission."
+  },
+  {
+    "test": "Example: Summarize page",
+    "tool": "trafilatura",
+    "passed": true,
+    "prompt_tokens": 33,
+    "output_tokens": 18,
+    "elapsed_ms": 821.5162499982398,
+    "response_preview": "This domain is reserved for use in documentation examples and should not be used for operational purposes."
+  },
+  {
+    "test": "Example: Summarize page",
+    "tool": "playwright",
+    "passed": true,
+    "prompt_tokens": 36,
+    "output_tokens": 20,
+    "elapsed_ms": 1205.9527909877943,
+    "response_preview": "This webpage serves as an example domain intended for use in documentation and educational materials without requiring prior authorization."
+  },
+  {
+    "test": "GitHub: Extract repo info",
+    "tool": "our_scraper",
+    "passed": true,
+    "prompt_tokens": 674,
+    "output_tokens": 48,
+    "elapsed_ms": 1069.671917008236,
+    "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
+  },
+  {
+    "test": "GitHub: Extract repo info",
+    "tool": "our_lol_html",
+    "passed": true,
+    "prompt_tokens": 1027,
+    "output_tokens": 48,
+    "elapsed_ms": 1048.4792079951148,
+    "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
+  },
+  {
+    "test": "GitHub: Extract repo info",
+    "tool": "trafilatura",
+    "passed": true,
+    "prompt_tokens": 661,
+    "output_tokens": 48,
+    "elapsed_ms": 1187.5537500018254,
+    "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
+  },
+  {
+    "test": "GitHub: Extract repo info",
+    "tool": "playwright",
+    "passed": true,
+    "prompt_tokens": 1445,
+    "output_tokens": 48,
+    "elapsed_ms": 1170.4187919967808,
+    "response_preview": "```json\n{\n  \"name\": \"nickel.rs\",\n  \"language\": \"Rust\",\n  \"description\": \"nickel.rs is a simple and lightweight foundation for web applications written in Rust.\"\n}\n```"
+  },
+  {
+    "test": "MDN: Extract function syntax",
+    "tool": "our_scraper",
+    "passed": true,
+    "prompt_tokens": 2064,
+    "output_tokens": 77,
+    "elapsed_ms": 1130.6811249960447,
+    "response_preview": "```json\n{\n  \"syntax\": \"A function declaration consists of the 'function' keyword, followed by the name of the function, a list of parameters enclosed in parentheses and separated by commas, and the Ja"
+  },
+  {
+    "test": "MDN: Extract function syntax",
+    "tool": "our_lol_html",
+    "passed": true,
+    "prompt_tokens": 2111,
+    "output_tokens": 79,
+    "elapsed_ms": 1209.309416997712,
+    "response_preview": "```json\n{\n  \"syntax\": \"A function declaration consists of the 'function' keyword, followed by the name of the function, a list of parameters enclosed in parentheses and separated by commas, and the Ja"
+  },
+  {
+    "test": "MDN: Extract function syntax",
+    "tool": "trafilatura",
+    "passed": true,
+    "prompt_tokens": 2091,
+    "output_tokens": 78,
+    "elapsed_ms": 1469.8095000057947,
+    "response_preview": "```json\n{\n  \"syntax\": \"A function declaration consists of the 'function' keyword, followed by the name of the function, a list of parameters enclosed in parentheses and separated by commas, and the Ja"
+  },
+  {
+    "test": "MDN: Extract function syntax",
+    "tool": "playwright",
+    "passed": true,
+    "prompt_tokens": 2009,
+    "output_tokens": 80,
+    "elapsed_ms": 1406.8739999929676,
+    "response_preview": "```json\n{\n  \"syntax\": \"A function declaration consists of the 'function' keyword, followed by the name of the function, a list of parameters enclosed in parentheses and separated by commas, and the Ja"
+  },
+  {
+    "test": "Python.org: Extract key info",
+    "tool": "our_scraper",
+    "passed": true,
+    "prompt_tokens": 731,
+    "output_tokens": 49,
+    "elapsed_ms": 1310.2860420040088,
+    "response_preview": "```json\n{\n  \"event\": \"PyCon US 2026\",\n  \"cta_url\": \"https://us.pycon.org/2026/attend/information/\"\n}\n```"
+  },
+  {
+    "test": "Python.org: Extract key info",
+    "tool": "our_lol_html",
+    "passed": true,
+    "prompt_tokens": 1285,
+    "output_tokens": 49,
+    "elapsed_ms": 954.3249589914922,
+    "response_preview": "```json\n{\n  \"event\": \"PyCon US 2026\",\n  \"cta_url\": \"https://us.pycon.org/2026/attend/information/\"\n}\n```"
+  },
+  {
+    "test": "Python.org: Extract key info",
+    "tool": "trafilatura",
+    "passed": true,
+    "prompt_tokens": 713,
+    "output_tokens": 66,
+    "elapsed_ms": 1195.9644169983221,
+    "response_preview": "```json\n{\n  \"event\": \"PyCon US 2026, May 13, 2026, in Long Beach, CA\",\n  \"cta_url\": \"https://us.pycon.org/2026/attend/information/\"\n}\n```"
+  },
+  {
+    "test": "Python.org: Extract key info",
+    "tool": "playwright",
+    "passed": true,
+    "prompt_tokens": 1876,
+    "output_tokens": 45,
+    "elapsed_ms": 1887.7703330072109,
+    "response_preview": "```json\n{\n  \"event\": \"PyCon US 2026\",\n  \"cta_url\": \"https://us.pycon.org/2026/\"\n}\n```"
+  }
+]

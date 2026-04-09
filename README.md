@@ -157,38 +157,54 @@ Agent 写完代码后的极速验证（Sanity Check），不是 UI 测试：
 
 ## 路线图
 
-### Phase 1：MVP — T0 层 + 提炼器
+### Phase 1：MVP — T0 层 + 提炼器 ✅ Done
 
-- [ ] reqwest HTTP 抓取
-- [ ] scraper + html2md 提炼管线
-- [ ] PyO3 异步桥接，暴露给 Python 调度器
-- [ ] 跑通静态页面抓取 → 清洗 → 喂给 LLM 的完整链路
+- [x] reqwest HTTP 抓取（gzip/brotli/deflate）
+- [x] 双 distiller：scraper (DOM) + lol_html (流式, 6.76ms/500KB)
+- [x] DOM 降噪、Markdown 输出、行级去重
+- [x] HTML entity 解码、相对链接拼接、`<pre>` 缩进保留
+- [x] PyO3 绑定（fetch, fetch_many, probe）
+- [x] Python Agent API + LLM tool definitions
+- [x] HN → Gemini 端到端 demo 跑通
 
-### Phase 2：T1 层 — 无头浏览器
+### Phase 2：T1 层 — 无头浏览器 ✅ Done
 
-- [ ] chromiumoxide 集成，全局守护进程
-- [ ] 极度阉割启动参数（禁 GPU/图片/CSS/字体）
-- [ ] 毫秒级 Context 创建/销毁
-- [ ] 资源拦截器
-- [ ] 基础交互（导航、点击、表单、滚动）
-- [ ] T0 → T1 自动回退机制
+- [x] chromiumoxide 集成，全局 Chrome 守护进程
+- [x] 极度阉割启动参数（禁 GPU/图片/CSS/字体）
+- [x] 毫秒级 Context 创建/销毁
+- [x] T0 → T1 自动回退机制（auto 模式）
+- [x] Probe API：CDP in-browser DOM 检查（render_js=true）
+- [ ] 资源拦截器（CDP Fetch domain 级别拦截）
+- [ ] CDP 交互（点击、表单、滚动）
 
-### Phase 3：协议层反爬
+### Phase 3：开发工具 — 逻辑探针 ✅ Done
 
-- [ ] reqwest-impersonate 集成（T0 层 TLS 伪装）
+- [x] smoke_test()：HTTP 状态 + DOM selector + text contains
+- [x] assert_page()：一行断言
+- [x] snapshot() + diff_snapshots()：DOM 快照对比
+- [x] Probe tool definitions（LLM function calling）
+- [ ] DOM 逻辑快照库（自动化回归检测）
+- [ ] 全站地毯式扫描（50 页 < 5 秒）
+
+### Phase 4：生产力工具 — Agent 执行器
+
+- [ ] Cookie/Session 注入（跳过登录）
+- [ ] CDP 交互（点击、表单填写、下单）
+- [ ] 逻辑验证闭环（扫描 "Order Confirmed"）
+- [ ] reqwest-impersonate 集成（TLS 指纹伪装）
 - [ ] HTTP/2 帧特征伪装
-- [ ] Header 顺序与真实 Chrome 对齐
-- [ ] Cookie/会话自动管理与凭证复用
+- [ ] 验证码处理（第三方打码 / 人工介入）
 
-### Phase 4：Agent 集成与规模化
+### Phase 5：评估与规模化
 
-- [ ] gRPC / HTTP API
-- [ ] 结构化 JSON 输出（适配 LLM function calling）
-- [ ] 会话快照与恢复
+- [x] Criterion 性能基准（scraper vs lol_html）
+- [x] 7 站点黄金语料库 + 5 工具对比
+- [x] 启发式评估管线（压缩率、链接留存、噪声、结构）
+- [ ] LLM-as-Judge 评估（promptfoo）
+- [ ] Top 50 Golden Corpus（人工校对）
 - [ ] 分布式调度（多节点浏览器池）
-- [ ] Serverless 部署支持
+- [ ] Serverless 部署
 - [ ] 监控与可观测性
-- [ ] SDK（Python / TypeScript / Rust）
 
 ## 快速开始
 
