@@ -3,9 +3,44 @@
 > The MCP-compatible browser built for silicon-based lifeforms.
 > 专为硅基生物打造的 MCP 兼容浏览器。
 
+## Why Not Playwright MCP?
+
+Playwright MCP gives LLM raw HTML (25,000 tokens of noise). SiliconSurfer gives LLM **finished data**:
+
+| | Playwright MCP | SiliconSurfer |
+|---|---|---|
+| Read a page | Raw HTML, 25K tokens | Clean Markdown, 5K tokens |
+| Find form fields | LLM parses HTML | `@e3 [Input: name=username]` |
+| Get all links | LLM searches `<a>` tags | `links()` → JSON array |
+| Extract table | LLM parses `<table>` | `extract()` → JSON rows |
+| Modes | 1 (everything) | 5 (Reader/Operator/Spider/Developer/Data) |
+| Speed | Browser startup per call | 1ms, no browser needed |
+
+**Results: 30/30 eval (vs Jina 20/30), 5/5 E2E (vs browser-use 0/5), 6.2x faster.**
+
+## MCP Tools
+
+```bash
+browse(url)    # Read content → clean Markdown
+interact(url)  # See UI elements → @e1 @e2 @e3 references
+links(url)     # Get link map → JSON {nav, content, footer}
+extract(url)   # Get tables/lists → structured JSON
+skeleton(url)  # Get DOM structure → HTML skeleton with attributes
+```
+
+## Quick Start
+
+```bash
+cargo build --release -p agent-browser-server
+PORT=9883 ./target/release/agent-browser-server &
+uv run python mcp_server.py  # MCP for Claude
+```
+
+Claude Code: add `.mcp.json`, restart, use `browse("https://...")`.
+
 ## 定位
 
-AI Agent 需要从互联网获取信息和执行操作，但不需要 CSS 渲染、可视化调试等面向人类的功能。现有方案（Playwright/Puppeteer）太重，无法支撑大规模并发。
+AI Agent 需要从互联网获取信息和执行操作，但不需要 CSS 渲染、可视化调试等面向人类的功能。
 
 SiliconSurfer 让 AI 用**硅基生物的方式**看网页——5 种视觉模式，@e 元素引用，毫秒级响应。
 
