@@ -1,5 +1,6 @@
 pub mod browser;
 pub mod cdp;
+pub mod profiles;
 pub mod distiller;
 pub mod distiller_fast;
 pub mod extract;

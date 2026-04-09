@@ -6,12 +6,66 @@
 use lol_html::{element, rewrite_str, RewriteStrSettings};
 use lol_html::html_content::ContentType::Text;
 
+use crate::profiles;
+
 use super::{extract_origin, finalize, reader_noise_selectors, strip_tags};
 
 pub fn distill(html: &str, base_url: Option<&str>) -> String {
-    let rewritten = rewrite(html, base_url);
+    // First: apply site-specific profile noise removal (dynamic selectors)
+    let cleaned = if let Some(url) = base_url {
+        apply_profile_noise(html, url)
+    } else {
+        html.to_string()
+    };
+    // Then: standard Reader rewrite (static selectors)
+    let rewritten = rewrite(&cleaned, base_url);
     let text = strip_tags(&rewritten);
     finalize(&text)
+}
+
+/// Apply site-specific noise removal from profiles.toml.
+/// Uses scraper (DOM) for dynamic selectors since lol_html element! needs &'static str.
+fn apply_profile_noise(html: &str, url: &str) -> String {
+    let extra = profiles::extra_noise_for_url(url);
+    if extra.is_empty() {
+        return html.to_string();
+    }
+
+    // Parse selectors, collect matching elements' HTML, then remove them
+    let doc = scraper::Html::parse_document(html);
+    let mut noise_fragments: Vec<String> = Vec::new();
+
+    for sel_str in &extra {
+        if let Ok(sel) = scraper::Selector::parse(sel_str) {
+            for el in doc.select(&sel) {
+                noise_fragments.push(el.html());
+            }
+        }
+    }
+
+    if noise_fragments.is_empty() {
+        return html.to_string();
+    }
+
+    // Remove noise fragments from HTML
+    let mut result = html.to_string();
+    for frag in &noise_fragments {
+        if frag.len() > 10 { // Skip tiny fragments that might cause false matches
+            result = result.replacen(frag, "", 1);
+        }
+    }
+    result
+}
+
+/// Get combined noise selectors: base + site-specific profile.
+fn get_noise_selectors(base_url: Option<&str>) -> Vec<String> {
+    let mut selectors: Vec<String> = reader_noise_selectors().iter().map(|s| s.to_string()).collect();
+    if let Some(url) = base_url {
+        for extra in profiles::extra_noise_for_url(url) {
+            selectors.push(extra.to_string());
+        }
+    }
+    selectors
 }
 
 pub fn to_text(html: &str) -> String {
@@ -25,10 +79,11 @@ fn rewrite(html: &str, base_url: Option<&str>) -> String {
 
     let mut handlers = Vec::new();
 
-    // Noise removal
+    // Noise removal — base selectors + site-specific profile
     for sel in reader_noise_selectors() {
         handlers.push(element!(sel, |el| { el.remove(); Ok(()) }));
     }
+    // Site-specific noise already removed in apply_profile_noise() above.
 
     // Headings
     handlers.push(element!("h1", |el| { el.before("\n\n# ", Text); el.after("\n\n", Text); Ok(()) }));

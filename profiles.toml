@@ -1,0 +1,100 @@
+# SiliconSurfer Site Profiles Database
+# Add new sites here — no recompilation needed.
+# Each profile adds extra noise selectors on top of the base Reader selectors.
+
+[[profile]]
+name = "tencent_cloud"
+domains = ["cloud.tencent.com"]
+extra_noise = [
+    "[class*='header-nav']", "[class*='top-bar']",
+    "[class*='com-header']", "[class*='c-header']",
+    "[class*='aside']", "[class*='sidebar']", "[class*='catalog']",
+    "[class*='toc-']", "[class*='right-sidebar']",
+    "[class*='author-info']", "[class*='article-info']",
+    "[class*='mod-tag']", "[class*='tag-list']",
+    "[class*='comment']", "[class*='recommend']",
+    "[class*='related']", "[class*='hot-article']",
+    "[class*='com-footer']", "[class*='c-footer']",
+    "[class*='copyright']", "[class*='footer-nav']",
+    "[class*='product-card']", "[class*='ad-banner']",
+    "[class*='act-banner']", "[class*='featured']",
+]
+
+[[profile]]
+name = "csdn"
+domains = ["blog.csdn.net", "csdn.net"]
+extra_noise = [
+    ".recommend-box", ".recommend-item-box",
+    ".aside-box", "#asideArchive", "#asideCategory",
+    ".comment-box", ".comment-list-box",
+    ".tool-active", ".tool-item",
+    ".article-type-img", "[class*='toolbar']",
+    "[class*='blogColumn']", "[class*='more-toolbox']",
+    ".passport-container", ".left-toolbox",
+    "#blogExtensionBox", "#treeSkill",
+]
+
+[[profile]]
+name = "juejin"
+domains = ["juejin.cn"]
+extra_noise = [
+    ".sidebar", ".recommended-area",
+    ".article-suspended-panel", ".comment-box",
+    ".tag-list", ".author-info-block",
+    "[class*='catalog']", "[class*='sidebar']",
+    ".related-entry", ".stacked-area",
+]
+
+[[profile]]
+name = "zhihu"
+domains = ["zhihu.com", "zhuanlan.zhihu.com"]
+extra_noise = [
+    ".ColumnPageHeader", ".Post-SideActions",
+    ".Recommendations", ".RelatedReadings",
+    ".Comments-container", "[class*='RichContent-actions']",
+    "[class*='BottomActions']", ".ContentItem-actions",
+]
+
+[[profile]]
+name = "medium"
+domains = ["medium.com"]
+extra_noise = [
+    "[class*='metabar']", "[class*='postActions']",
+    "[class*='recomm']", "[class*='responsesWrapper']",
+    ".branch-journeys-top",
+]
+
+[[profile]]
+name = "github"
+domains = ["github.com"]
+extra_noise = [
+    ".js-header-wrapper", ".footer",
+    ".file-navigation", ".Box-header",
+    ".signup-prompt", "[class*='flash']",
+    ".reponav", ".UnderlineNav",
+]
+
+[[profile]]
+name = "stackoverflow"
+domains = ["stackoverflow.com", "stackexchange.com"]
+extra_noise = [
+    ".s-sidebarwidget", "#hot-network-questions",
+    ".post-menu", ".js-post-menu",
+    "#sidebar", ".community-bulletin",
+]
+
+[[profile]]
+name = "wikipedia"
+domains = ["wikipedia.org"]
+extra_noise = [
+    "#mw-navigation", "#mw-panel", "#footer",
+    ".navbox", ".mw-jump-link", ".sistersitebox",
+    "#catlinks", ".mw-editsection",
+]
+
+[[profile]]
+name = "hacker_news"
+domains = ["news.ycombinator.com"]
+extra_noise = [
+    ".pagetop", ".yclinks",
+]
