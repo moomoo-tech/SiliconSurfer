@@ -184,24 +184,36 @@ impl AgentSession {
                 })
             "#.to_string()).await;
 
-            // Bug 11 fix: Flatten Shadow DOM into light DOM
+            // Bug 11 fix: Shadow Piercer — tag real nodes + flatten shadow content
             let _ = page.evaluate(r#"
                 (() => {
-                    function flattenShadow(root) {
-                        root.querySelectorAll('*').forEach(el => {
-                            if (el.shadowRoot) {
-                                // Copy shadow content into light DOM
-                                const shadowHtml = el.shadowRoot.innerHTML;
-                                const wrapper = document.createElement('div');
-                                wrapper.setAttribute('data-shadow-host', el.tagName.toLowerCase());
-                                wrapper.innerHTML = shadowHtml;
-                                el.appendChild(wrapper);
-                                // Recurse into nested shadows
-                                flattenShadow(wrapper);
+                    let counter = 0;
+                    function walkAndTag(node) {
+                        const children = node.shadowRoot
+                            ? node.shadowRoot.childNodes
+                            : node.childNodes;
+                        for (const child of children) {
+                            if (child.nodeType !== Node.ELEMENT_NODE) continue;
+                            const tag = child.tagName.toLowerCase();
+                            // Tag interactive elements with data-agent-id on the REAL node
+                            const isInteractive = ['input','button','a','select','textarea'].includes(tag)
+                                || child.getAttribute('role') === 'button'
+                                || child.onclick != null;
+                            if (isInteractive) {
+                                counter++;
+                                child.setAttribute('data-agent-id', 'e' + counter);
                             }
-                        });
+                            // Flatten shadow content into light DOM for serialization
+                            if (child.shadowRoot) {
+                                const flat = document.createElement('div');
+                                flat.setAttribute('data-shadow-host', tag);
+                                flat.innerHTML = child.shadowRoot.innerHTML;
+                                child.appendChild(flat);
+                            }
+                            walkAndTag(child);
+                        }
                     }
-                    flattenShadow(document);
+                    walkAndTag(document.body || document);
                 })()
             "#.to_string()).await;
 
