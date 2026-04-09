@@ -201,44 +201,61 @@ Content:
 # ==========================================
 def scenario_4_collect_quotes(pw_page):
     print("\n" + "="*80)
-    print("  SCENARIO 4: Collect Quotes Across 3 Pages")
+    print("  SCENARIO 4: Collect Quotes Across 3 Pages (Agent-driven pagination)")
     print("="*80)
 
     all_quotes = []
     url = "https://quotes.toscrape.com/"
+    step = 0
 
     for page_num in range(1, 4):
-        # SEE page
+        # SEE — read current page content
         content = see(url, "reader")
-        log_step(page_num * 2 - 1, f"SEE page {page_num} (reader)", f"{len(content)} chars")
+        step += 1
+        log_step(step, f"SEE page (reader) — {len(content)} chars")
 
-        # THINK — extract quotes
+        # THINK — extract quotes from what Agent sees
+        step += 1
         result = think(f"""Extract all quotes from this page.
 Return JSON array: [{{"text": "...", "author": "..."}}]
 Only include quotes actually present in the text.
 
 Content:
 {content[:4000]}""")
-        log_step(page_num * 2, f"THINK — extract quotes from page {page_num}", result[:150])
+        log_step(step, "THINK — extract quotes", result[:100])
 
         try:
-            quotes = json.loads(result.strip().strip("`").replace("json\n", "").strip())
-            if isinstance(quotes, list):
-                all_quotes.extend(quotes)
+            cleaned = result.strip().strip("`").replace("json\n", "").strip()
+            if cleaned.startswith("["):
+                quotes = json.loads(cleaned)
+                if isinstance(quotes, list):
+                    all_quotes.extend(quotes)
         except Exception:
             pass
 
-        # Find next page
+        # SEE — get page link topology
         spider = see(url, "spider")
-        spider_data = json.loads(spider)
-        next_link = None
-        for link in spider_data.get("content_links", []):
-            if f"page/{page_num + 1}" in link.get("url", ""):
-                next_link = link["url"]
-                break
+        step += 1
+        log_step(step, "SEE page (spider) — link topology")
 
-        if next_link:
-            url = next_link
+        # THINK — Agent decides: is there a next page? What URL?
+        step += 1
+        decision = think(f"""You are collecting quotes from multiple pages. You are on page {page_num}.
+You have collected {len(all_quotes)} quotes so far. You need at least 20.
+
+Here are all the links on this page:
+{spider}
+
+Question: Is there a "next page" link? If yes, return ONLY the full URL.
+If no more pages or you have enough quotes, return DONE.""")
+
+        decision = decision.strip().split("\n")[0].strip()
+        log_step(step, f"THINK — decision: {decision[:60]}")
+
+        if decision.startswith("http"):
+            url = decision
+        elif "DONE" in decision.upper() or len(all_quotes) >= 20:
+            break
         else:
             break
 
