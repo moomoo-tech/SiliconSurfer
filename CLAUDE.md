@@ -11,6 +11,7 @@ crates/
       strategy/   — 5 distill modes (reader/operator/spider/developer/data)
       browser.rs  — Chrome daemon pool (chromiumoxide CDP)
       cdp.rs      — CDP interaction layer (click/fill/submit)
+      session.rs  — AgentSession (stateful: navigate/observe/act + stealth patches)
       distiller.rs      — AST engine (scraper, Visitor+Context)
       distiller_fast.rs — Stream engine dispatcher (lol_html)
       profiles.rs — Site-specific noise profiles (loaded from profiles.toml)
@@ -18,16 +19,18 @@ crates/
       router.rs   — T0/T1/auto routing engine
       extract.rs  — Extractor trait + Profile config
       fetcher.rs  — HTTP fetch + distill
+    tests/        — 38 integration tests
+    benches/      — Criterion benchmarks
   server/         — axum HTTP server (/fetch, /distill, /probe, /health)
-  python/         — PyO3 bindings (fetch, probe)
+  python/         — PyO3 bindings (fetch, probe, Session)
 
 python/           — Python API + Agent tools
-examples/         — E2E Agent loop demos
+tests/            — Python tests (pytest)
 eval/             — Evaluation pipeline (heuristic + LLM judge)
-mcp_server.py     — MCP server (5 tools for Claude)
+mcp_server.py     — MCP server (2 tools: observe + act)
 profiles.toml     — Site noise database (add sites without recompiling)
 config.toml       — API keys (gitignored)
-docs/benchmarks/  — Performance diary (v0-v11)
+.github/workflows/ci.yml — GitHub Actions CI
 ```
 
 ## Key Commands
@@ -36,8 +39,15 @@ docs/benchmarks/  — Performance diary (v0-v11)
 # Build
 cargo build --release -p agent-browser-server
 
-# Test
-cargo test -p agent-browser-core
+# Test (Rust)
+cargo test --workspace
+
+# Test (Python)
+uv run python -m pytest tests/ -v
+
+# Lint
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
 
 # Benchmark
 cargo bench -p agent-browser-core
@@ -47,11 +57,6 @@ PORT=9883 ./target/release/agent-browser-server
 
 # Run MCP server (for Claude Code)
 uv run python mcp_server.py
-
-# Run eval
-python3 eval/llm_judge.py
-python3 eval/llm_judge_comprehensive.py
-python3 eval/e2e_browser_use.py
 ```
 
 ## Architecture
@@ -66,6 +71,8 @@ python3 eval/e2e_browser_use.py
 - **Spider**: JSON link topology (nav/content/footer)
 - **Developer**: DOM skeleton with attributes
 - **Data**: Structured JSON tables/lists
+
+MCP tools: `observe(url, mode)` + `act(action, target, value)`
 
 ## Config
 

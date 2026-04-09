@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "silicon-surfer": {
-      "command": "uv",
-      "args": ["run", "python", "mcp_server.py"],
+      "command": "/Users/hucao/projects/agent-browser/.venv/bin/python",
+      "args": ["mcp_server.py"],
       "cwd": "/Users/hucao/projects/agent-browser"
     }
   }
