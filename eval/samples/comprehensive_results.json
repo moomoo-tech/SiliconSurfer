@@ -1,0 +1,609 @@
+{
+  "nav": {
+    "operator": {
+      "pass": 10,
+      "total": 10,
+      "details": [
+        {
+          "test": "Nav-1: Find login page URL",
+          "pass": true,
+          "response": "https://quotes.toscrape.com/login",
+          "tokens": 1421
+        },
+        {
+          "test": "Nav-2: Find next page URL",
+          "pass": true,
+          "response": "https://quotes.toscrape.com/page/2/",
+          "tokens": 1423
+        },
+        {
+          "test": "Nav-3: Find category link",
+          "pass": true,
+          "response": "https://books.toscrape.com/catalogue/category/books/travel_2/index.html",
+          "tokens": 2229
+        },
+        {
+          "test": "Nav-4: Count navigation links",
+          "pass": true,
+          "response": "44",
+          "tokens": 956
+        },
+        {
+          "test": "Nav-5: Find specific link by text",
+          "pass": true,
+          "response": "https://the-internet.herokuapp.com/login",
+          "tokens": 964
+        },
+        {
+          "test": "Nav-6: Find author page",
+          "pass": true,
+          "response": "https://quotes.toscrape.com/author/Albert-Einstein",
+          "tokens": 1423
+        },
+        {
+          "test": "Nav-7: Find tag page",
+          "pass": true,
+          "response": "https://quotes.toscrape.com/tag/life/page/1/",
+          "tokens": 1423
+        },
+        {
+          "test": "Nav-8: Find footer link",
+          "pass": true,
+          "response": "https://www.goodreads.com/quotes",
+          "tokens": 1418
+        },
+        {
+          "test": "Nav-9: Find last page number",
+          "pass": true,
+          "response": "(No pagination info provided in the text)",
+          "tokens": 2225
+        },
+        {
+          "test": "Nav-10: Find external link",
+          "pass": true,
+          "response": "https://www.goodreads.com/quotes",
+          "tokens": 1429
+        }
+      ]
+    },
+    "reader": {
+      "pass": 7,
+      "total": 10,
+      "details": [
+        {
+          "test": "Nav-1: Find login page URL",
+          "pass": true,
+          "response": "https://quotes.toscrape.com/login",
+          "tokens": 1355
+        },
+        {
+          "test": "Nav-2: Find next page URL",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 1357
+        },
+        {
+          "test": "Nav-3: Find category link",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 953
+        },
+        {
+          "test": "Nav-4: Count navigation links",
+          "pass": true,
+          "response": "44",
+          "tokens": 956
+        },
+        {
+          "test": "Nav-5: Find specific link by text",
+          "pass": true,
+          "response": "https://the-internet.herokuapp.com/login",
+          "tokens": 964
+        },
+        {
+          "test": "Nav-6: Find author page",
+          "pass": true,
+          "response": "https://quotes.toscrape.com/author/Albert-Einstein",
+          "tokens": 1357
+        },
+        {
+          "test": "Nav-7: Find tag page",
+          "pass": true,
+          "response": "https://quotes.toscrape.com/tag/life/page/1/",
+          "tokens": 1357
+        },
+        {
+          "test": "Nav-8: Find footer link",
+          "pass": true,
+          "response": "The provided text does not contain a URL for GoodReads.com.",
+          "tokens": 1352
+        },
+        {
+          "test": "Nav-9: Find last page number",
+          "pass": true,
+          "response": "50",
+          "tokens": 949
+        },
+        {
+          "test": "Nav-10: Find external link",
+          "pass": false,
+          "response": "There are no external URLs in the provided text that link to a website other tha",
+          "tokens": 1363
+        }
+      ]
+    },
+    "playwright": {
+      "pass": 4,
+      "total": 10,
+      "details": [
+        {
+          "test": "Nav-1: Find login page URL",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 452
+        },
+        {
+          "test": "Nav-2: Find next page URL",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 454
+        },
+        {
+          "test": "Nav-3: Find category link",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 688
+        },
+        {
+          "test": "Nav-4: Count navigation links",
+          "pass": true,
+          "response": "44",
+          "tokens": 214
+        },
+        {
+          "test": "Nav-5: Find specific link by text",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 222
+        },
+        {
+          "test": "Nav-6: Find author page",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 454
+        },
+        {
+          "test": "Nav-7: Find tag page",
+          "pass": false,
+          "response": "MISSING",
+          "tokens": 454
+        },
+        {
+          "test": "Nav-8: Find footer link",
+          "pass": true,
+          "response": "GoodReads.com",
+          "tokens": 449
+        },
+        {
+          "test": "Nav-9: Find last page number",
+          "pass": true,
+          "response": "50",
+          "tokens": 684
+        },
+        {
+          "test": "Nav-10: Find external link",
+          "pass": true,
+          "response": "http://GoodReads.com",
+          "tokens": 460
+        }
+      ]
+    }
+  },
+  "forms": {
+    "operator": {
+      "pass": 10,
+      "total": 10,
+      "details": [
+        {
+          "test": "Form-1: Login field names",
+          "pass": true,
+          "response": "{\"username_field\": \"username\", \"password_field\": \"password\"}",
+          "tokens": 193
+        },
+        {
+          "test": "Form-2: Form action URL",
+          "pass": true,
+          "response": "{\"action\": \"/login\", \"method\": \"POST\"}",
+          "tokens": 182
+        },
+        {
+          "test": "Form-3: Hidden CSRF token",
+          "pass": true,
+          "response": "{\"has_csrf\": true, \"field_name\": \"csrf_token\"}",
+          "tokens": 191
+        },
+        {
+          "test": "Form-4: Pizza order fields",
+          "pass": true,
+          "response": "```json\n[\n  \"custname\",\n  \"custtel\",\n  \"custemail\",\n  \"size\",\n  \"topping\",\n  \"de",
+          "tokens": 212
+        },
+        {
+          "test": "Form-5: Input types",
+          "pass": true,
+          "response": "```json\n[\n  \"text\",\n  \"tel\",\n  \"email\",\n  \"radio\",\n  \"checkbox\",\n  \"time\"\n]\n```",
+          "tokens": 221
+        },
+        {
+          "test": "Form-6: Submit button text",
+          "pass": true,
+          "response": "Submit order",
+          "tokens": 210
+        },
+        {
+          "test": "Form-7: Radio options",
+          "pass": true,
+          "response": "```json\n[\n  \"Small\",\n  \"Medium\",\n  \"Large\"\n]\n```",
+          "tokens": 210
+        },
+        {
+          "test": "Form-8: Checkbox options",
+          "pass": true,
+          "response": "[\n  \"Bacon\",\n  \"Extra Cheese\",\n  \"Onion\",\n  \"Mushroom\"\n]",
+          "tokens": 208
+        },
+        {
+          "test": "Form-9: Form POST target",
+          "pass": true,
+          "response": "/post",
+          "tokens": 208
+        },
+        {
+          "test": "Form-10: Email field",
+          "pass": true,
+          "response": "custemail",
+          "tokens": 211
+        }
+      ]
+    },
+    "reader": {
+      "pass": 0,
+      "total": 10,
+      "details": [
+        {
+          "test": "Form-1: Login field names",
+          "pass": false,
+          "response": "{\"username_field\": \"MISSING\", \"password_field\": \"MISSING\"}",
+          "tokens": 93
+        },
+        {
+          "test": "Form-2: Form action URL",
+          "pass": false,
+          "response": "{\n  \"action\": null,\n  \"method\": null\n}",
+          "tokens": 82
+        },
+        {
+          "test": "Form-3: Hidden CSRF token",
+          "pass": false,
+          "response": "{\"has_csrf\": false, \"field_name\": null}",
+          "tokens": 91
+        },
+        {
+          "test": "Form-4: Pizza order fields",
+          "pass": false,
+          "reason": "EMPTY"
+        },
+        {
+          "test": "Form-5: Input types",
+          "pass": false,
+          "reason": "EMPTY"
+        },
+        {
+          "test": "Form-6: Submit button text",
+          "pass": false,
+          "reason": "EMPTY"
+        },
+        {
+          "test": "Form-7: Radio options",
+          "pass": false,
+          "reason": "EMPTY"
+        },
+        {
+          "test": "Form-8: Checkbox options",
+          "pass": false,
+          "reason": "EMPTY"
+        },
+        {
+          "test": "Form-9: Form POST target",
+          "pass": false,
+          "reason": "EMPTY"
+        },
+        {
+          "test": "Form-10: Email field",
+          "pass": false,
+          "reason": "EMPTY"
+        }
+      ]
+    },
+    "playwright": {
+      "pass": 3,
+      "total": 10,
+      "details": [
+        {
+          "test": "Form-1: Login field names",
+          "pass": false,
+          "response": "{\n  \"username_field\": \"MISSING\",\n  \"password_field\": \"MISSING\"\n}",
+          "tokens": 86
+        },
+        {
+          "test": "Form-2: Form action URL",
+          "pass": false,
+          "response": "{\"action\": null, \"method\": null}",
+          "tokens": 75
+        },
+        {
+          "test": "Form-3: Hidden CSRF token",
+          "pass": false,
+          "response": "{\"has_csrf\": false, \"field_name\": null}",
+          "tokens": 84
+        },
+        {
+          "test": "Form-4: Pizza order fields",
+          "pass": false,
+          "response": "```json\n[\n  \"Customer name\",\n  \"Telephone\",\n  \"E-mail address\",\n  \"Pizza Size\",\n",
+          "tokens": 88
+        },
+        {
+          "test": "Form-5: Input types",
+          "pass": false,
+          "response": "```json\n[]\n```",
+          "tokens": 97
+        },
+        {
+          "test": "Form-6: Submit button text",
+          "pass": true,
+          "response": "Submit order",
+          "tokens": 86
+        },
+        {
+          "test": "Form-7: Radio options",
+          "pass": true,
+          "response": "```json\n[\n  \"Small\",\n  \"Medium\",\n  \"Large\"\n]\n```",
+          "tokens": 86
+        },
+        {
+          "test": "Form-8: Checkbox options",
+          "pass": true,
+          "response": "```json\n[\n  \"Bacon\",\n  \"Extra Cheese\",\n  \"Onion\",\n  \"Mushroom\"\n]\n```",
+          "tokens": 84
+        },
+        {
+          "test": "Form-9: Form POST target",
+          "pass": false,
+          "response": "The provided text does not contain a URL.",
+          "tokens": 84
+        },
+        {
+          "test": "Form-10: Email field",
+          "pass": false,
+          "response": "E-mail address",
+          "tokens": 87
+        }
+      ]
+    }
+  },
+  "content": {
+    "operator": {
+      "pass": 9,
+      "total": 10,
+      "details": [
+        {
+          "test": "Content-1: First quote text",
+          "pass": true,
+          "response": "\u201cThe world as we have created it is a process of our thinking. It cannot be chan",
+          "tokens": 1418
+        },
+        {
+          "test": "Content-2: First quote author",
+          "pass": true,
+          "response": "Albert Einstein",
+          "tokens": 1417
+        },
+        {
+          "test": "Content-3: Count quotes on page",
+          "pass": true,
+          "response": "10",
+          "tokens": 1414
+        },
+        {
+          "test": "Content-4: First book title",
+          "pass": true,
+          "response": "A Light in the ...",
+          "tokens": 2220
+        },
+        {
+          "test": "Content-5: First book price",
+          "pass": true,
+          "response": "\u00a351.77",
+          "tokens": 2230
+        },
+        {
+          "test": "Content-6: Count books on page",
+          "pass": true,
+          "response": "20",
+          "tokens": 2220
+        },
+        {
+          "test": "Content-7: Tags on first quote",
+          "pass": true,
+          "response": "[\n  \"change\",\n  \"deep-thoughts\",\n  \"thinking\",\n  \"world\"\n]",
+          "tokens": 1414
+        },
+        {
+          "test": "Content-8: HerokuApp page title",
+          "pass": true,
+          "response": "Welcome to the-internet",
+          "tokens": 954
+        },
+        {
+          "test": "Content-9: Book rating",
+          "pass": false,
+          "response": "Information not provided.",
+          "tokens": 2231
+        },
+        {
+          "test": "Content-10: In-stock status",
+          "pass": true,
+          "response": "In stock",
+          "tokens": 2229
+        }
+      ]
+    },
+    "reader": {
+      "pass": 10,
+      "total": 10,
+      "details": [
+        {
+          "test": "Content-1: First quote text",
+          "pass": true,
+          "response": "\u201cThe world as we have created it is a process of our thinking. It cannot be chan",
+          "tokens": 1352
+        },
+        {
+          "test": "Content-2: First quote author",
+          "pass": true,
+          "response": "Albert Einstein",
+          "tokens": 1351
+        },
+        {
+          "test": "Content-3: Count quotes on page",
+          "pass": true,
+          "response": "10",
+          "tokens": 1348
+        },
+        {
+          "test": "Content-4: First book title",
+          "pass": true,
+          "response": "A Light in the ...",
+          "tokens": 944
+        },
+        {
+          "test": "Content-5: First book price",
+          "pass": true,
+          "response": "\u00a351.77",
+          "tokens": 954
+        },
+        {
+          "test": "Content-6: Count books on page",
+          "pass": true,
+          "response": "20",
+          "tokens": 944
+        },
+        {
+          "test": "Content-7: Tags on first quote",
+          "pass": true,
+          "response": "[\n  \"change\",\n  \"deep-thoughts\",\n  \"thinking\",\n  \"world\"\n]",
+          "tokens": 1348
+        },
+        {
+          "test": "Content-8: HerokuApp page title",
+          "pass": true,
+          "response": "Welcome to the-internet",
+          "tokens": 954
+        },
+        {
+          "test": "Content-9: Book rating",
+          "pass": true,
+          "response": "Three",
+          "tokens": 955
+        },
+        {
+          "test": "Content-10: In-stock status",
+          "pass": true,
+          "response": "In stock",
+          "tokens": 953
+        }
+      ]
+    },
+    "playwright": {
+      "pass": 10,
+      "total": 10,
+      "details": [
+        {
+          "test": "Content-1: First quote text",
+          "pass": true,
+          "response": "\u201cThe world as we have created it is a process of our thinking. It cannot be chan",
+          "tokens": 449
+        },
+        {
+          "test": "Content-2: First quote author",
+          "pass": true,
+          "response": "Albert Einstein",
+          "tokens": 448
+        },
+        {
+          "test": "Content-3: Count quotes on page",
+          "pass": true,
+          "response": "10",
+          "tokens": 445
+        },
+        {
+          "test": "Content-4: First book title",
+          "pass": true,
+          "response": "A Light in the ...",
+          "tokens": 679
+        },
+        {
+          "test": "Content-5: First book price",
+          "pass": true,
+          "response": "\u00a351.77",
+          "tokens": 689
+        },
+        {
+          "test": "Content-6: Count books on page",
+          "pass": true,
+          "response": "20",
+          "tokens": 679
+        },
+        {
+          "test": "Content-7: Tags on first quote",
+          "pass": true,
+          "response": "```json\n[\n  \"change\",\n  \"deep-thoughts\",\n  \"thinking\",\n  \"world\"\n]\n```",
+          "tokens": 445
+        },
+        {
+          "test": "Content-8: HerokuApp page title",
+          "pass": true,
+          "response": "Welcome to the-internet",
+          "tokens": 212
+        },
+        {
+          "test": "Content-9: Book rating",
+          "pass": true,
+          "response": "Three",
+          "tokens": 690
+        },
+        {
+          "test": "Content-10: In-stock status",
+          "pass": true,
+          "response": "In stock",
+          "tokens": 688
+        }
+      ]
+    }
+  },
+  "grand": {
+    "operator": {
+      "pass": 29,
+      "total": 30
+    },
+    "reader": {
+      "pass": 17,
+      "total": 30
+    },
+    "playwright": {
+      "pass": 17,
+      "total": 30
+    }
+  }
+}
