@@ -1,0 +1,66 @@
+{
+  "siliconsurfer": [
+    {
+      "success": true,
+      "result": "The username field name is 'username' and the password field name is 'password'.",
+      "steps": 1,
+      "elapsed_s": 3.2
+    },
+    {
+      "success": false,
+      "result": "timeout",
+      "steps": 10,
+      "elapsed_s": 21.2
+    },
+    {
+      "success": true,
+      "result": "",
+      "steps": 1,
+      "elapsed_s": 2.9
+    },
+    {
+      "success": false,
+      "result": "timeout",
+      "steps": 10,
+      "elapsed_s": 17.4
+    },
+    {
+      "success": false,
+      "result": "timeout",
+      "steps": 10,
+      "elapsed_s": 21.6
+    }
+  ],
+  "browser_use": [
+    {
+      "success": false,
+      "result": "'AgentHistoryList' object has no attribute 'n_steps'",
+      "steps": 0,
+      "elapsed_s": 6.2
+    },
+    {
+      "success": false,
+      "result": "'AgentHistoryList' object has no attribute 'n_steps'",
+      "steps": 0,
+      "elapsed_s": 7.0
+    },
+    {
+      "success": false,
+      "result": "'AgentHistoryList' object has no attribute 'n_steps'",
+      "steps": 0,
+      "elapsed_s": 5.9
+    },
+    {
+      "success": false,
+      "result": "'AgentHistoryList' object has no attribute 'n_steps'",
+      "steps": 0,
+      "elapsed_s": 13.9
+    },
+    {
+      "success": false,
+      "result": "'AgentHistoryList' object has no attribute 'n_steps'",
+      "steps": 0,
+      "elapsed_s": 13.4
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[project]
+name = "silicon-surfer"
+version = "0.1.0"
+description = "The MCP-compatible browser built for silicon-based lifeforms"
+requires-python = ">=3.12"
+
+dependencies = [
+    "httpx>=0.28",
+    "tomllib-compat>=0.1; python_version<'3.11'",
+]
+
+[project.optional-dependencies]
+eval = [
+    "playwright>=1.40",
+    "trafilatura>=2.0",
+    "browser-use>=0.12",
+    "langchain-google-genai>=2.0",
+]
+dev = [
+    "maturin>=1.0",
+]
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+manifest-path = "crates/python/Cargo.toml"
+
+[tool.uv]
+dev-dependencies = [
+    "playwright>=1.40",
+    "trafilatura>=2.0",
+    "browser-use>=0.12",
+    "langchain-google-genai>=2.0",
+]
