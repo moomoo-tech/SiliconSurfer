@@ -75,8 +75,13 @@ impl BrowserPool {
             .arg("--no-first-run")
             // Kill font loading (saves bandwidth + rendering time)
             .arg("--disable-remote-fonts")
-            // Disable popups and prompts
+            // Kill canvas/drawing overhead (AI doesn't look at pixels)
+            .arg("--disable-canvas-aa")
+            .arg("--disable-2d-canvas-clip-aa")
+            .arg("--disable-gl-drawing-for-tests")
+            // Disable popups, notifications, prompts
             .arg("--disable-popup-blocking")
+            .arg("--disable-notifications")
             .arg("--disable-prompt-on-repost")
             .arg("--disable-hang-monitor")
             // Disable component updates
