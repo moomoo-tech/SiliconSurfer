@@ -62,7 +62,12 @@ impl AgentSession {
             p.goto(url).await.map_err(|e| BrowserError::Page(e.to_string()))?;
             p.clone()
         } else {
-            browser.new_page(url).await.map_err(|e| BrowserError::Page(e.to_string()))?
+            // New page — inject stealth patches BEFORE any navigation
+            let p = browser.new_page("about:blank").await
+                .map_err(|e| BrowserError::Page(e.to_string()))?;
+            Self::inject_stealth(&p).await;
+            p.goto(url).await.map_err(|e| BrowserError::Page(e.to_string()))?;
+            p
         };
 
         // Wait for DOM (fonts/images already blocked by Chrome launch args)
@@ -76,12 +81,68 @@ impl AgentSession {
         Ok(ActResult { success: true, url: self.current_url.clone(), detail: format!("Navigated to {}", url) })
     }
 
+    /// Bug 6 fix: Inject anti-bot stealth patches before page loads.
+    async fn inject_stealth(page: &chromiumoxide::Page) {
+        // Erase webdriver flag
+        let _ = page.evaluate(r#"
+            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+        "#.to_string()).await;
+
+        // Fake plugins (headless Chrome has 0 plugins)
+        let _ = page.evaluate(r#"
+            Object.defineProperty(navigator, 'plugins', {
+                get: () => [1, 2, 3, 4, 5].map(() => ({
+                    name: 'Chrome PDF Plugin',
+                    description: 'Portable Document Format',
+                    filename: 'internal-pdf-viewer',
+                    length: 1
+                }))
+            });
+        "#.to_string()).await;
+
+        // Fake languages
+        let _ = page.evaluate(r#"
+            Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});
+        "#.to_string()).await;
+
+        // Fix permissions API (headless reports 'denied' for everything)
+        let _ = page.evaluate(r#"
+            const originalQuery = window.navigator.permissions.query;
+            window.navigator.permissions.query = (parameters) =>
+                parameters.name === 'notifications'
+                    ? Promise.resolve({state: Notification.permission})
+                    : originalQuery(parameters);
+        "#.to_string()).await;
+
+        // Chrome runtime (headless doesn't have it)
+        let _ = page.evaluate(r#"
+            window.chrome = { runtime: {} };
+        "#.to_string()).await;
+    }
+
     /// OBSERVE — see the current page with our distiller.
     /// If mode=operator, also builds locator_map.
     pub async fn observe(&mut self, mode: DistillMode) -> Result<ObserveResult, BrowserError> {
-        // Get HTML and URL from page, with iframe content flattened
+        // Get HTML and URL from page, with ghost text removed + iframes flattened
         let (html, url) = {
             let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+
+            // Bug 5 fix: Remove invisible elements BEFORE extracting HTML
+            let _ = page.evaluate(r#"
+                (() => {
+                    const remove = [];
+                    document.querySelectorAll('*').forEach(el => {
+                        if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+                        const style = window.getComputedStyle(el);
+                        if (style.display === 'none' || style.visibility === 'hidden' ||
+                            style.opacity === '0' || el.getAttribute('aria-hidden') === 'true') {
+                            remove.push(el);
+                        }
+                    });
+                    remove.forEach(el => el.remove());
+                })()
+            "#.to_string()).await;
+
             let mut html = page.content().await.map_err(|e| BrowserError::Page(e.to_string()))?;
 
             // Flatten same-origin iframe contents into main HTML
@@ -176,8 +237,10 @@ impl AgentSession {
     }
 
     /// ACT — execute an action on a @eN element.
+    /// All CDP calls wrapped in timeout to prevent hanging on broken WebSocket (Bug 8).
     pub async fn act(&mut self, action: &str, target: &str, value: &str) -> Result<ActResult, BrowserError> {
         let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+        let cdp_timeout = std::time::Duration::from_secs(10);
 
         // Resolve @eN to CSS selector
         let selector = if target.starts_with("@e") {
@@ -231,7 +294,10 @@ impl AgentSession {
             _ => return Err(BrowserError::Page(format!("Unknown action: {}", action))),
         };
 
-        let result: serde_json::Value = page.evaluate(js).await
+        // Bug 8 fix: Timeout all CDP calls to prevent hanging on broken WebSocket
+        let result: serde_json::Value = tokio::time::timeout(cdp_timeout, page.evaluate(js))
+            .await
+            .map_err(|_| BrowserError::Page("CDP timeout — browser may be unresponsive".to_string()))?
             .map_err(|e| BrowserError::Page(e.to_string()))?
             .into_value()
             .map_err(|e| BrowserError::Page(format!("{:?}", e)))?;

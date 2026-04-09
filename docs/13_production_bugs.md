@@ -27,9 +27,39 @@ React/Vue partial DOM update after click → cached @e selectors point to stale 
 Fix: Invalidate locator_map after every act(). Force re-observe before next act.
 Status: Partially mitigated (session.rs rebuilds map on observe), but not enforced.
 
-## Priority
+## Status
 
-1. Bug 4 (@e drift) — easiest to fix, most likely to hit in E2E
-2. Bug 2 (zombie Chrome) — critical for production
-3. Bug 1 (event loop) — blocks PyO3 T1 usage
-4. Bug 3 (iframe) — edge case but important for payment/login
+- Bug 1 (event loop) ✓ Fixed — run_async() with thread detection
+- Bug 2 (zombie Chrome) ✓ Fixed — PID file + cleanup + atexit
+- Bug 3 (iframe) ✓ Fixed — flatten same-origin, mark cross-origin
+- Bug 4 (@e drift) ✓ Fixed — clear map after act, force re-observe
+
+## Bug 5: Ghost Text (display:none) 🔴
+
+lol_html extracts hidden elements (display:none, opacity:0).
+Agent sees two prices, picks wrong one.
+Fix (T1): inject JS to remove invisible elements before extraction.
+Fix (T0): no fix possible (no rendering engine).
+
+## Bug 6: Cloudflare / Anti-bot Detection 🔴
+
+T1 Chrome has obvious bot fingerprints (navigator.webdriver=true).
+Fix: Page.addScriptToEvaluateOnNewDocument with stealth patches.
+Similar to puppeteer-extra-plugin-stealth.
+
+## Bug 7: Token Explosion on Infinite Scroll 🟡 TODO (discuss later)
+
+Reddit/Twitter DOM = 50K tokens of Markdown.
+Fix: Token circuit breaker — truncate at 8K tokens, add scroll instruction.
+Deferred for architectural discussion.
+
+## Bug 8: CDP WebSocket Broken Pipe 🔴
+
+Chrome JS blocking → WebSocket timeout → Rust panic.
+Fix: tokio::time::timeout on all CDP calls + retry/self-heal.
+
+## Priority (remaining)
+
+1. Bug 5 (ghost text) — data accuracy
+2. Bug 6 (anti-bot) — site coverage
+3. Bug 8 (CDP timeout) — stability
