@@ -65,6 +65,19 @@ impl AgentSession {
             browser.new_page(url).await.map_err(|e| BrowserError::Page(e.to_string()))?
         };
 
+        // Inject resource blocker — kill fonts, trackers, analytics
+        let _ = page.evaluate(r#"
+            if (!window.__ss_blocked) {
+                window.__ss_blocked = true;
+                const observer = new PerformanceObserver((list) => {});
+                // Block via CSP meta tag
+                const meta = document.createElement('meta');
+                meta.httpEquiv = 'Content-Security-Policy';
+                meta.content = "font-src 'none'; media-src 'none'";
+                document.head?.appendChild(meta);
+            }
+        "#.to_string()).await;
+
         // Wait for DOM
         tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 

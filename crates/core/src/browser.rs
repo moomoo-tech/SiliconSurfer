@@ -55,18 +55,36 @@ impl BrowserPool {
     pub async fn start(&self) -> Result<(), BrowserError> {
         let config = BrowserConfig::builder()
             .no_sandbox()
+            // --- Performance mode: strip everything AI doesn't need ---
+            // Disable rendering pipeline
             .arg("--disable-gpu")
             .arg("--disable-software-rasterizer")
             .arg("--disable-dev-shm-usage")
+            // Kill media loading
             .arg("--blink-settings=imagesEnabled=false")
-            .arg("--disable-extensions")
             .arg("--mute-audio")
+            // Kill background services
+            .arg("--disable-extensions")
             .arg("--disable-background-networking")
+            .arg("--disable-background-timer-throttling")
+            .arg("--disable-backgrounding-occluded-windows")
             .arg("--disable-default-apps")
             .arg("--disable-sync")
             .arg("--disable-translate")
             .arg("--metrics-recording-only")
             .arg("--no-first-run")
+            // Kill font loading (saves bandwidth + rendering time)
+            .arg("--disable-remote-fonts")
+            // Disable popups and prompts
+            .arg("--disable-popup-blocking")
+            .arg("--disable-prompt-on-repost")
+            .arg("--disable-hang-monitor")
+            // Disable component updates
+            .arg("--disable-component-update")
+            .arg("--disable-domain-reliability")
+            // Memory optimization
+            .arg("--aggressive-cache-discard")
+            .arg("--disable-ipc-flooding-protection")
             .build()
             .map_err(|e| BrowserError::Launch(e.to_string()))?;
 
