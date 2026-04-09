@@ -119,16 +119,43 @@ async def _agent_loop_async(goal, start_url, pw_page, max_steps=10):
         recent_urls = [h['url'] for h in history[-4:]]
         loop_warn = "\nWARNING: You are looping. Use 'done' now.\n" if len(recent_urls) >= 4 and len(set(recent_urls)) <= 2 else ""
 
-        prompt = f"""Goal: "{goal}"
-History: {history_str}{loop_warn}
-Collected: {json.dumps(collected[:3]) if collected else 'none'}
-URL: {current_url}
-Page: {operator[:2500]}
-Links: {spider[:1500]}
+        page_info = f"URL: {current_url}\n\nPage content (operator view):\n{operator[:2500]}\n\nLinks:\n{spider[:1500]}"
 
-Analyze state, then act. Return JSON:
-{{"state_analysis": "...", "is_goal_achieved": true/false, "action": "navigate|fill_form|click|collect|done", ...}}
-If goal achieved, use "done". Don't revisit URLs."""
+        prompt = f"""You are an autonomous web Agent. Your goal is:
+"{goal}"
+
+STEP 1 — ANALYZE CURRENT STATE (mandatory):
+Before deciding your action, you MUST first analyze:
+- What page am I on? What do I see?
+- Have I already achieved my goal? (Check collected data and page content)
+- Am I stuck in a loop? (Check action history)
+
+ACTION HISTORY:
+{history_str}{loop_warn}
+Data collected: {json.dumps(collected[:3]) if collected else 'none'}
+
+What you see:
+{page_info}
+
+STEP 2 — DECIDE ACTION:
+Return a JSON object. You MUST include "state_analysis" first:
+
+{{"state_analysis": "I see [describe what you observe]. My goal is [X]. I have [done/not done Y].",
+  "is_goal_achieved": true/false,
+  "action": "navigate|fill_form|click|collect|done",
+  ...}}
+
+Action types:
+1. {{"action": "navigate", "url": "https://...", "reason": "..."}}
+2. {{"action": "fill_form", "fields": {{"name": "value"}}, "submit_selector": "button[type=submit]", "reason": "..."}}
+3. {{"action": "click", "selector": "css selector", "reason": "..."}}
+4. {{"action": "collect", "data": {{...}}, "reason": "..."}}
+5. {{"action": "done", "result": "summary", "data": [...]}}
+
+Rules:
+- If is_goal_achieved is true, you MUST use "done"
+- If you are looping, use "done" with what you have
+- NEVER revisit a URL"""
 
         raw = think(prompt)
         try:
