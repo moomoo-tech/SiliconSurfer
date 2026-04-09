@@ -271,7 +271,8 @@ wrong.
 Need](https://papers.nips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) was groundbreaking and paved the way for ChatGPT et al. Since then ML
 researchers have been trying to come up with new architectures, and companies
 have thrown gazillions of dollars at smart people to play around and see if
-they can make a better kind of model. However, these more sophisticated _architectures _ don’t seem to perform as well as Throwing More Parameters At
+they can make a better kind of model. However, these more sophisticated
+architectures don’t seem to perform as well as Throwing More Parameters At
 The Problem. Perhaps this is a variant of the [Bitter
 Lesson](https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf) .
 

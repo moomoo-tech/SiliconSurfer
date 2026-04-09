@@ -1,12 +1,14 @@
 **Notice:** This page displays a fallback because interactive scripts did not run. Possible causes include disabled JavaScript or failure to load scripts or stylesheets.
 
+__
+
 Join us in Long Beach, CA starting May 13, 2026. Grab your ticket and discounted hotel today before they’re gone! [REGISTER FOR PYCON US!](https://us.pycon.org/2026/attend/information/)
 
 ## Get Started
 
 Whether you're new to programming or an experienced developer, it's easy to learn and use Python.
 
-Start with our Beginner&rsquo;s Guide
+[Start with our Beginner&rsquo;s Guide](https://www.python.org/about/gettingstarted/)
 
 ## Docs
 
@@ -18,7 +20,7 @@ Documentation for Python's standard library, along with tutorials and guides, ar
 
 Looking for work or have a Python related position that you're trying to hire for? Our **relaunched community-run job board** is the place to go.
 
-jobs.python.org
+[jobs.python.org](https://www.python.org//jobs.python.org)
 
 ## Latest News
 
@@ -34,11 +36,11 @@ jobs.python.org
 
 -
 2026-04-02
-[The PyCon US 2026 schedule is live 🌴🐍 plus security updates, community programs & more](https://mailchi.mp/python/python-software-foundation-july-2024-newsletter-19886050)
+[The PyCon US 2026 schedule is live 🌴🐍 plus security updates, community programs &amp; more](https://mailchi.mp/python/python-software-foundation-july-2024-newsletter-19886050)
 
 -
 2026-03-23
-[Python 3.15's JIT is now back on track](https://blog.python.org/2026/03/jit-on-track/)
+[Python 3.15&#x27;s JIT is now back on track](https://blog.python.org/2026/03/jit-on-track/)
 
 -
 2026-03-12
@@ -46,39 +48,39 @@ jobs.python.org
 
 ## Upcoming Events
 
-More
+[More](https://www.python.org/events/calendars/)
 
 -
 2026-04-14
-PyCon DE & PyData 2026
+[PyCon DE &amp; PyData 2026](https://www.python.org/events/python-events/2102/)
 
 -
 2026-04-15
-DjangoCon Europe 2026
+[DjangoCon Europe 2026](https://www.python.org/events/python-events/2158/)
 
 -
 2026-04-17
-PyTexas 2026
+[PyTexas 2026](https://www.python.org/events/python-events/2133/)
 
 -
 2026-04-19
-PyCon Austria 2026
+[PyCon Austria 2026](https://www.python.org/events/python-events/2117/)
 
 -
 2026-04-22
-Python Meeting Düsseldorf
+[Python Meeting Düsseldorf](https://www.python.org/events/python-user-group/2104/)
 
 ## Success Stories
 
-More
+[More](https://www.python.org/success-stories/)
 
-"Python is all about automating repetitive tasks, leaving more time for your other SEO efforts."
+[Prioritizing cutting-edge speed and supporting the rapid growth of Hudson River Trading’s codebase can have unintended effects that require innovative solutions. For those working on our Python codebase, this means addressing “code tangling,” the coupling of unrelated code through unintuitive import cycles. In this article, George Farcasiu, Noah Kim, Jacob Brugh, and Jiahao Li discuss how they mitigate the cost and time burden of this issue by creating new tools to analyze and untangle dependencies efficiently.](https://www.python.org/success-stories/building-a-dependency-graph-of-our-python-codebase/)
 
-Using Python scripts to analyse SEO and broken links on your site _by Marnix de Munck_
+[Building a Dependency Graph of Our Python Codebase](https://www.python.org/success-stories/building-a-dependency-graph-of-our-python-codebase/) _by George Farcasiu, Noah Kim, Jacon Brugh, Jiahao Li_
 
 ## Use Python for…
 
-More
+[More](https://www.python.org/about/apps)
 
 - **Web Development**:
 [Django](https://www.djangoproject.com/) , [Pyramid](https://trypyramid.com/) , [Bottle](https://bottlepy.org) , [Tornado](https://www.tornadoweb.org/) , [Flask](https://flask.palletsprojects.com/) , [Litestar](https://litestar.dev/) , [FastAPI](https://fastapi.tiangolo.com/)
@@ -99,9 +101,9 @@ More
 [Ansible](https://docs.ansible.com/) , [Salt](https://saltproject.io/) , [OpenStack](https://www.openstack.org/) , [xonsh](https://xon.sh/)
 
 ##
->>> Python Software Foundation
+>>> [Python Software Foundation](https://www.python.org/psf/)
 
-The mission of the Python Software Foundation is to promote, protect, and advance the Python programming language, and to support and facilitate the growth of a diverse and international community of Python programmers. Learn more
+The mission of the Python Software Foundation is to promote, protect, and advance the Python programming language, and to support and facilitate the growth of a diverse and international community of Python programmers. [Learn more](https://www.python.org/psf/)
 
-Become a Member
-Donate to the PSF
+[Become a Member](https://www.python.org/psf/membership/)
+[Donate to the PSF](https://www.python.org/psf/donations/)

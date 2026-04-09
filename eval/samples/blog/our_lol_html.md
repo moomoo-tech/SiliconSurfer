@@ -1,7 +1,7 @@
 #
-The Future of Everything is Lies, I Guess
+[The Future of Everything is Lies, I Guess](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess)
 
-Software LLM The Future of Everything is Lies I Guess
+[Software](https://aphyr.com/tags/software) [LLM](https://aphyr.com/tags/llm) [The Future of Everything is Lies I Guess](https://aphyr.com/tags/the-future-of-everything-is-lies-i-guess)
 
 2026-04-06
 
@@ -286,7 +286,7 @@ was groundbreaking and paved the way for ChatGPT et al. Since then ML
 researchers have been trying to come up with new architectures, and companies
 have thrown gazillions of dollars at smart people to play around and see if
 they can make a better kind of model. However, these more sophisticated
-_architectures_ don’t seem to perform as well as Throwing More Parameters At
+architectures don’t seem to perform as well as Throwing More Parameters At
 The Problem. Perhaps this is a variant of the [Bitter
 Lesson](https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf) .
 
@@ -382,32 +382,28 @@ had, and chose to do it anyway.
 Daniel
 
 on
-
-2026-04-08
+[2026-04-08](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess#comment-22478)
 
 I think the problem is that you are trying to use LLMs for images which they aren’t good at yet (until they start to train for that) and then claiming that these AIs are idiots. We have got to be more nuanced about this.
 
 [Zach](https://zacchus.com)
 
 on
-
-2026-04-08
+[2026-04-08](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess#comment-22480)
 
 I enjoy reading your content, but the part about how Models are Idiots seem more like user error to me. The bathroom and t-shirt examples are you judging a fish by its ability to climb a tree. Yes, llms are bullshit machines, but they also produce useful output, output that people are getting paid for, so it can’t all be bullshit
 
 Woolie
 
 on
-
-2026-04-08
+[2026-04-08](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess#comment-22484)
 
 A sufficient number of people were /fooled/ by Eliza and it’s ilk. These AI tools are simply better at simulating human-like behavior. IOW, as long as you stay within the boundaries of what the model can understand and respond to with reasonable fidelity, ML is AMAZING!
 
 Laurent
 
 on
-
-2026-04-08
+[2026-04-08](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess#comment-22485)
 
 Note that neural nets aren’t purely linear algebra, they typically include non-linearity through sigmoids, siglu, etc. Brains of insects have been modeled by non-linear equations. But okay, maybe it explains why people also hallucinations, or tell that neural nets are purely linear algebra.
 
@@ -416,8 +412,7 @@ Anyway, indeed, they are like interns, x% of the job is crap and need to be dele
 XANi
 
 on
-
-2026-04-08
+[2026-04-08](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess#comment-22488)
 
 I see I’m not the only one that routinely hits edge cases in those
 
@@ -432,8 +427,7 @@ Also attributing some super powers to the AI in a given domain seems to have inv
 [Tim McCormack](https://www.brainonfire.net/)
 
 on
-
-2026-04-08
+[2026-04-08](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess#comment-22490)
 
 Ah, it appears the People In The Comments have arrived right on cue. XD
 
@@ -442,8 +436,7 @@ I loved the erasure coding footnote.
 Lukas Schneider
 
 on
-
-2026-04-09
+[2026-04-09](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess#comment-22492)
 
 I find this a really good read and i don’t mind that there is some points where you haven’t come to a complete conclusion yet; in fact i appreciate that a lot.
 A lot of the whiplash effect will develop over time, but I’m not confident it’s going to be a good time. Everyone seems to rely more and more on LLMs… but if a large portion of societies groundwork is based on this it won’t end well. Yes, we will always have people who push against this, refuse and stride to create something original - if an architectual design or code - but these gifts are bestowed rarely and LLM use could significantly halter how easily gifted people are spotted. How is hard work valued when LLMs do so much more so much faster? What if it makes a few mistakes?

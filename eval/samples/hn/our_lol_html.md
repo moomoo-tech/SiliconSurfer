@@ -3,152 +3,152 @@
 1.
 
 [LittleSnitch for Linux](https://obdev.at/products/littlesnitch-linux/index.html) (obdev.at)
-849 points by pluc 11 hours ago | hide | 293 comments
+912 points by pluc 12 hours ago | hide | 322 comments
 
 2.
 
-[Help Keep Thunderbird Alive](https://updates.thunderbird.net/en-US/thunderbird/140.0/apr26-1e/donate/) (thunderbird.net)
-151 points by playfultones 4 hours ago | hide | 88 comments
+[Show HN: CSS Studio. Design by hand, code by agent](https://cssstudio.ai) (cssstudio.ai)
+32 points by SirHound 1 hour ago | hide | 28 comments
 
 3.
 
 [I ported Mac OS X to the Nintendo Wii](https://bryankeller.github.io/2026/04/08/porting-mac-os-x-nintendo-wii.html) (bryankeller.github.io)
-1644 points by blkhp19 20 hours ago | hide | 286 comments
+1682 points by blkhp19 21 hours ago | hide | 290 comments
 
 4.
 
-[Open Source Security at Astral](https://astral.sh/blog/open-source-security-at-astral) (astral.sh)
-223 points by vinhnx 7 hours ago | hide | 46 comments
+[Help Keep Thunderbird Alive](https://updates.thunderbird.net/en-US/thunderbird/140.0/apr26-1e/donate/) (thunderbird.net)
+205 points by playfultones 5 hours ago | hide | 138 comments
 
 5.
 
 [Wit, unker, Git: The lost medieval pronouns of English intimacy](https://www.bbc.com/future/article/20260408-the-extinct-english-words-for-just-the-two-of-us) (bbc.com)
-22 points by eigenspace 1 hour ago | hide | 8 comments
+44 points by eigenspace 2 hours ago | hide | 17 comments
 
 6.
 
 [Creating the Futurescape for the Fifth Element [2019]](https://theasc.com/articles/fantastic-voyage-creating-the-futurescape-for-the-fifth-element) (theasc.com)
-39 points by nixass 2 hours ago | hide | 14 comments
+59 points by nixass 3 hours ago | hide | 22 comments
 
 7.
 
-[Haunted Paper Toys](http://ravensblight.com/papertoys.html) (ravensblight.com)
-119 points by exvi 7 hours ago | hide | 11 comments
+[Launch HN: Relvy (YC F24) – On-call runbooks, automated](https://www.relvy.ai) (relvy.ai)
+6 points by behat 44 minutes ago | hide | 6 comments
 
 8.
 
-[C# in Unity 2026: Features Most Developers Still Don't Use](https://darkounity.com/blog/c-in-unity-2026-features-most-developers-still-dont-use) (darkounity.com)
-37 points by hacker_13 4 hours ago | hide | 27 comments
+[Introduction to Nintendo DS Programming](https://www.patater.com/files/projects/manual/manual.html) (patater.com)
+33 points by medbar 3 hours ago | hide | 2 comments
 
 9.
 
-[Dr. Dobb's Developer Library DVD 6](https://archive.org/details/DDJDVD6) (archive.org)
-70 points by kristianp 7 hours ago | hide | 21 comments
+[Open Source Security at Astral](https://astral.sh/blog/open-source-security-at-astral) (astral.sh)
+236 points by vinhnx 8 hours ago | hide | 52 comments
 
 10.
 
-[Claude mixes up who said what and that's not OK](https://dwyer.co.za/static/claude-mixes-up-who-said-what-and-thats-not-ok.html) (dwyer.co.za)
-132 points by sixhobbits 2 hours ago | hide | 107 comments
+[Haunted Paper Toys](http://ravensblight.com/papertoys.html) (ravensblight.com)
+138 points by exvi 8 hours ago | hide | 14 comments
 
 11.
 
-[Introduction to Nintendo DS Programming](https://www.patater.com/files/projects/manual/manual.html) (patater.com)
-7 points by medbar 2 hours ago | hide | 1 comment
+[Show HN: 41 years sea surface temperature anomalies](https://ssta.willhelps.org) (willhelps.org)
+7 points by willmeyers 30 minutes ago | hide | discuss
 
 12.
 
-[USB for Software Developers: An introduction to writing userspace USB drivers](https://werwolv.net/posts/usb_for_sw_devs/) (werwolv.net)
-321 points by WerWolv 16 hours ago | hide | 38 comments
+[Tree Calculus](https://treecalcul.us/) (treecalcul.us)
+17 points by tosh 3 hours ago | hide | 6 comments
 
 13.
 
-[Understanding the Kalman filter with a simple radar example](https://kalmanfilter.net) (kalmanfilter.net)
-367 points by alex_be 18 hours ago | hide | 46 comments
+[Dr. Dobb&#x27;s Developer Library DVD 6](https://archive.org/details/DDJDVD6) (archive.org)
+82 points by kristianp 8 hours ago | hide | 26 comments
 
 14.
 
-[They're made out of meat (1991)](http://www.terrybisson.com/theyre-made-out-of-meat-2/) (terrybisson.com)
-569 points by surprisetalk 1 day ago | hide | 153 comments
+[Show HN: Moon simulator game, ray-casting](https://mooncraft2000.com) (mooncraft2000.com)
+38 points by JKCalhoun 4 hours ago | hide | 10 comments
 
 15.
 
-[The Importance of Being Idle](https://theamericanscholar.org/the-importance-of-being-idle/) (theamericanscholar.org)
-214 points by Caiero 10 hours ago | hide | 123 comments
+[USB for Software Developers: An introduction to writing userspace USB drivers](https://werwolv.net/posts/usb_for_sw_devs/) (werwolv.net)
+332 points by WerWolv 17 hours ago | hide | 39 comments
 
 16.
 
-[Improving storage efficiency in Magic Pocket, Dropbox's immutable blob store](https://dropbox.tech/infrastructure/improving-storage-efficiency-in-magic-pocket-our-immutable-blob-store) (dropbox.tech)
-20 points by laluser 5 hours ago | hide | discuss
+[Understanding the Kalman filter with a simple radar example](https://kalmanfilter.net) (kalmanfilter.net)
+374 points by alex_be 19 hours ago | hide | 46 comments
 
 17.
 
-[Who is Satoshi Nakamoto? My quest to unmask Bitcoin's creator](https://www.nytimes.com/2026/04/08/business/bitcoin-satoshi-nakamoto-identity-adam-back.html) (nytimes.com)
-525 points by jfirebaugh 1 day ago | hide | 642 comments
+[Improving storage efficiency in Magic Pocket, Dropbox&#x27;s immutable blob store](https://dropbox.tech/infrastructure/improving-storage-efficiency-in-magic-pocket-our-immutable-blob-store) (dropbox.tech)
+31 points by laluser 6 hours ago | hide | 3 comments
 
 18.
 
-[ML promises to be profoundly weird](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess) (aphyr.com)
-520 points by pabs3 22 hours ago | hide | 517 comments
+[Claude mixes up who said what and that&#x27;s not OK](https://dwyer.co.za/static/claude-mixes-up-who-said-what-and-thats-not-ok.html) (dwyer.co.za)
+172 points by sixhobbits 3 hours ago | hide | 164 comments
 
 19.
 
-[Process Manager for Autonomous AI Agents](https://botctl.dev/) (botctl.dev)
-49 points by ankitg12 5 hours ago | hide | 11 comments
+[They&#x27;re made out of meat (1991)](http://www.terrybisson.com/theyre-made-out-of-meat-2/) (terrybisson.com)
+582 points by surprisetalk 1 day ago | hide | 154 comments
 
 20.
 
-[Git commands I run before reading any code](https://piechowski.io/post/git-commands-before-reading-code/) (piechowski.io)
-2082 points by grepsedawk 1 day ago | hide | 452 comments
+[FreeBSD Laptop Compatibility: Top Laptops to Use with FreeBSD](https://freebsdfoundation.github.io/freebsd-laptop-testing/) (freebsdfoundation.github.io)
+11 points by fork-bomber 3 hours ago | hide | discuss
 
 21.
 
-[Show HN: Moon simulator game, ray-casting](https://mooncraft2000.com) (mooncraft2000.com)
-19 points by JKCalhoun 3 hours ago | hide | 7 comments
+[Who is Satoshi Nakamoto? My quest to unmask Bitcoin&#x27;s creator](https://www.nytimes.com/2026/04/08/business/bitcoin-satoshi-nakamoto-identity-adam-back.html) (nytimes.com)
+541 points by jfirebaugh 1 day ago | hide | 669 comments
 
 22.
 
-[Reallocating $100/Month Claude Code Spend to Zed and OpenRouter](https://braw.dev/blog/2026-04-06-reallocating-100-month-claude-spend/) (braw.dev)
-52 points by kisamoto 3 hours ago | hide | 49 comments
+[The Importance of Being Idle](https://theamericanscholar.org/the-importance-of-being-idle/) (theamericanscholar.org)
+225 points by Caiero 11 hours ago | hide | 130 comments
 
 23.
 
-[Muse Spark: Scaling towards personal superintelligence](https://ai.meta.com/blog/introducing-muse-spark-msl/?_fb_noscript=1) (meta.com)
-353 points by chabons 19 hours ago | hide | 336 comments
+[ML promises to be profoundly weird](https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess) (aphyr.com)
+531 points by pabs3 23 hours ago | hide | 528 comments
 
 24.
 
-[Six (and a half) intuitions for KL divergence](https://www.perfectlynormal.co.uk/blog-kl-divergence) (perfectlynormal.co.uk)
-87 points by jxmorris12 11 hours ago | hide | 12 comments
+[Git commands I run before reading any code](https://piechowski.io/post/git-commands-before-reading-code/) (piechowski.io)
+2101 points by grepsedawk 1 day ago | hide | 454 comments
 
 25.
 
-[MegaTrain: Full Precision Training of 100B+ Parameter LLMs on a Single GPU](https://arxiv.org/abs/2604.05091) (arxiv.org)
-306 points by chrsw 23 hours ago | hide | 54 comments
+[Muse Spark: Scaling towards personal superintelligence](https://ai.meta.com/blog/introducing-muse-spark-msl/?_fb_noscript=1) (meta.com)
+362 points by chabons 20 hours ago | hide | 342 comments
 
 26.
 
-[I imported the full Linux kernel git history into pgit](https://oseifert.ch/blog/linux-kernel-pgit) (oseifert.ch)
-138 points by ImGajeed76 16 hours ago | hide | 22 comments
+[Six (and a half) intuitions for KL divergence](https://www.perfectlynormal.co.uk/blog-kl-divergence) (perfectlynormal.co.uk)
+97 points by jxmorris12 12 hours ago | hide | 14 comments
 
 27.
 
-[America Has Lost the Arab World](https://www.foreignaffairs.com/iran/america-has-lost-arab-world) (foreignaffairs.com)
-22 points by robtherobber 2 hours ago | hide | 8 comments
+[C# in Unity 2026: Features Most Developers Still Don&#x27;t Use](https://darkounity.com/blog/c-in-unity-2026-features-most-developers-still-dont-use) (darkounity.com)
+43 points by hacker_13 5 hours ago | hide | 42 comments
 
 28.
 
-[Map Gesture Controls - Control maps with your hands](https://sanderdesnaijer.github.io/map-gesture-controls/) (sanderdesnaijer.github.io)
-33 points by hebelehubele 9 hours ago | hide | 5 comments
+[MegaTrain: Full Precision Training of 100B+ Parameter LLMs on a Single GPU](https://arxiv.org/abs/2604.05091) (arxiv.org)
+311 points by chrsw 1 day ago | hide | 55 comments
 
 29.
 
-[Expanding Swift's IDE Support](https://swift.org/blog/expanding-swift-ide-support/) (swift.org)
-124 points by frizlab 16 hours ago | hide | 57 comments
+[I imported the full Linux kernel git history into pgit](https://oseifert.ch/blog/linux-kernel-pgit) (oseifert.ch)
+144 points by ImGajeed76 17 hours ago | hide | 29 comments
 
 30.
 
 Ask HN: Any interesting niche hobbies?
-395 points by e-topy 23 hours ago | hide | 581 comments
+413 points by e-topy 1 day ago | hide | 608 comments
 
 More
 

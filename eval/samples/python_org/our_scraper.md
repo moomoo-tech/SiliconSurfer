@@ -42,9 +42,9 @@ More
 
 More
 
-> "Python is all about automating repetitive tasks, leaving more time for your other SEO efforts."
+> Prioritizing cutting-edge speed and supporting the rapid growth of Hudson River Trading’s codebase can have unintended effects that require innovative solutions. For those working on our Python codebase, this means addressing “code tangling,” the coupling of unrelated code through unintuitive import cycles. In this article, George Farcasiu, Noah Kim, Jacob Brugh, and Jiahao Li discuss how they mitigate the cost and time burden of this issue by creating new tools to analyze and untangle dependencies efficiently.
 
-Using Python scripts to analyse SEO and broken links on your site _by Marnix de Munck _
+Building a Dependency Graph of Our Python Codebase _by George Farcasiu, Noah Kim, Jacon Brugh, Jiahao Li _
 
 ## Use Python for…
 

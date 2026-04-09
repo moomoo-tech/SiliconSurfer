@@ -8,16 +8,15 @@ Dismiss alert
 
 {{ message }}
 
-nickel-org
-
+[nickel-org](https://github.com/nickel-org)
 /
 **
-nickel.rs
+[nickel.rs](https://github.com/nickel-org/nickel.rs)
 **
 
 Public
 
-BranchesTags
+[Branches](https://github.com/nickel-org/nickel.rs/branches) [Tags](https://github.com/nickel-org/nickel.rs/tags)
 
 ## Folders and files
 
@@ -30,53 +29,45 @@ Last commit date
 
 ## History
 
-647 Commits
+[647 Commits](https://github.com/nickel-org/nickel.rs/commits/master/)
 
-examples
-
-examples
-
-src
-
-src
-
-tests
-
-tests
-
-.appveyor.yml
+[examples](https://github.com/nickel-org/nickel.rs/tree/master/examples)
 
 
-.clog.toml
-
-.clog.toml
-
-.gitattributes
+[src](https://github.com/nickel-org/nickel.rs/tree/master/src)
 
 
-.gitignore
-
-.gitignore
-
-.travis.yml
+[tests](https://github.com/nickel-org/nickel.rs/tree/master/tests)
 
 
-Cargo.toml
-
-Cargo.toml
-
-LICENSE
-
-LICENSE
-
-README.md
-
-README.md
-
-changelog.md
+[.appveyor.yml](https://github.com/nickel-org/nickel.rs/blob/master/.appveyor.yml)
 
 
-contributing.md
+[.clog.toml](https://github.com/nickel-org/nickel.rs/blob/master/.clog.toml)
+
+
+[.gitattributes](https://github.com/nickel-org/nickel.rs/blob/master/.gitattributes)
+
+
+[.gitignore](https://github.com/nickel-org/nickel.rs/blob/master/.gitignore)
+
+
+[.travis.yml](https://github.com/nickel-org/nickel.rs/blob/master/.travis.yml)
+
+
+[Cargo.toml](https://github.com/nickel-org/nickel.rs/blob/master/Cargo.toml)
+
+
+[LICENSE](https://github.com/nickel-org/nickel.rs/blob/master/LICENSE)
+
+
+[README.md](https://github.com/nickel-org/nickel.rs/blob/master/README.md)
+
+
+[changelog.md](https://github.com/nickel-org/nickel.rs/blob/master/changelog.md)
+
+
+[contributing.md](https://github.com/nickel-org/nickel.rs/blob/master/contributing.md)
 
 
 ## Repository files navigation
@@ -93,9 +84,9 @@ contributing.md
 use nickel::{Nickel, HttpRouter};
 
 fn main() {
-let mut server = Nickel::new();
-server.get("**", middleware!("Hello World"));
-server.listen("127.0.0.1:6767");
+    let mut server = Nickel::new();
+    server.get("**", middleware!("Hello World"));
+    server.listen("127.0.0.1:6767");
 }
 ```
 
@@ -126,11 +117,11 @@ You can then compile this using _Cargo build_ and run it using _Cargo run_. Afte
 
 ## More examples
 
-More examples can be found in the examples directory and the full documentation can be [found here](https://docs.rs/nickel/) .
+More examples can be found [in the examples directory](https://github.com/nickel-org/nickel.rs/blob/master/examples) and the full documentation can be [found here](https://docs.rs/nickel/) .
 
 ## Contributing
 
-[nickel.rs](http://nickel-org.github.io) is a community effort. We welcome new contributors with open arms. Please read the contributing guide here first.
+[nickel.rs](http://nickel-org.github.io) is a community effort. We welcome new contributors with open arms. Please read the [contributing guide here](https://github.com/nickel-org/nickel.rs/blob/master/contributing.md) first.
 
 If you're looking for inspiration, there's list of [open issues](https://github.com/nickel-org/nickel/issues?state=open) right here on github.
 
@@ -178,36 +169,36 @@ Contributing
 
 There was an error while loading. Please reload this page.
 
-Activity
+[Activity](https://github.com/nickel-org/nickel.rs/activity)
 
-Custom properties
+[Custom properties](https://github.com/nickel-org/nickel.rs/custom-properties)
 
 ### Stars
 
-**3.1k**
-stars
+[**3.1k**
+stars](https://github.com/nickel-org/nickel.rs/stargazers)
 
 ### Watchers
 
-**68**
-watching
+[**68**
+watching](https://github.com/nickel-org/nickel.rs/watchers)
 
 ### Forks
 
-**159**
-forks
+[**159**
+forks](https://github.com/nickel-org/nickel.rs/forks)
 
-Report repository
-
-##
-Releases
-
-12
-tags
+[Report repository](https://github.com/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2Fnickel-org%2Fnickel.rs&amp;amp;report=nickel-org+%28user%29)
 
 ##
-Packages
-0
+[Releases](https://github.com/nickel-org/nickel.rs/releases)
+
+[12
+tags](https://github.com/nickel-org/nickel.rs/tags)
+
+##
+[Packages
+0](https://github.com/orgs/nickel-org/packages?repo_name=nickel.rs)
 
 ### Uh oh!
 
@@ -216,7 +207,7 @@ Packages
 
 
 ##
-Contributors
+[Contributors](https://github.com/nickel-org/nickel.rs/graphs/contributors)
 
 -
 
@@ -230,8 +221,7 @@ Contributors
 ## Languages
 
 -
-
-Rust
-100.0%
+[Rust
+100.0%](https://github.com/nickel-org/nickel.rs/search?l=rust)
 
 You can’t perform that action at this time.

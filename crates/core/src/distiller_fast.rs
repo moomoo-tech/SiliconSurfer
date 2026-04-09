@@ -129,12 +129,18 @@ fn rewrite_reader(html: &str, base_url: Option<&str>, markdown: bool) -> String 
         handlers.push(element!("h3", |el| { el.before("\n\n### ", Text); el.after("\n\n", Text); Ok(()) }));
         handlers.push(element!("h4, h5, h6", |el| { el.before("\n\n#### ", Text); el.after("\n\n", Text); Ok(()) }));
         handlers.push(element!("p", |el| { el.before("\n", Text); el.after("\n", Text); Ok(()) }));
-        let base_for_links = base_url.map(|s| s.to_string());
+        // Reader mode: only absolute + root-relative links (conservative)
         let bo = base_origin.clone();
-        let bu = base_for_links.clone();
         handlers.push(element!("a[href]", move |el| {
             let href = el.get_attribute("href").unwrap_or_default();
-            let full_url = resolve_href(&href, bo.as_deref(), bu.as_deref());
+            // Reader: only http:// and /path links, skip bare relative (item?id=123)
+            let full_url = if href.starts_with("http") {
+                Some(href)
+            } else if href.starts_with('/') {
+                bo.as_ref().map(|o| format!("{}{}", o, href))
+            } else {
+                None
+            };
             if let Some(url) = full_url {
                 el.before("\x01L", Text);
                 el.after(&format!("\x02{}\x03", url), Text);
@@ -828,11 +834,20 @@ mod tests {
     }
 
     #[test]
-    fn test_reader_bare_relative_links() {
-        // HN-style: href="item?id=123" (no leading /)
+    fn test_reader_skips_bare_relative_links() {
+        // Reader mode: bare relative (item?id=123) should be text only, not a link
+        // This keeps Reader output lean. Spider/Operator modes resolve these.
         let html = r#"<p><a href="item?id=123">283 comments</a></p>"#;
         let md = FastDistiller::distill(html, DistillMode::Reader, Some("https://news.ycombinator.com/"));
-        assert!(md.contains("news.ycombinator.com"), "bare relative should resolve, got: {md}");
+        assert!(md.contains("283 comments"), "text should be preserved, got: {md}");
+        assert!(!md.contains("[283 comments]("), "reader should NOT make bare relative a link, got: {md}");
+    }
+
+    #[test]
+    fn test_operator_resolves_bare_relative_links() {
+        // Operator mode: bare relative links ARE resolved (for interaction)
+        let html = r#"<p><a href="item?id=123">283 comments</a></p>"#;
+        let md = FastDistiller::distill(html, DistillMode::Operator, Some("https://news.ycombinator.com/"));
         assert!(md.contains("item?id=123"), "got: {md}");
         assert!(md.contains("[283 comments]"), "got: {md}");
     }

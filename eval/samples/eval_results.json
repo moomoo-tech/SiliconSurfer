@@ -1,12 +1,12 @@
 [
   {
     "name": "blog",
-    "html_chars": 40996,
-    "html_tokens": 10249,
+    "html_chars": 40987,
+    "html_tokens": 10246,
     "html_links": 87,
     "our_scraper": {
-      "chars": 20580,
-      "tokens": 5145,
+      "chars": 20577,
+      "tokens": 5144,
       "compression_ratio": 0.502,
       "links": 34,
       "link_retention": 0.391,
@@ -25,15 +25,15 @@
         "h3": 0,
         "list_items": 0,
         "bold": 0,
-        "italic": 22
+        "italic": 21
       }
     },
     "our_lol_html": {
-      "chars": 24412,
-      "tokens": 6103,
-      "compression_ratio": 0.595,
-      "links": 36,
-      "link_retention": 0.414,
+      "chars": 26016,
+      "tokens": 6504,
+      "compression_ratio": 0.635,
+      "links": 68,
+      "link_retention": 0.782,
       "noise_keywords": {},
       "noise_count": 0,
       "code_blocks": {
@@ -49,7 +49,7 @@
         "h3": 0,
         "list_items": 0,
         "bold": 0,
-        "italic": 27
+        "italic": 26
       }
     },
     "trafilatura": {
@@ -253,8 +253,8 @@
   },
   {
     "name": "github",
-    "html_chars": 294260,
-    "html_tokens": 73565,
+    "html_chars": 294254,
+    "html_tokens": 73563,
     "html_links": 171,
     "our_scraper": {
       "chars": 2183,
@@ -281,11 +281,11 @@
       }
     },
     "our_lol_html": {
-      "chars": 3398,
-      "tokens": 849,
-      "compression_ratio": 0.012,
-      "links": 11,
-      "link_retention": 0.064,
+      "chars": 5466,
+      "tokens": 1366,
+      "compression_ratio": 0.019,
+      "links": 46,
+      "link_retention": 0.269,
       "noise_keywords": {
         "skip to content": 1
       },
@@ -294,7 +294,7 @@
         "fence_count": 4,
         "balanced": true,
         "block_count": 2,
-        "has_indentation": false
+        "has_indentation": true
       },
       "structure": {
         "headings": 29,
@@ -303,7 +303,7 @@
         "h3": 12,
         "list_items": 0,
         "bold": 4,
-        "italic": 4
+        "italic": 5
       }
     },
     "trafilatura": {
@@ -355,9 +355,9 @@
       }
     },
     "playwright": {
-      "chars": 4871,
-      "tokens": 1217,
-      "compression_ratio": 0.017,
+      "chars": 4833,
+      "tokens": 1208,
+      "compression_ratio": 0.016,
       "links": 0,
       "link_retention": 0.0,
       "noise_keywords": {
@@ -386,13 +386,13 @@
   },
   {
     "name": "hn",
-    "html_chars": 34572,
-    "html_tokens": 8643,
+    "html_chars": 34446,
+    "html_tokens": 8611,
     "html_links": 228,
     "our_scraper": {
-      "chars": 5816,
-      "tokens": 1454,
-      "compression_ratio": 0.168,
+      "chars": 5711,
+      "tokens": 1427,
+      "compression_ratio": 0.166,
       "links": 31,
       "link_retention": 0.136,
       "noise_keywords": {
@@ -417,16 +417,15 @@
       }
     },
     "our_lol_html": {
-      "chars": 5785,
-      "tokens": 1446,
-      "compression_ratio": 0.167,
-      "links": 31,
-      "link_retention": 0.136,
+      "chars": 14483,
+      "tokens": 3620,
+      "compression_ratio": 0.42,
+      "links": 195,
+      "link_retention": 0.855,
       "noise_keywords": {
-        "login": 1,
-        "| hide |": 30
+        "login": 2
       },
-      "noise_count": 31,
+      "noise_count": 2,
       "code_blocks": {
         "fence_count": 0,
         "balanced": true,
@@ -440,13 +439,13 @@
         "h3": 0,
         "list_items": 0,
         "bold": 1,
-        "italic": 3
+        "italic": 4
       }
     },
     "trafilatura": {
-      "chars": 3850,
-      "tokens": 962,
-      "compression_ratio": 0.111,
+      "chars": 3855,
+      "tokens": 963,
+      "compression_ratio": 0.112,
       "links": 0,
       "link_retention": 0.0,
       "noise_keywords": {
@@ -470,8 +469,8 @@
       }
     },
     "readability_js": {
-      "chars": 3581,
-      "tokens": 895,
+      "chars": 3586,
+      "tokens": 896,
       "compression_ratio": 0.104,
       "links": 0,
       "link_retention": 0.0,
@@ -496,8 +495,8 @@
       }
     },
     "playwright": {
-      "chars": 3924,
-      "tokens": 981,
+      "chars": 3929,
+      "tokens": 982,
       "compression_ratio": 0.114,
       "links": 0,
       "link_retention": 0.0,
@@ -553,11 +552,11 @@
       }
     },
     "our_lol_html": {
-      "chars": 24111,
-      "tokens": 6027,
-      "compression_ratio": 0.11,
-      "links": 2,
-      "link_retention": 0.003,
+      "chars": 29540,
+      "tokens": 7385,
+      "compression_ratio": 0.134,
+      "links": 56,
+      "link_retention": 0.095,
       "noise_keywords": {
         "skip to main": 1
       },
@@ -566,16 +565,16 @@
         "fence_count": 72,
         "balanced": true,
         "block_count": 36,
-        "has_indentation": false
+        "has_indentation": true
       },
       "structure": {
         "headings": 19,
         "h1": 1,
         "h2": 6,
         "h3": 12,
-        "list_items": 19,
+        "list_items": 17,
         "bold": 9,
-        "italic": 28
+        "italic": 57
       }
     },
     "trafilatura": {
@@ -655,13 +654,13 @@
   },
   {
     "name": "python_org",
-    "html_chars": 48915,
-    "html_tokens": 12228,
+    "html_chars": 49397,
+    "html_tokens": 12349,
     "html_links": 215,
     "our_scraper": {
-      "chars": 2240,
-      "tokens": 560,
-      "compression_ratio": 0.046,
+      "chars": 2679,
+      "tokens": 669,
+      "compression_ratio": 0.054,
       "links": 3,
       "link_retention": 0.014,
       "noise_keywords": {},
@@ -683,11 +682,11 @@
       }
     },
     "our_lol_html": {
-      "chars": 3702,
-      "tokens": 925,
-      "compression_ratio": 0.076,
-      "links": 38,
-      "link_retention": 0.177,
+      "chars": 4975,
+      "tokens": 1243,
+      "compression_ratio": 0.101,
+      "links": 54,
+      "link_retention": 0.251,
       "noise_keywords": {},
       "noise_count": 0,
       "code_blocks": {
@@ -707,9 +706,9 @@
       }
     },
     "trafilatura": {
-      "chars": 2301,
-      "tokens": 575,
-      "compression_ratio": 0.047,
+      "chars": 2725,
+      "tokens": 681,
+      "compression_ratio": 0.055,
       "links": 34,
       "link_retention": 0.158,
       "noise_keywords": {},
@@ -755,9 +754,9 @@
       }
     },
     "playwright": {
-      "chars": 6615,
-      "tokens": 1653,
-      "compression_ratio": 0.135,
+      "chars": 7054,
+      "tokens": 1763,
+      "compression_ratio": 0.143,
       "links": 0,
       "link_retention": 0.0,
       "noise_keywords": {
@@ -811,10 +810,10 @@
       }
     },
     "our_lol_html": {
-      "chars": 97499,
-      "tokens": 24374,
-      "compression_ratio": 786.258,
-      "links": 275,
+      "chars": 176289,
+      "tokens": 44072,
+      "compression_ratio": 1421.677,
+      "links": 1505,
       "link_retention": 0,
       "noise_keywords": {
         "login": 1
@@ -824,7 +823,7 @@
         "fence_count": 58,
         "balanced": true,
         "block_count": 29,
-        "has_indentation": false
+        "has_indentation": true
       },
       "structure": {
         "headings": 41,
@@ -833,7 +832,7 @@
         "h3": 29,
         "list_items": 303,
         "bold": 289,
-        "italic": 311
+        "italic": 1081
       }
     },
     "trafilatura": {

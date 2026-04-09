@@ -10,45 +10,45 @@
   },
   "hn": {
     "url": "https://news.ycombinator.com/",
-    "raw_html_chars": 34572,
-    "our_scraper_chars": 5816,
-    "our_lol_html_chars": 5785,
-    "trafilatura_chars": 3850,
-    "readability_js_chars": 3581,
-    "playwright_innertext_chars": 3924
+    "raw_html_chars": 34447,
+    "our_scraper_chars": 5714,
+    "our_lol_html_chars": 5713,
+    "trafilatura_chars": 3856,
+    "readability_js_chars": 3587,
+    "playwright_innertext_chars": 3930
   },
   "wikipedia": {
     "url": "https://en.wikipedia.org/wiki/Rust_(programming_language)",
     "raw_html_chars": 126,
     "our_scraper_chars": 77023,
-    "our_lol_html_chars": 97672,
+    "our_lol_html_chars": 134459,
     "trafilatura_chars": 0,
     "readability_js_chars": 71095,
     "playwright_innertext_chars": 78994
   },
   "python_org": {
     "url": "https://www.python.org/",
-    "raw_html_chars": 48989,
-    "our_scraper_chars": 2253,
-    "our_lol_html_chars": 3713,
-    "trafilatura_chars": 2301,
+    "raw_html_chars": 49471,
+    "our_scraper_chars": 2698,
+    "our_lol_html_chars": 4992,
+    "trafilatura_chars": 2725,
     "readability_js_chars": 2657,
-    "playwright_innertext_chars": 6615
+    "playwright_innertext_chars": 7054
   },
   "blog": {
     "url": "https://aphyr.com/posts/411-the-future-of-everything-is-lies-i-guess",
-    "raw_html_chars": 40996,
-    "our_scraper_chars": 20838,
-    "our_lol_html_chars": 24716,
+    "raw_html_chars": 40987,
+    "our_scraper_chars": 20835,
+    "our_lol_html_chars": 25513,
     "trafilatura_chars": 20809,
     "readability_js_chars": 15905,
     "playwright_innertext_chars": 22662
   },
   "github": {
     "url": "https://github.com/nickel-org/nickel.rs",
-    "raw_html_chars": 294260,
+    "raw_html_chars": 294250,
     "our_scraper_chars": 2183,
-    "our_lol_html_chars": 3400,
+    "our_lol_html_chars": 5265,
     "trafilatura_chars": 2079,
     "readability_js_chars": 1741,
     "playwright_innertext_chars": 4871
@@ -57,7 +57,7 @@
     "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions",
     "raw_html_chars": 219766,
     "our_scraper_chars": 23943,
-    "our_lol_html_chars": 24129,
+    "our_lol_html_chars": 27471,
     "trafilatura_chars": 24222,
     "readability_js_chars": 22308,
     "playwright_innertext_chars": 24416

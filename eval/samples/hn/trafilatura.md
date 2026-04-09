@@ -18,388 +18,388 @@ LittleSnitch for Linux
 (
 obdev.at
 )
-849 points
+912 points
 by
 pluc
-11 hours ago
+12 hours ago
 |
 hide
 |
-293 comments
+322 comments
 2.
-Help Keep Thunderbird Alive
+Show HN: CSS Studio. Design by hand, code by agent
 (
-thunderbird.net
+cssstudio.ai
 )
-151 points
+32 points
 by
-playfultones
-4 hours ago
+SirHound
+1 hour ago
 |
 hide
 |
-88 comments
+28 comments
 3.
 I ported Mac OS X to the Nintendo Wii
 (
 bryankeller.github.io
 )
-1644 points
+1682 points
 by
 blkhp19
-20 hours ago
+21 hours ago
 |
 hide
 |
-286 comments
+290 comments
 4.
-Open Source Security at Astral
+Help Keep Thunderbird Alive
 (
-astral.sh
+thunderbird.net
 )
-223 points
+205 points
 by
-vinhnx
-7 hours ago
+playfultones
+5 hours ago
 |
 hide
 |
-46 comments
+138 comments
 5.
 Wit, unker, Git: The lost medieval pronouns of English intimacy
 (
 bbc.com
 )
-22 points
+44 points
 by
 eigenspace
-1 hour ago
+2 hours ago
 |
 hide
 |
-8 comments
+17 comments
 6.
 Creating the Futurescape for the Fifth Element [2019]
 (
 theasc.com
 )
-39 points
+59 points
 by
 nixass
-2 hours ago
+3 hours ago
 |
 hide
 |
-14 comments
+22 comments
 7.
-Haunted Paper Toys
+Launch HN: Relvy (YC F24) – On-call runbooks, automated
 (
-ravensblight.com
+relvy.ai
 )
-119 points
+6 points
 by
-exvi
-7 hours ago
+behat
+44 minutes ago
 |
 hide
 |
-11 comments
+6 comments
 8.
-C# in Unity 2026: Features Most Developers Still Don't Use
-(
-darkounity.com
-)
-37 points
-by
-hacker_13
-4 hours ago
-|
-hide
-|
-27 comments
-9.
-Dr. Dobb's Developer Library DVD 6
-(
-archive.org
-)
-70 points
-by
-kristianp
-7 hours ago
-|
-hide
-|
-21 comments
-10.
-Claude mixes up who said what and that's not OK
-(
-dwyer.co.za
-)
-132 points
-by
-sixhobbits
-2 hours ago
-|
-hide
-|
-107 comments
-11.
 Introduction to Nintendo DS Programming
 (
 patater.com
 )
-7 points
+33 points
 by
 medbar
-2 hours ago
+3 hours ago
 |
 hide
 |
-1 comment
+2 comments
+9.
+Open Source Security at Astral
+(
+astral.sh
+)
+236 points
+by
+vinhnx
+8 hours ago
+|
+hide
+|
+52 comments
+10.
+Haunted Paper Toys
+(
+ravensblight.com
+)
+138 points
+by
+exvi
+8 hours ago
+|
+hide
+|
+14 comments
+11.
+Show HN: 41 years sea surface temperature anomalies
+(
+willhelps.org
+)
+7 points
+by
+willmeyers
+30 minutes ago
+|
+hide
+|
+discuss
 12.
+Tree Calculus
+(
+treecalcul.us
+)
+17 points
+by
+tosh
+3 hours ago
+|
+hide
+|
+6 comments
+13.
+Dr. Dobb's Developer Library DVD 6
+(
+archive.org
+)
+82 points
+by
+kristianp
+8 hours ago
+|
+hide
+|
+26 comments
+14.
+Show HN: Moon simulator game, ray-casting
+(
+mooncraft2000.com
+)
+38 points
+by
+JKCalhoun
+4 hours ago
+|
+hide
+|
+10 comments
+15.
 USB for Software Developers: An introduction to writing userspace USB drivers
 (
 werwolv.net
 )
-321 points
+332 points
 by
 WerWolv
-16 hours ago
+17 hours ago
 |
 hide
 |
-38 comments
-13.
+39 comments
+16.
 Understanding the Kalman filter with a simple radar example
 (
 kalmanfilter.net
 )
-367 points
+374 points
 by
 alex_be
-18 hours ago
+19 hours ago
 |
 hide
 |
 46 comments
-14.
+17.
+Improving storage efficiency in Magic Pocket, Dropbox's immutable blob store
+(
+dropbox.tech
+)
+31 points
+by
+laluser
+6 hours ago
+|
+hide
+|
+3 comments
+18.
+Claude mixes up who said what and that's not OK
+(
+dwyer.co.za
+)
+172 points
+by
+sixhobbits
+3 hours ago
+|
+hide
+|
+164 comments
+19.
 They're made out of meat (1991)
 (
 terrybisson.com
 )
-569 points
+582 points
 by
 surprisetalk
 1 day ago
 |
 hide
 |
-153 comments
-15.
-The Importance of Being Idle
+154 comments
+20.
+FreeBSD Laptop Compatibility: Top Laptops to Use with FreeBSD
 (
-theamericanscholar.org
+freebsdfoundation.github.io
 )
-214 points
+11 points
 by
-Caiero
-10 hours ago
-|
-hide
-|
-123 comments
-16.
-Improving storage efficiency in Magic Pocket, Dropbox's immutable blob store
-(
-dropbox.tech
-)
-20 points
-by
-laluser
-5 hours ago
+fork-bomber
+3 hours ago
 |
 hide
 |
 discuss
-17.
+21.
 Who is Satoshi Nakamoto? My quest to unmask Bitcoin's creator
 (
 nytimes.com
 )
-525 points
+541 points
 by
 jfirebaugh
 1 day ago
 |
 hide
 |
-642 comments
-18.
+669 comments
+22.
+The Importance of Being Idle
+(
+theamericanscholar.org
+)
+225 points
+by
+Caiero
+11 hours ago
+|
+hide
+|
+130 comments
+23.
 ML promises to be profoundly weird
 (
 aphyr.com
 )
-520 points
+531 points
 by
 pabs3
-22 hours ago
+23 hours ago
 |
 hide
 |
-517 comments
-19.
-Process Manager for Autonomous AI Agents
-(
-botctl.dev
-)
-49 points
-by
-ankitg12
-5 hours ago
-|
-hide
-|
-11 comments
-20.
+528 comments
+24.
 Git commands I run before reading any code
 (
 piechowski.io
 )
-2082 points
+2101 points
 by
 grepsedawk
 1 day ago
 |
 hide
 |
-452 comments
-21.
-Show HN: Moon simulator game, ray-casting
-(
-mooncraft2000.com
-)
-19 points
-by
-JKCalhoun
-3 hours ago
-|
-hide
-|
-7 comments
-22.
-Reallocating $100/Month Claude Code Spend to Zed and OpenRouter
-(
-braw.dev
-)
-52 points
-by
-kisamoto
-3 hours ago
-|
-hide
-|
-49 comments
-23.
+454 comments
+25.
 Muse Spark: Scaling towards personal superintelligence
 (
 meta.com
 )
-353 points
+362 points
 by
 chabons
-19 hours ago
+20 hours ago
 |
 hide
 |
-336 comments
-24.
+342 comments
+26.
 Six (and a half) intuitions for KL divergence
 (
 perfectlynormal.co.uk
 )
-87 points
+97 points
 by
 jxmorris12
-11 hours ago
+12 hours ago
 |
 hide
 |
-12 comments
-25.
+14 comments
+27.
+C# in Unity 2026: Features Most Developers Still Don't Use
+(
+darkounity.com
+)
+43 points
+by
+hacker_13
+5 hours ago
+|
+hide
+|
+42 comments
+28.
 MegaTrain: Full Precision Training of 100B+ Parameter LLMs on a Single GPU
 (
 arxiv.org
 )
-306 points
+311 points
 by
 chrsw
-23 hours ago
+1 day ago
 |
 hide
 |
-54 comments
-26.
+55 comments
+29.
 I imported the full Linux kernel git history into pgit
 (
 oseifert.ch
 )
-138 points
+144 points
 by
 ImGajeed76
-16 hours ago
+17 hours ago
 |
 hide
 |
-22 comments
-27.
-America Has Lost the Arab World
-(
-foreignaffairs.com
-)
-22 points
-by
-robtherobber
-2 hours ago
-|
-hide
-|
-8 comments
-28.
-Map Gesture Controls - Control maps with your hands
-(
-sanderdesnaijer.github.io
-)
-33 points
-by
-hebelehubele
-9 hours ago
-|
-hide
-|
-5 comments
-29.
-Expanding Swift's IDE Support
-(
-swift.org
-)
-124 points
-by
-frizlab
-16 hours ago
-|
-hide
-|
-57 comments
+29 comments
 30.
 Ask HN: Any interesting niche hobbies?
-395 points
+413 points
 by
 e-topy
-23 hours ago
+1 day ago
 |
 hide
 |
-581 comments
+608 comments
 More
 Guidelines
 |
