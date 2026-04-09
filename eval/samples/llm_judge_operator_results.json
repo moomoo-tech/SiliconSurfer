@@ -6,7 +6,7 @@
     "detail": "found=0/2 missing=['username_field', 'password_field']",
     "prompt_tokens": 153,
     "output_tokens": 34,
-    "elapsed_ms": 2088.7312080012634
+    "elapsed_ms": 1294.197791008628
   },
   {
     "test": "Login: Find form fields",
@@ -15,7 +15,7 @@
     "detail": "found=2/2 missing=[]",
     "prompt_tokens": 253,
     "output_tokens": 47,
-    "elapsed_ms": 3427.7155839954503
+    "elapsed_ms": 1294.2419170140056
   },
   {
     "test": "Login: Find form fields",
@@ -23,8 +23,8 @@
     "task_pass": false,
     "detail": "found=0/2 missing=['username_field', 'password_field']",
     "prompt_tokens": 140,
-    "output_tokens": 39,
-    "elapsed_ms": 1085.616291995393
+    "output_tokens": 34,
+    "elapsed_ms": 1240.6767499924172
   },
   {
     "test": "Login: Find form fields",
@@ -32,8 +32,8 @@
     "task_pass": false,
     "detail": "found=0/2 missing=['username_field', 'password_field']",
     "prompt_tokens": 146,
-    "output_tokens": 50,
-    "elapsed_ms": 2551.69945799571
+    "output_tokens": 34,
+    "elapsed_ms": 1102.6884590100963
   },
   {
     "test": "Quotes: Find pagination link",
@@ -42,7 +42,7 @@
     "detail": "Reported MISSING",
     "prompt_tokens": 1369,
     "output_tokens": 2,
-    "elapsed_ms": 3841.4653329964494
+    "elapsed_ms": 1031.3314999948489
   },
   {
     "test": "Quotes: Find pagination link",
@@ -51,7 +51,7 @@
     "detail": "url=https://quotes.toscrape.com/page/2/ in_source=True",
     "prompt_tokens": 1435,
     "output_tokens": 14,
-    "elapsed_ms": 1154.3946659949142
+    "elapsed_ms": 1218.1492079980671
   },
   {
     "test": "Quotes: Find pagination link",
@@ -60,16 +60,16 @@
     "detail": "Reported MISSING",
     "prompt_tokens": 1439,
     "output_tokens": 2,
-    "elapsed_ms": 1128.8944170082686
+    "elapsed_ms": 913.4504579997156
   },
   {
     "test": "Quotes: Find pagination link",
     "tool": "playwright",
-    "task_pass": false,
-    "detail": "Reported MISSING",
+    "task_pass": true,
+    "detail": "url=/page/2/ in_source=True",
     "prompt_tokens": 466,
-    "output_tokens": 2,
-    "elapsed_ms": 1295.1684580039
+    "output_tokens": 5,
+    "elapsed_ms": 1402.8765420080163
   },
   {
     "test": "Books: Find a book to buy",
@@ -77,8 +77,8 @@
     "task_pass": true,
     "detail": "title=True price=True",
     "prompt_tokens": 986,
-    "output_tokens": 39,
-    "elapsed_ms": 1596.0143749980489
+    "output_tokens": 26,
+    "elapsed_ms": 1141.2133339908905
   },
   {
     "test": "Books: Find a book to buy",
@@ -87,7 +87,7 @@
     "detail": "title=True price=True",
     "prompt_tokens": 3078,
     "output_tokens": 72,
-    "elapsed_ms": 1593.280875007622
+    "elapsed_ms": 1385.4515419952804
   },
   {
     "test": "Books: Find a book to buy",
@@ -95,8 +95,8 @@
     "task_pass": true,
     "detail": "title=True price=True",
     "prompt_tokens": 100,
-    "output_tokens": 34,
-    "elapsed_ms": 1119.6855000016512
+    "output_tokens": 39,
+    "elapsed_ms": 1078.346333000809
   },
   {
     "test": "Books: Find a book to buy",
@@ -105,7 +105,7 @@
     "detail": "title=True price=True",
     "prompt_tokens": 721,
     "output_tokens": 39,
-    "elapsed_ms": 1337.4737089907285
+    "elapsed_ms": 1259.590624991688
   },
   {
     "test": "Forms: Identify form inputs",
@@ -123,7 +123,7 @@
     "detail": "11 fields found",
     "prompt_tokens": 239,
     "output_tokens": 160,
-    "elapsed_ms": 1815.505167003721
+    "elapsed_ms": 1771.4259999920614
   },
   {
     "test": "Forms: Identify form inputs",
@@ -138,10 +138,10 @@
     "test": "Forms: Identify form inputs",
     "tool": "playwright",
     "task_pass": true,
-    "detail": "8 fields found",
+    "detail": "7 fields found",
     "prompt_tokens": 115,
-    "output_tokens": 195,
-    "elapsed_ms": 1403.1761249934789
+    "output_tokens": 172,
+    "elapsed_ms": 1707.1367080061464
   },
   {
     "test": "HerokuApp: Find available tests",
@@ -149,8 +149,8 @@
     "task_pass": true,
     "detail": "5 links, 5 grounded",
     "prompt_tokens": 975,
-    "output_tokens": 147,
-    "elapsed_ms": 1763.5077909944812
+    "output_tokens": 191,
+    "elapsed_ms": 1748.757666995516
   },
   {
     "test": "HerokuApp: Find available tests",
@@ -158,8 +158,8 @@
     "task_pass": true,
     "detail": "5 links, 5 grounded",
     "prompt_tokens": 975,
-    "output_tokens": 186,
-    "elapsed_ms": 1722.3176249972312
+    "output_tokens": 191,
+    "elapsed_ms": 1955.4602919961326
   },
   {
     "test": "HerokuApp: Find available tests",
@@ -168,7 +168,7 @@
     "detail": "5 links, 5 grounded",
     "prompt_tokens": 957,
     "output_tokens": 147,
-    "elapsed_ms": 1680.8725829905597
+    "elapsed_ms": 2073.332665997441
   },
   {
     "test": "HerokuApp: Find available tests",
@@ -177,6 +177,6 @@
     "detail": "5 links, 5 grounded",
     "prompt_tokens": 233,
     "output_tokens": 102,
-    "elapsed_ms": 1464.935708005214
+    "elapsed_ms": 1554.8036670079455
   }
 ]
