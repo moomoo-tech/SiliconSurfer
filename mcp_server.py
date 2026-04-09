@@ -39,6 +39,9 @@ def _ensure_server():
     except Exception:
         pass
 
+    # Kill any zombie server/chrome processes from previous crashes
+    _cleanup_zombies()
+
     env = {**os.environ, "PORT": "9883"}
     binary = Path(__file__).parent / "target" / "release" / "agent-browser-server"
     if not binary.exists():
@@ -47,7 +50,49 @@ def _ensure_server():
         [str(binary)], env=env,
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
+
+    # Write PID for cleanup
+    pid_file = Path(__file__).parent / ".server.pid"
+    pid_file.write_text(str(_server_proc.pid))
+
     time.sleep(4)
+
+    # Register cleanup on exit
+    import atexit, signal
+    atexit.register(_shutdown)
+    signal.signal(signal.SIGTERM, lambda *_: _shutdown())
+
+
+def _cleanup_zombies():
+    """Kill leftover server/chrome processes from previous crashes."""
+    pid_file = Path(__file__).parent / ".server.pid"
+    if pid_file.exists():
+        try:
+            old_pid = int(pid_file.read_text().strip())
+            os.kill(old_pid, 9)
+        except (ValueError, ProcessLookupError, PermissionError):
+            pass
+        pid_file.unlink(missing_ok=True)
+
+    # Also clean chromiumoxide lock file
+    import tempfile
+    lock = Path(tempfile.gettempdir()) / "chromiumoxide-runner" / "SingletonLock"
+    lock.unlink(missing_ok=True)
+
+
+def _shutdown():
+    """Clean shutdown — kill server and all chrome children."""
+    global _server_proc
+    if _server_proc and _server_proc.poll() is None:
+        _server_proc.terminate()
+        try:
+            _server_proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _server_proc.kill()
+    _server_proc = None
+
+    pid_file = Path(__file__).parent / ".server.pid"
+    pid_file.unlink(missing_ok=True)
 
 
 def _fetch(url: str, distill: str = "reader") -> dict:
@@ -95,7 +140,8 @@ After using "operator" mode, you can use the "act" tool with @e references.""",
             name="act",
             description="""Execute an action on a webpage element identified by its @e reference.
 
-IMPORTANT: You must first call observe(url, mode="operator") to see the page with @e references before using this tool.
+IMPORTANT: You must call observe(url, mode="operator") to see @e references before using this tool.
+After every act(), the @e references are invalidated. You MUST call observe() again before the next act().
 
 Actions:
 - "click": Click the element (links, buttons)

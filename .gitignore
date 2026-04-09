@@ -1,6 +1,7 @@
 /target
 config.toml
 .env
+.server.pid
 *.pyc
 __pycache__/
 .venv/

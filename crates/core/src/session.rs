@@ -200,6 +200,10 @@ impl AgentSession {
             .ok().and_then(|v| v.into_value::<String>().ok())
             .unwrap_or(self.current_url.clone());
 
+        // Invalidate locator map — DOM may have changed after action.
+        // Agent MUST call observe() again before next act().
+        self.locator_map.clear();
+
         Ok(ActResult {
             success: result["success"].as_bool().unwrap_or(false),
             url: self.current_url.clone(),
