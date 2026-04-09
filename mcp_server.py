@@ -153,17 +153,18 @@ After "operator" mode, use act() with @e references to interact.""",
             description="""Execute an action on a @e element. Must call observe(mode="operator") first.
 After every act(), @e refs are invalidated — call observe() again before next act().
 
-Actions: click, fill, submit, navigate
-Examples: act("click", "@e3"), act("fill", "@e1", "admin"), act("navigate", "https://...")""",
+Actions: click, fill, submit, navigate, set_cookies
+Examples: act("click", "@e3"), act("fill", "@e1", "admin"), act("navigate", "https://...")
+Cookies: act("set_cookies", "", '[{"name":"session","value":"abc","domain":".example.com"}]')""",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
-                        "enum": ["click", "fill", "submit", "navigate"],
+                        "enum": ["click", "fill", "submit", "navigate", "set_cookies"],
                     },
-                    "target": {"type": "string", "description": "@eN reference or URL"},
-                    "value": {"type": "string", "default": "", "description": "Text for fill action"},
+                    "target": {"type": "string", "description": "@eN reference, URL, or cookie domain"},
+                    "value": {"type": "string", "default": "", "description": "Text for fill, or JSON array for set_cookies"},
                 },
                 "required": ["action", "target"],
             },
@@ -247,6 +248,11 @@ async def call_tool(name: str, arguments: dict):
                 detail = result.get("detail", "")
                 url = result.get("url", "")
                 return [TextContent(type="text", text=f"Submitted. {detail}\nURL: {url}")]
+
+            elif action == "set_cookies":
+                # value is JSON array: [{"name":"x","value":"y","domain":".example.com"}]
+                count = session.set_cookies(value)
+                return [TextContent(type="text", text=f"Set {count} cookie(s). Navigate to apply.")]
 
             else:
                 return [TextContent(type="text", text=f"Unknown action: {action}")]

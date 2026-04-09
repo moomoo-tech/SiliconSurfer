@@ -25,7 +25,7 @@ class TestToolListing:
         tools = asyncio.run(mcp_server.list_tools())
         act = next(t for t in tools if t.name == "act")
         action_schema = act.inputSchema["properties"]["action"]
-        assert set(action_schema["enum"]) == {"click", "fill", "submit", "navigate"}
+        assert set(action_schema["enum"]) == {"click", "fill", "submit", "navigate", "set_cookies"}
 
     def test_observe_requires_url(self):
         tools = asyncio.run(mcp_server.list_tools())

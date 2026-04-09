@@ -9,6 +9,8 @@
 //! - see(mode) → distilled content via FastDistiller
 //! - eval(js) → run arbitrary JS
 
+use chromiumoxide_cdp::cdp::browser_protocol::network::CookieParam;
+
 use crate::browser::{BrowserError, BrowserPool};
 use crate::distiller_fast::{DistillMode, FastDistiller};
 use serde::{Deserialize, Serialize};
@@ -235,6 +237,56 @@ impl BrowserSession {
             .map_err(|e| BrowserError::Page(e.to_string()))?
             .into_value()
             .map_err(|e| BrowserError::Page(format!("{:?}", e)))
+    }
+
+    /// Set a cookie on the current page.
+    /// If `url` is provided, it sets domain/path automatically from the URL.
+    /// Otherwise, `domain` must be specified.
+    pub async fn set_cookie(
+        &self,
+        name: &str,
+        value: &str,
+        domain: &str,
+        path: Option<&str>,
+    ) -> Result<(), BrowserError> {
+        let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+        let mut cookie = CookieParam::new(name, value);
+        cookie.domain = Some(domain.to_string());
+        cookie.path = Some(path.unwrap_or("/").to_string());
+        page.set_cookie(cookie)
+            .await
+            .map_err(|e| BrowserError::Page(e.to_string()))?;
+        Ok(())
+    }
+
+    /// Set multiple cookies from a JSON-style list.
+    /// Each entry: {name, value, domain, path?, secure?, httpOnly?}
+    pub async fn set_cookies_from_json(
+        &self,
+        cookies_json: &[serde_json::Value],
+    ) -> Result<usize, BrowserError> {
+        let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
+        let mut params = Vec::with_capacity(cookies_json.len());
+        for c in cookies_json {
+            let name = c["name"].as_str().unwrap_or_default();
+            let value = c["value"].as_str().unwrap_or_default();
+            if name.is_empty() {
+                continue;
+            }
+            let mut cookie = CookieParam::new(name, value);
+            cookie.domain = c["domain"].as_str().map(|s| s.to_string());
+            cookie.path = Some(c["path"].as_str().unwrap_or("/").to_string());
+            cookie.secure = c["secure"].as_bool();
+            cookie.http_only = c["httpOnly"].as_bool();
+            params.push(cookie);
+        }
+        let count = params.len();
+        if !params.is_empty() {
+            page.set_cookies(params)
+                .await
+                .map_err(|e| BrowserError::Page(e.to_string()))?;
+        }
+        Ok(count)
     }
 
     /// Close the session.

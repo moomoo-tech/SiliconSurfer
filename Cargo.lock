@@ -13,6 +13,7 @@ name = "agent-browser-core"
 version = "0.1.0"
 dependencies = [
  "chromiumoxide",
+ "chromiumoxide_cdp",
  "criterion",
  "ego-tree",
  "futures",

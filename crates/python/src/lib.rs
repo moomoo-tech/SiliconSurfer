@@ -315,6 +315,40 @@ impl Session {
         run_async(async move { inner.lock().await.url().await })
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
+
+    /// Set a cookie. domain is required, path defaults to "/".
+    #[pyo3(signature = (name, value, domain, path=None))]
+    fn set_cookie(
+        &self,
+        name: &str,
+        value: &str,
+        domain: &str,
+        path: Option<&str>,
+    ) -> PyResult<()> {
+        let inner = self.inner.clone();
+        let name = name.to_string();
+        let value = value.to_string();
+        let domain = domain.to_string();
+        let path = path.map(|s| s.to_string());
+        run_async(async move {
+            inner
+                .lock()
+                .await
+                .set_cookie(&name, &value, &domain, path.as_deref())
+                .await
+        })
+        .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+    }
+
+    /// Set multiple cookies from a list of dicts.
+    /// Each dict: {"name": str, "value": str, "domain": str, "path"?: str}
+    fn set_cookies(&self, cookies_json: &str) -> PyResult<usize> {
+        let inner = self.inner.clone();
+        let cookies: Vec<serde_json::Value> = serde_json::from_str(cookies_json)
+            .map_err(|e| PyRuntimeError::new_err(format!("Invalid JSON: {e}")))?;
+        run_async(async move { inner.lock().await.set_cookies_from_json(&cookies).await })
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+    }
 }
 
 fn parse_distill_mode(mode: &str) -> DistillMode {
