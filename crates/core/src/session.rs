@@ -79,10 +79,54 @@ impl AgentSession {
     /// OBSERVE — see the current page with our distiller.
     /// If mode=operator, also builds locator_map.
     pub async fn observe(&mut self, mode: DistillMode) -> Result<ObserveResult, BrowserError> {
-        // Get HTML and URL from page (immutable borrow ends here)
+        // Get HTML and URL from page, with iframe content flattened
         let (html, url) = {
             let page = self.page.as_ref().ok_or(BrowserError::NotStarted)?;
-            let html = page.content().await.map_err(|e| BrowserError::Page(e.to_string()))?;
+            let mut html = page.content().await.map_err(|e| BrowserError::Page(e.to_string()))?;
+
+            // Flatten same-origin iframe contents into main HTML
+            let iframe_js = r#"(() => {
+                const results = [];
+                document.querySelectorAll('iframe').forEach((iframe, i) => {
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                        if (doc && doc.body) {
+                            results.push({src: iframe.src || '', html: doc.body.innerHTML});
+                        } else {
+                            results.push({src: iframe.src || '', html: null, cross_origin: true});
+                        }
+                    } catch(e) {
+                        results.push({src: iframe.src || '', html: null, cross_origin: true});
+                    }
+                });
+                return results;
+            })()"#;
+
+            if let Ok(result) = page.evaluate(iframe_js.to_string()).await {
+                if let Ok(frames) = result.into_value::<Vec<serde_json::Value>>() {
+                    for frame in frames {
+                        let src = frame["src"].as_str().unwrap_or("");
+                        if let Some(frame_html) = frame["html"].as_str() {
+                            let replacement = format!(
+                                "<div data-iframe-src=\"{}\">{}</div>", src, frame_html
+                            );
+                            if let Some(pos) = html.find("<iframe") {
+                                let end = html[pos..].find("</iframe>")
+                                    .map(|e| pos + e + "</iframe>".len())
+                                    .or_else(|| html[pos..].find("/>").map(|e| pos + e + "/>".len()));
+                                if let Some(end) = end {
+                                    html.replace_range(pos..end, &replacement);
+                                }
+                            }
+                        } else if frame["cross_origin"].as_bool() == Some(true) {
+                            // Mark cross-origin iframes so Agent knows
+                            let marker = format!("[iframe: {}]", src);
+                            html = html.replacen("<iframe", &format!("<!-- {} --><iframe", marker), 1);
+                        }
+                    }
+                }
+            }
+
             (html, self.current_url.clone())
         };
 
