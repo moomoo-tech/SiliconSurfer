@@ -1,127 +1,129 @@
-"""SiliconSurfer MCP Server — 2 tools for Claude to browse and interact with the web.
+"""SiliconSurfer MCP Server — PyO3 direct, no HTTP server.
 
-Tools:
-1. observe(url, mode) — See a page through 5 visual modes
-2. act(action, target, value) — Execute actions on @e elements
-
-The Agent loop: observe → think → act → observe → ...
+Two tools: observe + act
+Transport: stdio (Claude Desktop / Claude Code)
+Backend: Rust core via PyO3 FFI (in-process, zero network overhead)
 """
 
 import json
-import subprocess
 import os
-import time
-import httpx
-import tomllib
 from pathlib import Path
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
-_config_path = Path(__file__).parent / "config.toml"
-_config = tomllib.load(open(_config_path, "rb")) if _config_path.exists() else {}
+app = Server("silicon-surfer")
+
+# Try PyO3 direct import first, fallback to HTTP
+_use_pyo3 = False
+_use_http = False
+
+try:
+    import agent_browser
+    _use_pyo3 = True
+except ImportError:
+    # PyO3 not built — fallback to HTTP server
+    import httpx
+    _use_http = True
 
 SERVER_URL = "http://localhost:9883"
 _server_proc = None
 
-# Global state
-_current_url = ""
-_locator_map = {}
 
-app = Server("silicon-surfer")
-
-
-def _ensure_server():
+def _ensure_http_server():
+    """Start HTTP server as fallback when PyO3 not available."""
     global _server_proc
+    if not _use_http:
+        return
     try:
         httpx.get(f"{SERVER_URL}/health", timeout=2)
         return
     except Exception:
         pass
 
-    # Kill any zombie server/chrome processes from previous crashes
-    _cleanup_zombies()
+    import subprocess, time, signal, atexit, tempfile
+
+    # Cleanup zombies
+    pid_file = Path(__file__).parent / ".server.pid"
+    if pid_file.exists():
+        try:
+            os.kill(int(pid_file.read_text().strip()), 9)
+        except (ValueError, ProcessLookupError, PermissionError):
+            pass
+        pid_file.unlink(missing_ok=True)
+
+    lock = Path(tempfile.gettempdir()) / "chromiumoxide-runner" / "SingletonLock"
+    lock.unlink(missing_ok=True)
 
     env = {**os.environ, "PORT": "9883"}
     binary = Path(__file__).parent / "target" / "release" / "agent-browser-server"
     if not binary.exists():
         binary = Path(__file__).parent / "target" / "debug" / "agent-browser-server"
+
     _server_proc = subprocess.Popen(
         [str(binary)], env=env,
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
-
-    # Write PID for cleanup
-    pid_file = Path(__file__).parent / ".server.pid"
     pid_file.write_text(str(_server_proc.pid))
-
     time.sleep(4)
 
-    # Register cleanup on exit
-    import atexit, signal
+    def _shutdown():
+        if _server_proc and _server_proc.poll() is None:
+            _server_proc.terminate()
+            try:
+                _server_proc.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                _server_proc.kill()
+        pid_file.unlink(missing_ok=True)
+
     atexit.register(_shutdown)
     signal.signal(signal.SIGTERM, lambda *_: _shutdown())
 
 
-def _cleanup_zombies():
-    """Kill leftover server/chrome processes from previous crashes."""
-    pid_file = Path(__file__).parent / ".server.pid"
-    if pid_file.exists():
-        try:
-            old_pid = int(pid_file.read_text().strip())
-            os.kill(old_pid, 9)
-        except (ValueError, ProcessLookupError, PermissionError):
-            pass
-        pid_file.unlink(missing_ok=True)
-
-    # Also clean chromiumoxide lock file
-    import tempfile
-    lock = Path(tempfile.gettempdir()) / "chromiumoxide-runner" / "SingletonLock"
-    lock.unlink(missing_ok=True)
-
-
-def _shutdown():
-    """Clean shutdown — kill server and all chrome children."""
-    global _server_proc
-    if _server_proc and _server_proc.poll() is None:
-        _server_proc.terminate()
-        try:
-            _server_proc.wait(timeout=3)
-        except subprocess.TimeoutExpired:
-            _server_proc.kill()
-    _server_proc = None
-
-    pid_file = Path(__file__).parent / ".server.pid"
-    pid_file.unlink(missing_ok=True)
-
-
 def _fetch(url: str, distill: str = "reader") -> dict:
-    _ensure_server()
-    r = httpx.post(f"{SERVER_URL}/fetch", json={"url": url, "fast": True, "distill": distill}, timeout=60)
-    return r.json()
+    """Fetch and distill a URL."""
+    if _use_pyo3:
+        fast = True
+        result = agent_browser.fetch(url, mode="t0", fast=fast)
+        # TODO: pass distill mode through PyO3 when available
+        return result
+    else:
+        _ensure_http_server()
+        r = httpx.post(f"{SERVER_URL}/fetch",
+                       json={"url": url, "fast": True, "distill": distill}, timeout=60)
+        return r.json()
 
 
-def _distill(html: str, url: str, distill: str = "reader") -> dict:
-    _ensure_server()
-    r = httpx.post(f"{SERVER_URL}/distill", json={"html": html, "url": url, "distill": distill}, timeout=60)
-    return r.json()
+def _distill_html(html: str, url: str, distill: str = "reader") -> dict:
+    """Distill raw HTML (for when we have page content from browser)."""
+    if _use_http:
+        _ensure_http_server()
+        r = httpx.post(f"{SERVER_URL}/distill",
+                       json={"html": html, "url": url, "distill": distill}, timeout=60)
+        return r.json()
+    else:
+        # PyO3 direct distill — TODO: add distill_html to PyO3 bindings
+        from agent_browser_core.distiller_fast import FastDistiller
+        content = FastDistiller.distill(html, distill, url)
+        return {"content": content, "content_length": len(content)}
 
 
 @app.list_tools()
 async def list_tools():
+    mode_desc = "PyO3 direct (in-process)" if _use_pyo3 else "HTTP server (localhost:9883)"
     return [
         Tool(
             name="observe",
-            description="""See a webpage through SiliconSurfer's multi-mode vision system. Returns structured content optimized for your understanding.
+            description=f"""See a webpage through SiliconSurfer's multi-mode vision. Backend: {mode_desc}
 
 Modes:
-- "reader" (default): Clean markdown, best for reading articles/docs. Strips all UI noise.
-- "operator": Shows ALL interactive elements with @e references. Use this when you need to interact (click/fill/submit). Each element gets @e1, @e2 etc.
-- "spider": Returns JSON with all links on the page, categorized as nav/content/footer.
-- "data": Returns structured JSON with tables and lists extracted from the page.
-- "developer": Returns DOM skeleton with id/class/role attributes.
+- "reader" (default): Clean markdown for reading. Strips all UI noise.
+- "operator": Shows interactive elements with @e1, @e2 references. Use before act().
+- "spider": JSON with all links (nav/content/footer).
+- "data": JSON with tables and lists.
+- "developer": DOM skeleton with attributes.
 
-After using "operator" mode, you can use the "act" tool with @e references.""",
+After "operator" mode, use act() with @e references to interact.""",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -130,7 +132,6 @@ After using "operator" mode, you can use the "act" tool with @e references.""",
                         "type": "string",
                         "enum": ["reader", "operator", "spider", "data", "developer"],
                         "default": "reader",
-                        "description": "Visual mode",
                     },
                 },
                 "required": ["url"],
@@ -138,39 +139,20 @@ After using "operator" mode, you can use the "act" tool with @e references.""",
         ),
         Tool(
             name="act",
-            description="""Execute an action on a webpage element identified by its @e reference.
+            description="""Execute an action on a @e element. Must call observe(mode="operator") first.
+After every act(), @e refs are invalidated — call observe() again before next act().
 
-IMPORTANT: You must call observe(url, mode="operator") to see @e references before using this tool.
-After every act(), the @e references are invalidated. You MUST call observe() again before the next act().
-
-Actions:
-- "click": Click the element (links, buttons)
-- "fill": Type text into an input field
-- "submit": Submit a form (clicks submit button or submits form directly)
-- "navigate": Go to a new URL (target should be the URL)
-
-Examples:
-  act("click", "@e3")           — Click the 3rd interactive element
-  act("fill", "@e1", "admin")   — Type "admin" into the 1st input
-  act("submit", "@e5")          — Click the submit button
-  act("navigate", "https://example.com") — Go to a URL""",
+Actions: click, fill, submit, navigate
+Examples: act("click", "@e3"), act("fill", "@e1", "admin"), act("navigate", "https://...")""",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "action": {
                         "type": "string",
                         "enum": ["click", "fill", "submit", "navigate"],
-                        "description": "Action to perform",
                     },
-                    "target": {
-                        "type": "string",
-                        "description": "@e reference (e.g. '@e3') or URL for navigate",
-                    },
-                    "value": {
-                        "type": "string",
-                        "default": "",
-                        "description": "Text to fill (only for 'fill' action)",
-                    },
+                    "target": {"type": "string", "description": "@eN reference or URL"},
+                    "value": {"type": "string", "default": "", "description": "Text for fill action"},
                 },
                 "required": ["action", "target"],
             },
@@ -180,12 +162,9 @@ Examples:
 
 @app.call_tool()
 async def call_tool(name: str, arguments: dict):
-    global _current_url, _locator_map
-
     if name == "observe":
         url = arguments.get("url", "")
         mode = arguments.get("mode", "reader")
-
         if not url:
             return [TextContent(type="text", text="Error: url is required")]
 
@@ -194,23 +173,19 @@ async def call_tool(name: str, arguments: dict):
             content = result.get("content", "")
             title = result.get("title", "")
             length = result.get("content_length", 0)
-            _current_url = url
 
             if mode in ("spider", "data"):
                 try:
-                    data = json.loads(content)
-                    content = json.dumps(data, indent=2, ensure_ascii=False)
+                    content = json.dumps(json.loads(content), indent=2, ensure_ascii=False)
                 except json.JSONDecodeError:
                     pass
 
             header = f"# {title}\n" if title else ""
             footer = f"\n\n---\n_URL: {url} | {length} chars | mode: {mode}_"
-
             if mode == "operator":
-                footer += f"\n_Use act() with @e references shown above to interact._"
+                footer += "\n_Use act() with @e references to interact._"
 
             return [TextContent(type="text", text=f"{header}{content}{footer}")]
-
         except Exception as e:
             return [TextContent(type="text", text=f"Error: {e}")]
 
@@ -220,24 +195,16 @@ async def call_tool(name: str, arguments: dict):
         value = arguments.get("value", "")
 
         if action == "navigate":
-            # Navigate is just observe with operator mode
             try:
                 result = _fetch(target, distill="operator")
-                _current_url = target
-                content = result.get("content", "")
-                return [TextContent(type="text", text=f"Navigated to {target}.\n\n{content[:2000]}")]
+                return [TextContent(type="text", text=f"Navigated to {target}.\n\n{result.get('content', '')[:2000]}")]
             except Exception as e:
                 return [TextContent(type="text", text=f"Navigation failed: {e}")]
 
-        # For click/fill/submit — we need a live browser session.
-        # Current limitation: T0 mode can't execute actions.
-        # TODO: Wire through to AgentSession when T1 CDP is integrated into MCP.
         return [TextContent(type="text", text=
             f"Action '{action}' on '{target}' received.\n"
-            f"⚠️ Direct browser actions require T1 (Chrome CDP) session.\n"
-            f"Current MCP runs in T0 (HTTP fetch) mode.\n"
-            f"To execute actions, use the agent_loop.py with Playwright,\n"
-            f"or wait for T1 CDP integration into MCP server."
+            f"Note: Direct browser actions require T1 CDP session.\n"
+            f"Use observe() to read pages, act('navigate', url) to go to URLs."
         )]
 
     return [TextContent(type="text", text=f"Unknown tool: {name}")]
