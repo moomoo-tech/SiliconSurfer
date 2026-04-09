@@ -47,10 +47,16 @@ static PROBE: OnceLock<Probe> = OnceLock::new();
 fn get_engine() -> &'static Engine {
     ENGINE.get_or_init(|| {
         let engine = Engine::new();
-        // Start browser on dedicated runtime (safe from any context)
-        let _ = run_async(engine.start_browser());
         engine
     })
+}
+
+fn ensure_browser_started() {
+    static STARTED: OnceLock<bool> = OnceLock::new();
+    STARTED.get_or_init(|| {
+        let _ = run_async(get_engine().start_browser());
+        true
+    });
 }
 
 fn get_probe() -> &'static Probe {
