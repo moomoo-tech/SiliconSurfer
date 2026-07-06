@@ -98,22 +98,36 @@ impl Fetcher {
 
         let raw_html = resp.text().await?;
 
-        let (title, content) = if fast {
-            let title = FastDistiller::extract_title(&raw_html);
-            let content = match opts.output.as_str() {
-                "text" => FastDistiller::to_text(&raw_html),
-                _ => FastDistiller::distill(&raw_html, opts.distill_mode, Some(&opts.url)),
-            };
-            (title, content)
+        let title = if fast {
+            FastDistiller::extract_title(&raw_html)
         } else {
-            let title = self.distiller.extract_title(&raw_html);
-            let content = match opts.output.as_str() {
-                "text" => self.distiller.to_text(&raw_html),
-                _ => self
-                    .distiller
-                    .to_markdown_with_base(&raw_html, Some(&opts.url)),
-            };
-            (title, content)
+            self.distiller.extract_title(&raw_html)
+        };
+
+        let content = match opts.output.as_str() {
+            "text" => {
+                if fast {
+                    FastDistiller::to_text(&raw_html)
+                } else {
+                    self.distiller.to_text(&raw_html)
+                }
+            }
+            // Distill mode decides the output *shape*. The operator/spider/developer/data
+            // shapes only exist in the streaming strategy engine, so they always route there
+            // regardless of `fast` — never silently downgrade a requested mode to reader.
+            // Only reader/markdown has two engine implementations, and `fast` picks between
+            // them (AST scraper vs lol_html stream).
+            _ => match opts.distill_mode {
+                DistillMode::LlmFriendly | DistillMode::Reader => {
+                    if fast {
+                        FastDistiller::distill(&raw_html, opts.distill_mode, Some(&opts.url))
+                    } else {
+                        self.distiller
+                            .to_markdown_with_base(&raw_html, Some(&opts.url))
+                    }
+                }
+                _ => FastDistiller::distill(&raw_html, opts.distill_mode, Some(&opts.url)),
+            },
         };
         let content_length = content.len();
 

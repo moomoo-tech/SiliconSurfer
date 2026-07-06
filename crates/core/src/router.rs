@@ -163,7 +163,7 @@ impl Engine {
         distill: DistillMode,
     ) -> Result<EngineResult, EngineError> {
         match self.fetch_t0(url, output, fast, distill).await {
-            Ok(result) if result.content_length > 100 => Ok(result),
+            Ok(result) if !is_sparse_content(&result.content) => Ok(result),
             Ok(_sparse) => {
                 // T0 got almost nothing — likely a JS-rendered page, try T1
                 tracing::info!("T0 returned sparse content for {}, falling back to T1", url);
@@ -188,5 +188,59 @@ impl Engine {
     /// Stop the T1 browser daemon.
     pub async fn stop_browser(&self) {
         self.t1.stop().await;
+    }
+}
+
+/// Decide whether a T0 result is too thin to trust, so Auto should escalate to T1.
+///
+/// Bare length is not enough: JS-app shells return a short-but-nonempty skeleton
+/// (e.g. a 142-byte `Loading…` placeholder) that clears a naive length threshold
+/// yet carries zero real content. Treat those placeholder shells as sparse too.
+fn is_sparse_content(content: &str) -> bool {
+    let trimmed = content.trim();
+    let len = trimmed.chars().count();
+    if len <= 100 {
+        return true;
+    }
+    // A short body dominated by a JS placeholder is an unrendered SPA shell.
+    if len < 400 {
+        let lower = trimmed.to_lowercase();
+        const PLACEHOLDERS: [&str; 4] = [
+            "loading",
+            "enable javascript",
+            "javascript is required",
+            "you need to enable javascript",
+        ];
+        if PLACEHOLDERS.iter().any(|p| lower.contains(p)) {
+            return true;
+        }
+    }
+    false
+}
+
+#[cfg(test)]
+mod sparse_tests {
+    use super::is_sparse_content;
+
+    #[test]
+    fn empty_and_tiny_is_sparse() {
+        assert!(is_sparse_content(""));
+        assert!(is_sparse_content("   \n  "));
+        assert!(is_sparse_content("short"));
+    }
+
+    #[test]
+    fn js_placeholder_shell_is_sparse() {
+        // ~142-byte SPA shell that previously slipped through the >100 byte check.
+        let shell = "Loading...\n\n".to_string() + &"Loading ".repeat(15);
+        assert!(shell.len() > 100, "shell must clear the old byte threshold");
+        assert!(is_sparse_content(&shell));
+    }
+
+    #[test]
+    fn real_content_is_not_sparse() {
+        let real = "# Models & Pricing\n\n".to_string()
+            + &"DeepSeek V4 pricing details, context length, thinking mode. ".repeat(10);
+        assert!(!is_sparse_content(&real));
     }
 }

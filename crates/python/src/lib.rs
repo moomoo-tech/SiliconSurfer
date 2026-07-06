@@ -152,6 +152,17 @@ fn fetch_many(
     Ok(py_results)
 }
 
+// ---- Distill API (HTML you already have → clean markdown, no browser) ----
+
+/// Distill a raw HTML string into Reader-mode markdown — the SAME distiller
+/// `fetch` uses, but on HTML you already hold (e.g. a feed's `content`), so no
+/// browser launch / network round-trip. `base_url` resolves relative links.
+#[pyfunction]
+#[pyo3(signature = (html, base_url=None))]
+fn distill(html: &str, base_url: Option<&str>) -> PyResult<String> {
+    Ok(agent_browser_core::distiller_fast::FastDistiller::to_markdown_with_base(html, base_url))
+}
+
 // ---- Probe API ----
 
 #[pyfunction]
@@ -401,6 +412,7 @@ fn agent_browser(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fetch, m)?)?;
     m.add_function(wrap_pyfunction!(fetch_many, m)?)?;
     m.add_function(wrap_pyfunction!(probe, m)?)?;
+    m.add_function(wrap_pyfunction!(distill, m)?)?;
     m.add_class::<Session>()?;
     Ok(())
 }

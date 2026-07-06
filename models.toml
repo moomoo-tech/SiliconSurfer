@@ -1,0 +1,310 @@
+# SiliconSurfer — Model Registry
+#
+# Knowledge base of current LLMs the agentic runtime can select/route.
+# Populated 2026-07-05 from FIRST-PARTY official pricing/model pages only
+# (fetched via SiliconSurfer itself — see docs/USE_CASE_agent_uses_siliconsurfer.md).
+# Prices are USD per 1M tokens. A `null`/omitted field is a real gap on the
+# source page, NOT a guess — do not backfill from memory.
+#
+# Schema (per provider):
+#   [provider.<name>]
+#   default = "<model id used when caller doesn't pick>"
+#   base_url_openai    = "..."   # OpenAI-compatible endpoint, if offered
+#   base_url_anthropic = "..."   # Anthropic-compatible endpoint, if offered
+#
+#   [[provider.<name>.models]]
+#   id            = "exact api model id string"
+#   tier          = "flagship|balanced|small|coding|..."   # role hint for routing
+#   price_in      = <float>      # cache-miss / standard input $/1M
+#   price_cached  = <float|null> # cached-read input $/1M (null = not published)
+#   price_out     = <float>      # output $/1M
+#   context       = <int|null>   # max context tokens (null = not on pricing page)
+#   thinking      = "none|optional|thinking_only"
+#   off_knob      = "..."        # how to DISABLE thinking (only if optional/thinking_only)
+#   modalities    = ["text","image","audio","video"]   # inputs
+#   status        = "ga|preview|deprecated"
+#   sunset        = "YYYY-MM-DD" # only if deprecated/scheduled removal
+#   aliases       = ["..."]      # -latest / dateless pointers, if any
+
+# ============================================================================
+# Anthropic — docs.claude.com/en/docs/about-claude/models/overview + claude.com/pricing
+# Usage accounting: fresh input billed separate from cache read/write.
+# ============================================================================
+[provider.anthropic]
+default = "claude-opus-4-8"   # overview: "start with Opus 4.8 for complex agentic coding"
+base_url_anthropic = "https://api.anthropic.com"
+
+[[provider.anthropic.models]]
+id = "claude-opus-4-8"
+tier = "flagship"
+price_in = 5.0
+price_cached = 0.50   # cache read; write 6.25
+price_out = 25.0
+context = 1000000
+thinking = "optional"   # adaptive; `effort` defaults high
+off_knob = "thinking.type=disabled"
+modalities = ["text", "image"]
+status = "ga"
+aliases = []            # dateless id is a pinned snapshot, not evergreen
+
+[[provider.anthropic.models]]
+id = "claude-fable-5"
+tier = "flagship-max"
+price_in = 10.0
+price_cached = 1.00   # write 12.50
+price_out = 50.0
+context = 1000000
+thinking = "thinking_only"   # adaptive thinking always on
+modalities = ["text", "image"]
+status = "ga"
+aliases = []
+
+[[provider.anthropic.models]]
+id = "claude-sonnet-5"
+tier = "balanced"
+price_in = 2.0    # intro; -> 3.0 after 2026-08-31
+price_cached = 0.20   # write 2.50
+price_out = 10.0  # intro; -> 15.0 after 2026-08-31
+context = 1000000
+thinking = "optional"
+off_knob = "thinking.type=disabled"
+modalities = ["text", "image"]
+status = "ga"
+aliases = []
+
+[[provider.anthropic.models]]
+id = "claude-haiku-4-5-20251001"
+tier = "small"
+price_in = 1.0
+price_cached = 0.10   # write 1.25
+price_out = 5.0
+context = 200000
+thinking = "optional"   # extended thinking; not adaptive
+off_knob = "thinking.type=disabled"
+modalities = ["text", "image"]
+status = "ga"
+aliases = ["claude-haiku-4-5"]
+
+# ============================================================================
+# OpenAI — platform.openai.com/docs/pricing  (Standard, short-context column)
+# NOTE: pricing page does NOT list context window / thinking on-off per model.
+# `context = null` and thinking="optional (unconfirmed)" are genuine page gaps.
+# ============================================================================
+[provider.openai]
+default = "gpt-5.4"   # flagship-class at 1/2 the gpt-5.5 price
+base_url_openai = "https://api.openai.com/v1"
+
+[[provider.openai.models]]
+id = "gpt-5.4"
+tier = "flagship"
+price_in = 2.50
+price_cached = 0.25
+price_out = 15.0
+context = null   # not on pricing page
+thinking = "optional"   # "reasoning model" per page; on/off not confirmed on pricing page
+modalities = ["text", "image"]
+status = "ga"
+aliases = []
+
+[[provider.openai.models]]
+id = "gpt-5.5"
+tier = "flagship-max"
+price_in = 5.0
+price_cached = 0.50
+price_out = 30.0
+context = null
+thinking = "optional"
+modalities = ["text", "image"]
+status = "ga"
+aliases = []
+
+[[provider.openai.models]]
+id = "gpt-5.4-mini"
+tier = "small"
+price_in = 0.75
+price_cached = 0.075
+price_out = 4.50
+context = null
+thinking = "optional"
+modalities = ["text"]
+status = "ga"
+aliases = []
+
+[[provider.openai.models]]
+id = "gpt-5.4-nano"
+tier = "nano"
+price_in = 0.20
+price_cached = 0.02
+price_out = 1.25
+context = null
+thinking = "optional"
+modalities = ["text"]
+status = "ga"
+aliases = []
+
+[[provider.openai.models]]
+id = "gpt-5.3-codex"
+tier = "coding"
+price_in = 1.75
+price_cached = 0.175
+price_out = 14.0
+context = null
+thinking = "optional"
+modalities = ["text"]
+status = "ga"
+aliases = []
+
+# ============================================================================
+# Google Gemini — ai.google.dev/gemini-api/docs/pricing (Paid tier, Standard)
+# Two-tier prices (<=200k / >200k prompt) noted where they differ.
+# "off knob" differs by generation: 3.x uses thinking_level:"minimal",
+# 2.5 uses thinkingBudget:0. Pro/preview models are thinking_only (reject budget 0).
+# ============================================================================
+[provider.gemini]
+default = "gemini-3.5-flash"   # only current-gen GA general model; off-capable
+base_url_openai = "https://generativelanguage.googleapis.com/v1beta/openai"
+
+[[provider.gemini.models]]
+id = "gemini-3.5-flash"
+tier = "balanced"
+price_in = 1.50
+price_cached = 0.15
+price_out = 9.0   # includes thinking tokens
+context = null    # not on pricing page (models page has it)
+thinking = "optional"
+off_knob = "thinking_level=minimal"
+modalities = ["text", "image", "audio", "video"]
+status = "ga"
+aliases = []
+
+[[provider.gemini.models]]
+id = "gemini-3.1-pro-preview"
+tier = "flagship"
+price_in = 2.0    # <=200k; 4.0 >200k
+price_cached = 0.20  # 0.40 >200k
+price_out = 12.0  # <=200k; 18.0 >200k
+context = null    # supports >200k (tiered)
+thinking = "thinking_only"   # rejects thinkingBudget 0
+modalities = ["text", "image", "audio", "video"]
+status = "preview"
+aliases = []
+
+[[provider.gemini.models]]
+id = "gemini-3.1-flash-lite"
+tier = "small"
+price_in = 0.25   # text/img/video; audio 0.50
+price_cached = 0.025
+price_out = 1.50
+context = null
+thinking = "optional"
+off_knob = "thinking_level=minimal"
+modalities = ["text", "image", "audio", "video"]
+status = "ga"
+aliases = []
+
+[[provider.gemini.models]]
+id = "gemini-2.5-pro"
+tier = "flagship-legacy"
+price_in = 1.25   # <=200k; 2.50 >200k
+price_cached = 0.125  # 0.25 >200k
+price_out = 10.0  # <=200k; 15.0 >200k
+context = null
+thinking = "thinking_only"   # rejects thinkingBudget 0 (prior-gen default崩 source)
+modalities = ["text", "image", "audio", "video"]
+status = "ga"
+aliases = []
+
+# ============================================================================
+# DeepSeek — api-docs.deepseek.com/quick_start/pricing
+# deepseek-chat / deepseek-reasoner deprecated 2026-07-24 15:59 UTC
+# (they map to non-thinking / thinking of v4-flash).
+# ============================================================================
+[provider.deepseek]
+default = "deepseek-v4-flash"
+base_url_openai = "https://api.deepseek.com"
+base_url_anthropic = "https://api.deepseek.com/anthropic"
+
+[[provider.deepseek.models]]
+id = "deepseek-v4-flash"
+tier = "balanced"
+price_in = 0.14        # cache miss
+price_cached = 0.0028  # cache hit
+price_out = 0.28
+context = 1000000      # max output 384k
+thinking = "optional"  # both modes; thinking is the default
+off_knob = "model=deepseek-chat style / non-thinking mode"
+modalities = ["text"]
+status = "ga"
+aliases = []
+
+[[provider.deepseek.models]]
+id = "deepseek-v4-pro"
+tier = "flagship"
+price_in = 0.435
+price_cached = 0.003625
+price_out = 0.87
+context = 1000000
+thinking = "optional"
+modalities = ["text"]
+status = "ga"
+aliases = []
+
+[[provider.deepseek.models]]
+id = "deepseek-chat"
+tier = "balanced"
+price_in = 0.14
+price_cached = 0.0028
+price_out = 0.28
+context = 1000000
+thinking = "none"   # legacy alias = non-thinking mode of v4-flash
+modalities = ["text"]
+status = "deprecated"
+sunset = "2026-07-24"
+aliases = []
+
+[[provider.deepseek.models]]
+id = "deepseek-reasoner"
+tier = "balanced"
+price_in = 0.14
+price_cached = 0.0028
+price_out = 0.28
+context = 1000000
+thinking = "thinking_only"   # legacy alias = thinking mode of v4-flash
+modalities = ["text"]
+status = "deprecated"
+sunset = "2026-07-24"
+aliases = []
+
+# ============================================================================
+# xAI — docs.x.ai/docs/models + docs.x.ai/developers/pricing (updated 2026-05-29)
+# Batch API = 20-50% off all token types. logprobs unsupported on >= grok-4.20.
+# Aliases: <name>=latest stable, <name>-latest=latest, <name>-<date>=pinned.
+# ============================================================================
+[provider.xai]
+default = "grok-4.3"
+base_url_openai = "https://api.x.ai/v1"
+
+[[provider.xai.models]]
+id = "grok-4.3"
+tier = "flagship"
+price_in = 1.25
+price_cached = 0.20
+price_out = 2.50
+context = 1000000
+thinking = "optional"   # reasoning_effort parameter
+off_knob = "reasoning_effort=low"
+modalities = ["text", "image"]
+status = "ga"
+aliases = ["grok-4.3-latest"]
+
+[[provider.xai.models]]
+id = "grok-build-0.1"
+tier = "coding"
+price_in = 1.0
+price_cached = 0.20
+price_out = 2.0
+context = 256000
+thinking = "none"
+modalities = ["text"]
+status = "ga"
+aliases = ["grok-build-0.1-latest"]
