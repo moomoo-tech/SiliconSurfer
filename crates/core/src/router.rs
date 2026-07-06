@@ -59,6 +59,15 @@ impl Engine {
         }
     }
 
+    /// Build an engine with a caller-supplied browser pool — e.g. one pinned to a
+    /// specific executable (`BrowserPool::with_executable`) resolved from config.
+    pub fn with_browser_pool(pool: BrowserPool) -> Self {
+        Self {
+            t0: Fetcher::new(),
+            t1: Arc::new(pool),
+        }
+    }
+
     /// Get a reference to the browser pool (for sharing with Probe).
     pub fn browser_pool(&self) -> Arc<BrowserPool> {
         self.t1.clone()
@@ -114,7 +123,7 @@ impl Engine {
     }
 
     /// T0: reqwest + Rust distiller
-    async fn fetch_t0(
+    pub(crate) async fn fetch_t0(
         &self,
         url: &str,
         output: &str,
@@ -143,7 +152,7 @@ impl Engine {
     }
 
     /// T1: headless Chrome + distiller
-    async fn fetch_t1(&self, url: &str, output: &str) -> Result<EngineResult, EngineError> {
+    pub(crate) async fn fetch_t1(&self, url: &str, output: &str) -> Result<EngineResult, EngineError> {
         let result = self.t1.fetch(url, output).await?;
         Ok(EngineResult {
             url: result.url,
@@ -180,6 +189,28 @@ impl Engine {
         }
     }
 
+    /// Fetch RAW (undistilled) HTML with the same fastest-first escalation as
+    /// [`Engine::fetch`]: reqwest first, and only fall back to the browser when the
+    /// static body looks like an unrendered shell. Used by the search backend,
+    /// which parses the page's own HTML structure.
+    pub(crate) async fn fetch_raw(&self, url: &str) -> Result<String, EngineError> {
+        let opts = FetchOptions {
+            url: url.to_string(),
+            output: "markdown".to_string(),
+            user_agent: None,
+            timeout_secs: 30,
+            distill_mode: DistillMode::default(),
+        };
+        match self.t0.fetch_raw_html(opts).await {
+            Ok(html) if !is_sparse_content(&html) => Ok(html),
+            Ok(sparse) => match self.t1.fetch_raw_html(url).await {
+                Ok(html) => Ok(html),
+                Err(_) => Ok(sparse),
+            },
+            Err(_) => Ok(self.t1.fetch_raw_html(url).await?),
+        }
+    }
+
     /// Start the T1 browser daemon (call once at startup).
     pub async fn start_browser(&self) -> Result<(), crate::browser::BrowserError> {
         self.t1.start().await
@@ -196,7 +227,7 @@ impl Engine {
 /// Bare length is not enough: JS-app shells return a short-but-nonempty skeleton
 /// (e.g. a 142-byte `Loading…` placeholder) that clears a naive length threshold
 /// yet carries zero real content. Treat those placeholder shells as sparse too.
-fn is_sparse_content(content: &str) -> bool {
+pub(crate) fn is_sparse_content(content: &str) -> bool {
     let trimmed = content.trim();
     let len = trimmed.chars().count();
     if len <= 100 {

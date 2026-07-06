@@ -45,6 +45,21 @@ pub enum FetchError {
     Status(u16),
 }
 
+impl FetchError {
+    /// Whether retrying the same request could plausibly succeed.
+    ///
+    /// Transient: connection resets, request timeouts, and 5xx server errors.
+    /// Permanent: 4xx client errors and anything that isn't a timeout/connect
+    /// failure (invalid URL, TLS, DNS-not-found — reqwest cannot cleanly separate
+    /// DNS-not-found from a resettable connect error, so we err toward NOT retrying).
+    pub fn is_transient(&self) -> bool {
+        match self {
+            FetchError::Status(code) => (500..600).contains(code),
+            FetchError::Request(e) => e.is_timeout() || e.is_connect(),
+        }
+    }
+}
+
 pub struct Fetcher {
     client: Client,
     distiller: Distiller,
@@ -78,6 +93,24 @@ impl Fetcher {
     /// T0 with fast lol_html streaming distiller
     pub async fn fetch_fast(&self, opts: FetchOptions) -> Result<FetchResult, FetchError> {
         self.fetch_inner(opts, true).await
+    }
+
+    /// Fetch the raw response body WITHOUT distilling.
+    ///
+    /// The search backend needs the page's original HTML structure (result rows,
+    /// anchors) which the distiller would strip, so it takes this path while still
+    /// reusing the shared reqwest client, timeout, and typed [`FetchError`].
+    pub async fn fetch_raw_html(&self, opts: FetchOptions) -> Result<String, FetchError> {
+        let mut req = self.client.get(&opts.url);
+        if let Some(ua) = &opts.user_agent {
+            req = req.header("User-Agent", ua);
+        }
+        req = req.timeout(std::time::Duration::from_secs(opts.timeout_secs));
+        let resp = req.send().await?;
+        if !resp.status().is_success() {
+            return Err(FetchError::Status(resp.status().as_u16()));
+        }
+        Ok(resp.text().await?)
     }
 
     async fn fetch_inner(&self, opts: FetchOptions, fast: bool) -> Result<FetchResult, FetchError> {
