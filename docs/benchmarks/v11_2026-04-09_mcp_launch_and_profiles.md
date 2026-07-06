@@ -16,9 +16,9 @@ skeleton(url)  → Developer DOM skeleton
 
 Verified: Claude Code successfully called `browse("https://news.ycombinator.com/")` and `browse("https://cloud.tencent.com/developer/article/2648465")` via MCP.
 
-## SiliconSurfer MCP vs Playwright MCP
+## sisurf MCP vs Playwright MCP
 
-| | Playwright MCP | SiliconSurfer MCP |
+| | Playwright MCP | sisurf MCP |
 |---|---|---|
 | **Output to LLM** | Screenshot or raw HTML | Clean Markdown / JSON |
 | **Token cost** | Screenshot ~5K, HTML ~25K | Markdown ~5K, JSON ~500 |
@@ -31,7 +31,7 @@ Verified: Claude Code successfully called `browse("https://news.ycombinator.com/
 | **Element targeting** | CSS selector (LLM guesses) | @eN reference (100% hit rate) |
 
 **Playwright MCP = raw materials for LLM to process.**
-**SiliconSurfer MCP = finished products LLM can directly use.**
+**sisurf MCP = finished products LLM can directly use.**
 
 ## Site Profiles Database
 
@@ -48,7 +48,7 @@ extra_noise = ["[class*='sidebar']", "[class*='comment']", "[class*='recommend']
 
 Tencent Cloud article: 16213 → 14885 chars (-8%) with profile applied.
 
-## Why SiliconSurfer MCP, Not Playwright MCP?
+## Why sisurf MCP, Not Playwright MCP?
 
 Playwright MCP gives LLM a screenshot or raw HTML. LLM has to:
 1. Parse the HTML to find elements
@@ -56,7 +56,7 @@ Playwright MCP gives LLM a screenshot or raw HTML. LLM has to:
 3. Process 25,000 tokens of DOM noise
 4. Hope the selector it guessed actually works
 
-SiliconSurfer MCP gives LLM finished, structured data:
+sisurf MCP gives LLM finished, structured data:
 1. `browse()` → 5,000 tokens of clean Markdown (not 25,000 of HTML)
 2. `interact()` → `@e3 [Input: name=username]` (not "find the text input")
 3. `links()` → JSON array (not "search the HTML for `<a>` tags")

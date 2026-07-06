@@ -1,5 +1,5 @@
 [project]
-name = "silicon-surfer"
+name = "sisurf"
 version = "0.1.0"
 description = "The MCP-compatible browser built for silicon-based lifeforms"
 license = "Apache-2.0"

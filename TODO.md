@@ -1,4 +1,4 @@
-# SiliconSurfer Roadmap
+# sisurf Roadmap
 
 ## V1.1 — Hardening
 
@@ -18,7 +18,7 @@
 
 ## V3.0 — Endgame
 
-- [ ] **Action SLM**: fine-tune 7B/8B model on SiliconSurfer @e traces — local inference ~50ms, zero API cost
+- [ ] **Action SLM**: fine-tune 7B/8B model on sisurf @e traces — local inference ~50ms, zero API cost
 - [ ] **Multi-agent swarm**: Planner (CEO) → Surfer (executor) → Critic (QA) → Memory (archivist) — multiple brains, one body
 - [ ] **Self-writing profiles**: agent encounters unknown site → generates probe JS → injects via CDP → writes bypass script → uploads to cloud profile DB
 

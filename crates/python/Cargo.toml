@@ -1,14 +1,14 @@
 [package]
-name = "agent-browser-python"
+name = "sisurf-python"
 version.workspace = true
 edition.workspace = true
 
 [lib]
-name = "agent_browser"
+name = "sisurf"
 crate-type = ["cdylib"]
 
 [dependencies]
-agent-browser-core = { path = "../core" }
+sisurf-core = { path = "../core" }
 pyo3 = { version = "0.28", features = ["extension-module"] }
 tokio.workspace = true
 futures.workspace = true

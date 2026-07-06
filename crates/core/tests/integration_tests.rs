@@ -1,10 +1,10 @@
-//! Integration tests for SiliconSurfer core.
+//! Integration tests for sisurf core.
 //!
 //! Tests cover all 5 distill modes, edge cases, and bug regression.
 
 use std::ops::Not;
 
-use agent_browser_core::distiller_fast::{DistillMode, FastDistiller};
+use sisurf_core::distiller_fast::{DistillMode, FastDistiller};
 
 // ============================================================
 // Reader Mode — comprehensive edge cases

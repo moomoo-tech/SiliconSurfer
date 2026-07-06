@@ -9,52 +9,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
-name = "agent-browser-core"
-version = "0.1.0"
-dependencies = [
- "chromiumoxide",
- "chromiumoxide_cdp",
- "criterion",
- "ego-tree",
- "futures",
- "lol_html",
- "reqwest 0.12.28",
- "scraper",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "toml",
- "tracing",
-]
-
-[[package]]
-name = "agent-browser-python"
-version = "0.1.0"
-dependencies = [
- "agent-browser-core",
- "futures",
- "pyo3",
- "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "agent-browser-server"
-version = "0.1.0"
-dependencies = [
- "agent-browser-core",
- "axum",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "tokio",
- "tower-http",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2405,6 +2359,52 @@ name = "siphasher"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2aa850e253778c88a04c3d7323b043aeda9d3e30d5971937c1855769763678e"
+
+[[package]]
+name = "sisurf-core"
+version = "0.1.0"
+dependencies = [
+ "chromiumoxide",
+ "chromiumoxide_cdp",
+ "criterion",
+ "ego-tree",
+ "futures",
+ "lol_html",
+ "reqwest 0.12.28",
+ "scraper",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "toml",
+ "tracing",
+]
+
+[[package]]
+name = "sisurf-python"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "pyo3",
+ "serde_json",
+ "sisurf-core",
+ "tokio",
+]
+
+[[package]]
+name = "sisurf-server"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "sisurf-core",
+ "tokio",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+]
 
 [[package]]
 name = "slab"

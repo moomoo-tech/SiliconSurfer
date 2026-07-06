@@ -1,16 +1,16 @@
-# Benchmark v9 — 2026-04-09 — SiliconSurfer vs browser-use E2E
+# Benchmark v9 — 2026-04-09 — sisurf vs browser-use E2E
 
 Git: `6ee8433`
 
 ## Setup
 
-- SiliconSurfer: Rust distiller + Gemini + Playwright (hands)
+- sisurf: Rust distiller + Gemini + Playwright (hands)
 - browser-use: Python + OpenAI GPT-5.4-nano + built-in Playwright
 - Same 5 goals on test-friendly sites
 
 ## Results
 
-| Goal | SiliconSurfer | browser-use |
+| Goal | sisurf | browser-use |
 |------|--------------|-------------|
 | Find login form fields | **✓ 3.1s, 1 step** | ✗ 49.9s |
 | Find cheapest book | **✓ 18.9s, 10 steps** | ✗ 120.4s (timeout) |
@@ -31,7 +31,7 @@ Git: `6ee8433`
 
 ## Speed Comparison
 
-| Metric | SiliconSurfer | browser-use |
+| Metric | sisurf | browser-use |
 |--------|--------------|-------------|
 | Total time | **62.5s** | 235.2s |
 | Fastest task | **2.9s** (quotes) | 8.5s |

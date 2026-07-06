@@ -3,11 +3,11 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::sync::{Arc, OnceLock};
 
-use agent_browser_core::FetchMode;
-use agent_browser_core::cdp::BrowserSession;
-use agent_browser_core::distiller_fast::DistillMode;
-use agent_browser_core::probe::{Probe, ProbeCheck, ProbeRequest};
-use agent_browser_core::router::Engine;
+use sisurf_core::FetchMode;
+use sisurf_core::cdp::BrowserSession;
+use sisurf_core::distiller_fast::DistillMode;
+use sisurf_core::probe::{Probe, ProbeCheck, ProbeRequest};
+use sisurf_core::router::Engine;
 use tokio::sync::Mutex as TokioMutex;
 
 /// Dedicated Tokio runtime on its own thread — never conflicts with Python asyncio.
@@ -160,7 +160,7 @@ fn fetch_many(
 #[pyfunction]
 #[pyo3(signature = (html, base_url=None))]
 fn distill(html: &str, base_url: Option<&str>) -> PyResult<String> {
-    Ok(agent_browser_core::distiller_fast::FastDistiller::to_markdown_with_base(html, base_url))
+    Ok(sisurf_core::distiller_fast::FastDistiller::to_markdown_with_base(html, base_url))
 }
 
 // ---- Probe API ----
@@ -398,7 +398,7 @@ fn parse_distill_mode(mode: &str) -> DistillMode {
 
 fn action_result_to_dict(
     py: Python<'_>,
-    result: &agent_browser_core::cdp::ActionResult,
+    result: &sisurf_core::cdp::ActionResult,
 ) -> PyResult<Py<PyDict>> {
     let dict = PyDict::new(py);
     dict.set_item("success", result.success)?;
@@ -408,7 +408,7 @@ fn action_result_to_dict(
 }
 
 #[pymodule]
-fn agent_browser(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn sisurf(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fetch, m)?)?;
     m.add_function(wrap_pyfunction!(fetch_many, m)?)?;
     m.add_function(wrap_pyfunction!(probe, m)?)?;

@@ -1,5 +1,5 @@
 [package]
-name = "agent-browser-core"
+name = "sisurf-core"
 version.workspace = true
 edition.workspace = true
 

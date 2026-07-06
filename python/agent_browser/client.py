@@ -14,8 +14,8 @@ import httpx
 
 # Locate the Rust binary
 _PROJECT_ROOT = Path(__file__).parent.parent.parent
-_BINARY_DEBUG = _PROJECT_ROOT / "target" / "debug" / "agent-browser-server"
-_BINARY_RELEASE = _PROJECT_ROOT / "target" / "release" / "agent-browser-server"
+_BINARY_DEBUG = _PROJECT_ROOT / "target" / "debug" / "sisurf-server"
+_BINARY_RELEASE = _PROJECT_ROOT / "target" / "release" / "sisurf-server"
 
 
 def _find_binary() -> Path:
@@ -25,7 +25,7 @@ def _find_binary() -> Path:
     if _BINARY_DEBUG.exists():
         return _BINARY_DEBUG
     raise FileNotFoundError(
-        f"Rust binary not found. Run 'cargo build -p agent-browser-server' first.\n"
+        f"Rust binary not found. Run 'cargo build -p sisurf-server' first.\n"
         f"Looked in:\n  {_BINARY_RELEASE}\n  {_BINARY_DEBUG}"
     )
 

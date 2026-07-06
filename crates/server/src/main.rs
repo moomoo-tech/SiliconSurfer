@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 
-use agent_browser_core::probe::{Probe, ProbeRequest, ProbeResult};
-use agent_browser_core::{Engine, FetchMode};
+use sisurf_core::probe::{Probe, ProbeRequest, ProbeResult};
+use sisurf_core::{Engine, FetchMode};
 
 struct AppState {
     engine: Engine,
@@ -32,7 +32,7 @@ struct FetchRequest {
     fast: bool,
     /// Distill mode: "llm_friendly", "reader", "operator", "spider", "developer", "data"
     #[serde(default)]
-    distill: agent_browser_core::distiller_fast::DistillMode,
+    distill: sisurf_core::distiller_fast::DistillMode,
 }
 
 fn default_output() -> String {
@@ -105,13 +105,13 @@ struct DistillRequest {
     html: String,
     url: Option<String>,
     #[serde(default)]
-    distill: agent_browser_core::distiller_fast::DistillMode,
+    distill: sisurf_core::distiller_fast::DistillMode,
 }
 
 async fn distill_html(Json(req): Json<DistillRequest>) -> Json<FetchResponse> {
     let base_url = req.url.as_deref();
-    let title = agent_browser_core::distiller_fast::FastDistiller::extract_title(&req.html);
-    let content = agent_browser_core::distiller_fast::FastDistiller::distill(
+    let title = sisurf_core::distiller_fast::FastDistiller::extract_title(&req.html);
+    let content = sisurf_core::distiller_fast::FastDistiller::distill(
         &req.html,
         req.distill,
         base_url,

@@ -1,4 +1,4 @@
-# SiliconSurfer 🏄
+# sisurf 🏄
 
 > 专为硅基生物打造的 MCP 兼容浏览器。
 
@@ -6,9 +6,9 @@
 
 ## 为什么不用 Playwright MCP？
 
-Playwright MCP 给 LLM 原始 HTML（25,000 token 的噪声）。SiliconSurfer 给 LLM **成品数据**：
+Playwright MCP 给 LLM 原始 HTML（25,000 token 的噪声）。sisurf 给 LLM **成品数据**：
 
-| | Playwright MCP | SiliconSurfer |
+| | Playwright MCP | sisurf |
 |---|---|---|
 | 读页面 | 原始 HTML，25K tokens | 干净 Markdown，5K tokens |
 | 找表单 | LLM 解析 HTML | `@e3 [Input: name=username]` |
@@ -54,15 +54,15 @@ uv run python mcp_server.py
 或以 HTTP 服务器运行：
 
 ```bash
-cargo build --release -p agent-browser-server
-PORT=9883 ./target/release/agent-browser-server
+cargo build --release -p sisurf-server
+PORT=9883 ./target/release/sisurf-server
 ```
 
 ## 定位
 
 AI Agent 需要从互联网获取信息和执行操作，但不需要 CSS 渲染、可视化调试等面向人类的功能。
 
-SiliconSurfer 让 AI 用**硅基生物的方式**看网页——5 种视觉模式，@e 元素引用，毫秒级响应。
+sisurf 让 AI 用**硅基生物的方式**看网页——5 种视觉模式，@e 元素引用，毫秒级响应。
 
 ## 双层架构
 

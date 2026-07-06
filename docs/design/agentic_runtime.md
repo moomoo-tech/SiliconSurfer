@@ -1,7 +1,7 @@
-# Design: SiliconSurfer Agentic Runtime
+# Design: sisurf Agentic Runtime
 
 > A self-contained agent loop — **LLM plans → act → observe → repeat until goal** —
-> that drives SiliconSurfer as its browser, selects its model from `models.toml`,
+> that drives sisurf as its browser, selects its model from `models.toml`,
 > and is validated end-to-end on **WebArena**.
 
 Status: **Design** (development-ready). Grounded in the codebase at the commit where
@@ -11,7 +11,7 @@ Status: **Design** (development-ready). Grounded in the codebase at the commit w
 
 ## 1. Overview & goal
 
-Today SiliconSurfer is a **body without a brain**: it exposes `observe`/`act` tools
+Today sisurf is a **body without a brain**: it exposes `observe`/`act` tools
 (`mcp_server.py`) and stateless fetch tools (`python/agent_browser/agent_api.py`), but the
 planning loop lives *outside*, in whatever host drives the MCP session (Claude Code).
 There is no in-repo agent that, given a goal, autonomously loops observe→decide→act to
@@ -92,7 +92,7 @@ result plus a full trajectory. Prove it against WebArena's functional-correctnes
 | Headless Chrome pool (T1) | ✅ | `BrowserPool` (browser.rs), shared via `Engine::browser_pool()` |
 | Distiller (5 modes) | ✅ | `FastDistiller::distill` (distiller_fast.rs:47) |
 | Stateful session w/ stealth + live-DOM `@e` stamps | ✅ (Rust only) | `AgentSession` (session.rs) — **not exposed to Python** |
-| PyO3 bridge | ✅ (partial) | `agent_browser` module (lib.rs) exposes `BrowserSession` only |
+| PyO3 bridge | ✅ (partial) | `sisurf` module (lib.rs) exposes `BrowserSession` only |
 | Model registry | ✅ (new, this design) | `models.toml` (repo root, already synthesized w/ real 2026 data) |
 | LLM provider SDKs | ➕ new dep | `openai`, `anthropic` Python packages (both speak the two endpoint families in the registry) |
 | WebArena sites | ➕ external | Docker images (shopping / reddit / gitlab / cms / map / wiki), self-hosted per WebArena README |
@@ -190,7 +190,7 @@ result plus a full trajectory. Prove it against WebArena's functional-correctnes
   | `go_back` / `go_forward` | `navigate` to history (or JS `history.back()` via a bounded helper) |
   | `scroll [up/down]` | new bounded `act("scroll", dir, "")` verb (small addition) |
   | `stop [answer]` | `finish(answer)` |
-  - WebArena element ids come from its a11y tree; we substitute SiliconSurfer's `@e` ids from
+  - WebArena element ids come from its a11y tree; we substitute sisurf's `@e` ids from
     `observe(operator)`, and feed the operator view as the observation. (This is the crux — see
     §8 algorithm and the open question on id alignment.)
 
@@ -207,7 +207,7 @@ result plus a full trajectory. Prove it against WebArena's functional-correctnes
 
 **Runtime → Rust core (via PyO3), after F9:**
 ```
-agent_browser.AgentSession()                 # new pyclass, C5
+sisurf.AgentSession()                 # new pyclass, C5
   .navigate(url) -> {success,url,detail}
   .observe(mode) -> {content,title,url,content_length,mode,element_count}   # session.rs:209
   .act(action,target,value) -> {success,url,detail}                        # session.rs:391
@@ -266,7 +266,7 @@ run(goal, start_url, model_sel, max_steps, token_budget):
   reminder message once; on repeat, terminate `SESSION_ERROR` (no infinite loop).
 
 ### 8.2 WebArena id alignment (C6, FR-7)
-WebArena tasks reference elements by *its* a11y-tree ids; SiliconSurfer emits `@e` ids in
+WebArena tasks reference elements by *its* a11y-tree ids; sisurf emits `@e` ids in
 operator-source order (operator.rs:23 shared `AtomicUsize`). We do **not** try to match
 upstream ids — instead we feed the model **our** operator observation, so the model plans in
 `@e` space, and the adapter only needs to translate the final action verbs. Upstream's checker
@@ -296,15 +296,15 @@ Confirm this against `program_html` checkers during M4 (open question below).
   tasks × multi-step × large operator observations affordably. First bar = beat a random/no-op
   baseline; reference = published GPT-4 WebArena ~14% on the same subset.
 - **The metric is the point (harness-value axis):** report **`success_rate` AND
-  cost-per-solved-task**. The thesis SiliconSurfer is trying to prove is *"a cheap/small brain +
-  SiliconSurfer's body clears tasks that others need a frontier model for."* So the deliverable
+  cost-per-solved-task**. The thesis sisurf is trying to prove is *"a cheap/small brain +
+  sisurf's body clears tasks that others need a frontier model for."* So the deliverable
   is not one number — it's the **model-scaling curve with the harness held fixed** (§10.1).
 - **NFR thresholds:** NFR-1 ≤200 ms/step overhead; NFR-4 budget cap honored (E2E via a tiny
   budget forcing `BUDGET_EXHAUSTED`); NFR-3 no stale-`@e` mis-click (I1 enforced).
 
 ### 10.1 Model-scaling ablation (fix the harness, shrink the brain)
-The eval axis is **not** "which frontier model wins" — it's "how small a brain can SiliconSurfer
-carry." Hold the harness (SiliconSurfer operator observation + `@e` action space) constant and
+The eval axis is **not** "which frontier model wins" — it's "how small a brain can sisurf
+carry." Hold the harness (sisurf operator observation + `@e` action space) constant and
 walk the brain down:
 1. **DeepSeek `deepseek-v4-flash`** (now) — cheap hosted, thinking-default, 1M ctx. Establishes
    the reference `success_rate` and cost-per-solved-task.
@@ -315,8 +315,8 @@ walk the brain down:
    this harness produces; local inference, ~zero API cost.
 
 **What "success" means for the harness:** if the curve stays high as the brain shrinks, the score
-is attributable to SiliconSurfer, not to an expensive LLM. That is the claim the benchmark exists
-to support. (Complementary secondary cut — fix the LLM, swap the *observation layer* SiliconSurfer
+is attributable to sisurf, not to an expensive LLM. That is the claim the benchmark exists
+to support. (Complementary secondary cut — fix the LLM, swap the *observation layer* sisurf
 `operator` vs a baseline a11y/raw view — is optional; the primary axis above is the shrink-the-brain
 curve the project committed to.)
 

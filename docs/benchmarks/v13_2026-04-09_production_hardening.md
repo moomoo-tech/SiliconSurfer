@@ -38,11 +38,11 @@ Agent never sees prices/text that humans can't see.
 
 | Approach | Tokens/page | Pages per $0.25 | Cost per page (CNY) |
 |----------|-------------|-----------------|---------------------|
-| **SiliconSurfer** | ~4,000 | **~250** | **¥0.007** |
+| **sisurf** | ~4,000 | **~250** | **¥0.007** |
 | Raw HTML | ~25,000 | ~40 | ¥0.045 |
 | Screenshot multimodal | ~10,000 | ~100 | ¥0.018 |
 
-SiliconSurfer: 6x cheaper than raw HTML, 2.5x cheaper than screenshot.
+sisurf: 6x cheaper than raw HTML, 2.5x cheaper than screenshot.
 
 ## Chrome Performance Mode
 

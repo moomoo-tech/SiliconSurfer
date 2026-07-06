@@ -1,7 +1,7 @@
 use criterion::{Criterion, black_box, criterion_group, criterion_main};
 
-use agent_browser_core::distiller::Distiller;
-use agent_browser_core::distiller_fast::{DistillMode, FastDistiller};
+use sisurf_core::distiller::Distiller;
+use sisurf_core::distiller_fast::{DistillMode, FastDistiller};
 
 // Test HTML samples of varying sizes
 fn small_html() -> &'static str {

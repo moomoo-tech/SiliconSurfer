@@ -1,4 +1,4 @@
-# Use Case: An Agent Reads the Web Through SiliconSurfer
+# Use Case: An Agent Reads the Web Through sisurf
 
 *All I/O below is captured verbatim from a live run on 2026-07-05 (server `:9883`). No numbers are invented.*
 
@@ -6,7 +6,7 @@
 
 An LLM agent must research current model pricing across four provider docs sites
 (Anthropic, OpenAI, Gemini, DeepSeek/xAI). It has **no** raw-HTTP or browser UI —
-its only web tool is SiliconSurfer. This is the exact run that produced our
+its only web tool is sisurf. This is the exact run that produced our
 `models.toml` source data; one leg was driven by a *subagent* that was told nothing
 but "you have this HTTP tool," and it completed the task in 7 calls / ~100s / 0 errors.
 
@@ -88,12 +88,12 @@ PRICING 1M INPUT (CACHE MISS) $0.14  $0.435
 
 ## 4. Is the data clean? (measured, not asserted)
 
-Same DeepSeek pricing page, raw HTML vs SiliconSurfer `reader`:
+Same DeepSeek pricing page, raw HTML vs sisurf `reader`:
 
 | | bytes | tags | `<script>` |
 |---|---|---|---|
 | raw HTML (what a naive scraper eats) | 21,219 | 532 | 3 |
-| SiliconSurfer `reader` | 2,128 | 0 | 0 |
+| sisurf `reader` | 2,128 | 0 | 0 |
 
 → **90.0% stripped, ~10× smaller, zero markup/script noise.** The 2,128 bytes are
 all signal: model ids, thinking mode, context length, and every price cell survived

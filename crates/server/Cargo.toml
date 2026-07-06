@@ -1,10 +1,10 @@
 [package]
-name = "agent-browser-server"
+name = "sisurf-server"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-agent-browser-core = { path = "../core" }
+sisurf-core = { path = "../core" }
 reqwest.workspace = true
 axum = "0.8"
 tokio.workspace = true

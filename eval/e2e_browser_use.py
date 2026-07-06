@@ -1,4 +1,4 @@
-"""E2E comparison: SiliconSurfer vs browser-use.
+"""E2E comparison: sisurf vs browser-use.
 
 Same 5 goals, same LLM (Gemini). Different Agent framework.
 """
@@ -62,8 +62,8 @@ async def run_browser_use(goal: str, timeout: int = 120) -> dict:
         return {"success": False, "result": str(e)[:200], "steps": 0, "elapsed_s": round(elapsed, 1)}
 
 
-async def run_siliconsurfer(goal: str) -> dict:
-    """Run same goal with our SiliconSurfer agent loop."""
+async def run_sisurf(goal: str) -> dict:
+    """Run same goal with our sisurf agent loop."""
     import re
     from playwright.async_api import async_playwright
 
@@ -234,28 +234,28 @@ async def main():
     import subprocess, os
     env = {**os.environ, "PORT": "9883"}
     server_proc = subprocess.Popen(
-        ["./target/release/agent-browser-server"],
+        ["./target/release/sisurf-server"],
         env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
     await asyncio.sleep(4)
 
     print("=" * 90)
-    print("  E2E: SiliconSurfer vs browser-use — Same Goals, Same LLM")
+    print("  E2E: sisurf vs browser-use — Same Goals, Same LLM")
     print("=" * 90)
 
-    results = {"siliconsurfer": [], "browser_use": []}
+    results = {"sisurf": [], "browser_use": []}
 
     for i, goal in enumerate(GOALS):
         print(f"\n{'─'*90}")
         print(f"  Goal {i+1}: {goal[:70]}...")
         print(f"{'─'*90}")
 
-        # SiliconSurfer
-        print(f"  Running SiliconSurfer...")
-        ss_result = await run_siliconsurfer(goal)
-        results["siliconsurfer"].append(ss_result)
+        # sisurf
+        print(f"  Running sisurf...")
+        ss_result = await run_sisurf(goal)
+        results["sisurf"].append(ss_result)
         ss_icon = "✓" if ss_result["success"] else "✗"
-        print(f"  SiliconSurfer: {ss_icon} ({ss_result['steps']} steps, {ss_result['elapsed_s']}s)")
+        print(f"  sisurf: {ss_icon} ({ss_result['steps']} steps, {ss_result['elapsed_s']}s)")
 
         # browser-use
         print(f"  Running browser-use...")
@@ -269,7 +269,7 @@ async def main():
     print(f"  SUMMARY")
     print(f"{'='*90}\n")
 
-    print(f"  {'Goal':<50s}  {'SiliconSurfer':>14s}  {'browser-use':>12s}")
+    print(f"  {'Goal':<50s}  {'sisurf':>14s}  {'browser-use':>12s}")
     print(f"  {'─'*50}  {'─'*14}  {'─'*12}")
 
     ss_pass = 0
@@ -278,7 +278,7 @@ async def main():
     bu_time = 0
 
     for i, goal in enumerate(GOALS):
-        ss = results["siliconsurfer"][i]
+        ss = results["sisurf"][i]
         bu = results["browser_use"][i]
         ss_icon = "✓" if ss["success"] else "✗"
         bu_icon = "✓" if bu["success"] else "✗"

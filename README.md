@@ -1,4 +1,4 @@
-# SiliconSurfer 🏄
+# sisurf 🏄
 
 > The MCP-compatible browser built for silicon-based lifeforms.
 
@@ -6,9 +6,9 @@ English | [中文](README_CN.md)
 
 ## Why Not Playwright MCP?
 
-Playwright MCP gives LLM raw HTML (25,000 tokens of noise). SiliconSurfer gives LLM **finished data**:
+Playwright MCP gives LLM raw HTML (25,000 tokens of noise). sisurf gives LLM **finished data**:
 
-| | Playwright MCP | SiliconSurfer |
+| | Playwright MCP | sisurf |
 |---|---|---|
 | Read a page | Raw HTML, 25K tokens | Clean Markdown, 5K tokens |
 | Find form fields | LLM parses HTML | `@e3 [Input: name=username]` |
@@ -54,15 +54,15 @@ uv run python mcp_server.py
 Or run as HTTP server:
 
 ```bash
-cargo build --release -p agent-browser-server
-PORT=9883 ./target/release/agent-browser-server
+cargo build --release -p sisurf-server
+PORT=9883 ./target/release/sisurf-server
 ```
 
 ## Design Philosophy
 
 AI Agents need to fetch information and perform actions on the web, but don't need CSS rendering, visual debugging, or other human-facing features.
 
-SiliconSurfer lets AI see the web **the silicon way** — 5 vision modes, @e element references, millisecond response times.
+sisurf lets AI see the web **the silicon way** — 5 vision modes, @e element references, millisecond response times.
 
 ## Two-Tier Architecture
 

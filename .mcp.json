@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "silicon-surfer": {
+    "sisurf": {
       "command": "/Users/hucao/projects/agent-browser/.venv/bin/python",
       "args": ["mcp_server.py"],
       "cwd": "/Users/hucao/projects/agent-browser"

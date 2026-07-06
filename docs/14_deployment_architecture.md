@@ -7,7 +7,7 @@ Claude Desktop/Code
     ↓ stdio (MCP)
 mcp_server.py
     ↓ PyO3 FFI (in-process, zero network overhead)
-Rust Core (agent_browser.so)
+Rust Core (sisurf.so)
     ↓ CDP
 Chrome daemon
 ```

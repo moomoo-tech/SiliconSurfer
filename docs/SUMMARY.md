@@ -1,4 +1,4 @@
-# SiliconSurfer — Project Summary
+# sisurf — Project Summary
 
 ## Strengths
 
@@ -47,7 +47,7 @@ profiles.toml defines per-site noise rules — no recompilation needed.
 
 | | Nav | Forms | Content | Links | Speed | Tokens |
 |---|---|---|---|---|---|---|
-| **SiliconSurfer** | **10/10** | **10/10** | 9/10 | **66** | **604ms** | 6.8K |
+| **sisurf** | **10/10** | **10/10** | 9/10 | **66** | **604ms** | 6.8K |
 | Jina Reader | 10/10 | 0/10 | 10/10 | 205 | 16.6s | 15.1K |
 | Trafilatura | 3/10 | 3/10 | 9/10 | 0 | 692ms | 2.7K |
 | browser-use | 0/5 E2E | - | - | - | 212.5s | - |

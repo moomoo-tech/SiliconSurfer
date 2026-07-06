@@ -63,7 +63,7 @@ Login/ordering scenarios must face anti-fraud:
 
 ### 1.5 Performance Comparison
 
-| Dimension | Playwright/Selenium | SiliconSurfer |
+| Dimension | Playwright/Selenium | sisurf |
 |-----------|--------------------|--------------------|
 | Memory/instance | 200-500MB | 20-50MB |
 | Startup time | 500ms-2s | < 50ms (Context) |

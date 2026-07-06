@@ -1,4 +1,4 @@
-# SiliconSurfer 🏄
+# sisurf 🏄
 
 > The MCP-compatible browser built for silicon-based lifeforms.
 
@@ -37,7 +37,7 @@ config.toml       — API keys (gitignored)
 
 ```bash
 # Build
-cargo build --release -p agent-browser-server
+cargo build --release -p sisurf-server
 
 # Test (Rust)
 cargo test --workspace
@@ -50,10 +50,10 @@ cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 
 # Benchmark
-cargo bench -p agent-browser-core
+cargo bench -p sisurf-core
 
 # Run server
-PORT=9883 ./target/release/agent-browser-server
+PORT=9883 ./target/release/sisurf-server
 
 # Run MCP server (for Claude Code)
 uv run python mcp_server.py

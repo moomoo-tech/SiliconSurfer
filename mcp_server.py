@@ -1,4 +1,4 @@
-"""SiliconSurfer MCP Server — PyO3 direct, no HTTP server.
+"""sisurf MCP Server — PyO3 direct, no HTTP server.
 
 Two tools: observe + act
 Transport: stdio (Claude Desktop / Claude Code)
@@ -12,14 +12,14 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
 
-app = Server("silicon-surfer")
+app = Server("sisurf")
 
 # Try PyO3 direct import first, fallback to HTTP
 _use_pyo3 = False
 _use_http = False
 
 try:
-    import agent_browser
+    import sisurf
     _use_pyo3 = True
 except ImportError:
     # PyO3 not built — fallback to HTTP server
@@ -37,7 +37,7 @@ def _get_session():
     """Get or create the persistent BrowserSession."""
     global _session
     if _session is None and _use_pyo3:
-        _session = agent_browser.Session()
+        _session = sisurf.Session()
     return _session
 
 
@@ -67,9 +67,9 @@ def _ensure_http_server():
     lock.unlink(missing_ok=True)
 
     env = {**os.environ, "PORT": "9883"}
-    binary = Path(__file__).parent / "target" / "release" / "agent-browser-server"
+    binary = Path(__file__).parent / "target" / "release" / "sisurf-server"
     if not binary.exists():
-        binary = Path(__file__).parent / "target" / "debug" / "agent-browser-server"
+        binary = Path(__file__).parent / "target" / "debug" / "sisurf-server"
 
     _server_proc = subprocess.Popen(
         [str(binary)], env=env,
@@ -95,7 +95,7 @@ def _fetch(url: str, distill: str = "reader") -> dict:
     """Fetch and distill a URL."""
     if _use_pyo3:
         fast = True
-        result = agent_browser.fetch(url, mode="t0", fast=fast)
+        result = sisurf.fetch(url, mode="t0", fast=fast)
         # TODO: pass distill mode through PyO3 when available
         return result
     else:
@@ -114,7 +114,7 @@ def _distill_html(html: str, url: str, distill: str = "reader") -> dict:
         return r.json()
     else:
         # PyO3 direct distill — TODO: add distill_html to PyO3 bindings
-        from agent_browser_core.distiller_fast import FastDistiller
+        from sisurf_core.distiller_fast import FastDistiller
         content = FastDistiller.distill(html, distill, url)
         return {"content": content, "content_length": len(content)}
 
@@ -125,7 +125,7 @@ async def list_tools():
     return [
         Tool(
             name="observe",
-            description=f"""See a webpage through SiliconSurfer's multi-mode vision. Backend: {mode_desc}
+            description=f"""See a webpage through sisurf's multi-mode vision. Backend: {mode_desc}
 
 Modes:
 - "reader" (default): Clean markdown for reading. Strips all UI noise.

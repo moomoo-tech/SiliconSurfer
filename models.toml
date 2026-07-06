@@ -1,8 +1,8 @@
-# SiliconSurfer — Model Registry
+# sisurf — Model Registry
 #
 # Knowledge base of current LLMs the agentic runtime can select/route.
 # Populated 2026-07-05 from FIRST-PARTY official pricing/model pages only
-# (fetched via SiliconSurfer itself — see docs/USE_CASE_agent_uses_siliconsurfer.md).
+# (fetched via sisurf itself — see docs/USE_CASE_agent_uses_sisurf.md).
 # Prices are USD per 1M tokens. A `null`/omitted field is a real gap on the
 # source page, NOT a guess — do not backfill from memory.
 #
