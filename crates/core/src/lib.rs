@@ -19,5 +19,7 @@ pub use router::{Engine, FetchMode};
 
 // Public web API — the two primitives downstream consumers (tars/concer) link.
 pub use web::{
-    fetch, search, FetchOpts, Page, SearchBackend, SearchOpts, SearchResult, Tier, WebError,
+    fetch, search, BackendKind, BraveApiDialect, BraveConfig, DdgScrapeDialect, FetchOpts,
+    GoogleCseConfig, GoogleCseDialect, Page, SearchBackend, SearchConfig, SearchDialect,
+    SearchOpts, SearchRequest, SearchResult, Tier, WebError,
 };

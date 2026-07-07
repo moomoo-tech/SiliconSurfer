@@ -128,7 +128,17 @@ pub enum WebError {
     #[error("could not parse {backend} search results: {detail}")]
     SearchParse { backend: String, detail: String },
 
-    /// A selected search backend is not implemented yet (e.g. the Brave API seam).
+    /// A configured search backend is missing its API key. Permanent — the
+    /// consumer must inject a key into the `SearchConfig`/`SearchOpts`.
+    #[error("search backend {0} requires an API key, but none was provided")]
+    MissingApiKey(String),
+
+    /// A configured search backend is otherwise misconfigured (e.g. Google CSE
+    /// without a `cx` engine id). Permanent.
+    #[error("search backend {backend} misconfigured: {detail}")]
+    BackendConfig { backend: String, detail: String },
+
+    /// A selected search backend is not implemented yet (e.g. the Baidu scrape seam).
     #[error("search backend not available: {0}")]
     UnsupportedBackend(String),
 }
@@ -329,19 +339,252 @@ pub struct SearchResult {
     pub snippet: String,
 }
 
-/// Pluggable search backend.
+/// The HTTP request one search dialect wants executed — the "build-request" half
+/// of the dialect seam (mirrors tars' `CliDialect::invocation`).
+#[derive(Debug, Clone)]
+pub struct SearchRequest {
+    /// Fully-formed request URL (query + any API key/params already encoded in).
+    pub url: String,
+    /// Extra request headers (e.g. `X-Subscription-Token`, `Accept: application/json`).
+    pub headers: Vec<(String, String)>,
+    /// Whether the executor may escalate to the browser when the static body looks
+    /// like an unrendered shell. API dialects set `false`; HTML-scrape dialects `true`.
+    pub allow_browser: bool,
+}
+
+/// Per-search-engine behavior seam — "each search engine is a dialect."
 ///
-/// `DdgScrape` is the default (no API key) and is the only one implemented now.
-/// `BraveApi` is a seam for phase 2: a config-provided key hits the Brave Search
-/// API for clean JSON — a consumer switches to it without any API change here.
+/// Mirrors tars' `CliDialect`: a common trait with a **build-request** step
+/// ([`SearchDialect::build_request`]) and a **parse-response** step
+/// ([`SearchDialect::parse_response`]); the shared executor drives any dialect over
+/// [`Engine::fetch_search`]. Adding an engine = one small impl.
+pub trait SearchDialect: Send + Sync {
+    /// Name for diagnostics / typed errors.
+    fn name(&self) -> &'static str;
+
+    /// Assemble the HTTP request for `query`. Returns a typed error when the
+    /// dialect can't be honored (e.g. a missing API key).
+    fn build_request(&self, query: &str, opts: &SearchOpts) -> Result<SearchRequest, WebError>;
+
+    /// Map the raw response body → results. `Ok(vec![])` means the engine
+    /// legitimately returned zero hits; `Err(SearchParse)` means the payload was
+    /// present but unreadable (markup/schema changed) — carrying context, never a
+    /// bare token.
+    fn parse_response(&self, raw: &str) -> Result<Vec<SearchResult>, WebError>;
+}
+
+// --- Google Custom Search JSON API (recommended) ---------------------------
+
+/// Google Programmable Search / Custom Search JSON API. 100 queries/day free.
+#[derive(Debug, Clone)]
+pub struct GoogleCseDialect {
+    pub api_key: String,
+    /// Programmable Search Engine id (`cx`).
+    pub cx: String,
+}
+
+impl SearchDialect for GoogleCseDialect {
+    fn name(&self) -> &'static str {
+        "google_cse"
+    }
+
+    fn build_request(&self, query: &str, _opts: &SearchOpts) -> Result<SearchRequest, WebError> {
+        if self.api_key.trim().is_empty() {
+            return Err(WebError::MissingApiKey(self.name().to_string()));
+        }
+        if self.cx.trim().is_empty() {
+            return Err(WebError::BackendConfig {
+                backend: self.name().to_string(),
+                detail: "missing `cx` programmable-search-engine id".to_string(),
+            });
+        }
+        let url = format!(
+            "https://www.googleapis.com/customsearch/v1?key={}&cx={}&q={}",
+            urlencode(&self.api_key),
+            urlencode(&self.cx),
+            urlencode(query),
+        );
+        Ok(SearchRequest {
+            url,
+            headers: vec![("Accept".to_string(), "application/json".to_string())],
+            allow_browser: false,
+        })
+    }
+
+    fn parse_response(&self, raw: &str) -> Result<Vec<SearchResult>, WebError> {
+        let v: serde_json::Value = serde_json::from_str(raw).map_err(|e| WebError::SearchParse {
+            backend: self.name().to_string(),
+            detail: format!("invalid JSON: {e}"),
+        })?;
+        // A structured API error (bad key / quota) — surface its message typed.
+        if let Some(msg) = v
+            .get("error")
+            .and_then(|e| e.get("message"))
+            .and_then(|m| m.as_str())
+        {
+            return Err(WebError::BackendConfig {
+                backend: self.name().to_string(),
+                detail: msg.to_string(),
+            });
+        }
+        let Some(items) = v.get("items").and_then(|i| i.as_array()) else {
+            return Ok(Vec::new()); // valid response, zero results
+        };
+        Ok(items
+            .iter()
+            .filter_map(|it| {
+                let title = it.get("title")?.as_str()?.to_string();
+                let url = it.get("link")?.as_str()?.to_string();
+                let snippet = it
+                    .get("snippet")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or_default()
+                    .to_string();
+                Some(SearchResult {
+                    title,
+                    url,
+                    snippet,
+                })
+            })
+            .collect())
+    }
+}
+
+// --- Brave Search API ------------------------------------------------------
+
+/// Brave Search API (`/res/v1/web/search`), key via the `X-Subscription-Token` header.
+#[derive(Debug, Clone)]
+pub struct BraveApiDialect {
+    pub api_key: String,
+}
+
+impl SearchDialect for BraveApiDialect {
+    fn name(&self) -> &'static str {
+        "brave"
+    }
+
+    fn build_request(&self, query: &str, _opts: &SearchOpts) -> Result<SearchRequest, WebError> {
+        if self.api_key.trim().is_empty() {
+            return Err(WebError::MissingApiKey(self.name().to_string()));
+        }
+        let url = format!(
+            "https://api.search.brave.com/res/v1/web/search?q={}",
+            urlencode(query)
+        );
+        Ok(SearchRequest {
+            url,
+            headers: vec![
+                ("Accept".to_string(), "application/json".to_string()),
+                ("Accept-Encoding".to_string(), "gzip".to_string()),
+                ("X-Subscription-Token".to_string(), self.api_key.clone()),
+            ],
+            allow_browser: false,
+        })
+    }
+
+    fn parse_response(&self, raw: &str) -> Result<Vec<SearchResult>, WebError> {
+        let v: serde_json::Value = serde_json::from_str(raw).map_err(|e| WebError::SearchParse {
+            backend: self.name().to_string(),
+            detail: format!("invalid JSON: {e}"),
+        })?;
+        let Some(results) = v
+            .get("web")
+            .and_then(|w| w.get("results"))
+            .and_then(|r| r.as_array())
+        else {
+            return Ok(Vec::new());
+        };
+        Ok(results
+            .iter()
+            .filter_map(|it| {
+                let title = it.get("title")?.as_str()?.to_string();
+                let url = it.get("url")?.as_str()?.to_string();
+                let snippet = it
+                    .get("description")
+                    .and_then(|s| s.as_str())
+                    .unwrap_or_default()
+                    .to_string();
+                Some(SearchResult {
+                    title,
+                    url,
+                    snippet,
+                })
+            })
+            .collect())
+    }
+}
+
+// --- DuckDuckGo HTML scrape (no key) ---------------------------------------
+
+/// DuckDuckGo HTML endpoint scrape. No API key; resolves via the fast reqwest path.
+#[derive(Debug, Clone, Default)]
+pub struct DdgScrapeDialect;
+
+impl SearchDialect for DdgScrapeDialect {
+    fn name(&self) -> &'static str {
+        "ddg"
+    }
+
+    fn build_request(&self, query: &str, _opts: &SearchOpts) -> Result<SearchRequest, WebError> {
+        Ok(SearchRequest {
+            url: format!("https://html.duckduckgo.com/html/?q={}", urlencode(query)),
+            headers: Vec::new(),
+            allow_browser: true,
+        })
+    }
+
+    fn parse_response(&self, raw: &str) -> Result<Vec<SearchResult>, WebError> {
+        let rows = parse_ddg_html(raw);
+        if !rows.is_empty() {
+            return Ok(rows);
+        }
+        // No rows: tell "engine says zero hits" from "markup changed".
+        let lower = raw.to_lowercase();
+        if lower.contains("no results") || lower.contains("no-results") {
+            Ok(Vec::new())
+        } else {
+            Err(WebError::SearchParse {
+                backend: self.name().to_string(),
+                detail: "no result rows matched the expected selectors (DDG HTML may have changed)"
+                    .to_string(),
+            })
+        }
+    }
+}
+
+// TODO(phase-2): BaiduScrape — a Chinese-market HTML scrape dialect. Add a
+// `BackendKind::Baidu` + a `BaiduScrapeDialect` impl here when ready.
+
+// --- Backend selector (enum of configured dialects) ------------------------
+
+/// A configured search backend: which dialect + its resolved parameters. Behavior
+/// lives in the [`SearchDialect`] impls; this enum is the data the consumer selects
+/// (usually via [`SearchConfig::build`]).
 #[derive(Debug, Clone, Default)]
 pub enum SearchBackend {
-    /// Scrape DuckDuckGo's HTML endpoint. Static + scrape-tolerant → resolves via
-    /// the fast reqwest path, no Chromium.
+    /// Scrape DuckDuckGo's HTML endpoint (no key). Default.
     #[default]
     DdgScrape,
-    /// TODO(phase-2): Brave Search API. Not implemented yet.
+    /// Google Custom Search JSON API — recommended.
+    GoogleCse { api_key: String, cx: String },
+    /// Brave Search API.
     BraveApi { api_key: String },
+}
+
+impl SearchBackend {
+    /// Construct the behavior object (dialect) for this backend.
+    pub fn dialect(&self) -> Box<dyn SearchDialect> {
+        match self {
+            SearchBackend::DdgScrape => Box::new(DdgScrapeDialect),
+            SearchBackend::GoogleCse { api_key, cx } => Box::new(GoogleCseDialect {
+                api_key: api_key.clone(),
+                cx: cx.clone(),
+            }),
+            SearchBackend::BraveApi { api_key } => Box::new(BraveApiDialect {
+                api_key: api_key.clone(),
+            }),
+        }
+    }
 }
 
 /// Options for [`search`].
@@ -352,28 +595,117 @@ pub struct SearchOpts {
     pub fetch: FetchOpts,
 }
 
-/// Search the web → `Vec<SearchResult>`.
+// --- SearchConfig: the serde schema the consumer (tars) deserializes -------
+
+/// Serde schema for a `[web_search]` TOML section — **owned by sisurf**.
 ///
-/// Default backend scrapes DuckDuckGo's HTML endpoint through the same
-/// fetch/escalation/extract machinery as [`fetch`].
-pub async fn search(query: &str, opts: SearchOpts) -> Result<Vec<SearchResult>, WebError> {
-    search_via(shared_engine(), query, &opts).await
+/// sisurf owns *which* backends exist and *what fields* each needs; the CONSUMER
+/// (tars) deserializes the file into this, then injects the resolved API key into
+/// the relevant sub-config (sisurf never reads env vars or files itself — it's a
+/// library). Turn a key-injected config into a runnable [`SearchBackend`] with
+/// [`SearchConfig::build`].
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct SearchConfig {
+    /// Which backend to use.
+    #[serde(default)]
+    pub backend: BackendKind,
+    /// Google CSE settings (required when `backend = "google_cse"`).
+    #[serde(default)]
+    pub google_cse: Option<GoogleCseConfig>,
+    /// Brave settings (required when `backend = "brave"`).
+    #[serde(default)]
+    pub brave: Option<BraveConfig>,
 }
 
-async fn search_via(
-    engine: &Engine,
-    query: &str,
-    opts: &SearchOpts,
-) -> Result<Vec<SearchResult>, WebError> {
-    match &opts.backend {
-        SearchBackend::DdgScrape => ddg_search(engine, query, opts).await,
-        SearchBackend::BraveApi { .. } => Err(WebError::UnsupportedBackend(
-            "BraveApi backend is a phase-2 seam and not implemented yet".to_string(),
-        )),
+/// Which search backend a [`SearchConfig`] selects.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BackendKind {
+    /// DuckDuckGo HTML scrape (no key). Default.
+    #[default]
+    Ddg,
+    /// Google Custom Search JSON API.
+    GoogleCse,
+    /// Brave Search API.
+    Brave,
+    // TODO(phase-2): Baidu (Chinese HTML scrape).
+}
+
+/// Google CSE sub-config.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct GoogleCseConfig {
+    /// Programmable Search Engine id (`cx`) — committed config, not a secret.
+    pub cx: String,
+    /// Resolved API key — the CONSUMER injects this; sisurf never reads env.
+    #[serde(default)]
+    pub api_key: String,
+}
+
+/// Brave sub-config.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct BraveConfig {
+    /// Resolved API key — the CONSUMER injects this.
+    #[serde(default)]
+    pub api_key: String,
+}
+
+impl SearchConfig {
+    /// Build a runnable [`SearchBackend`] from the (key-injected) config.
+    ///
+    /// Fails typed when the selected backend's sub-config or key is missing, so the
+    /// consumer surfaces a clear error instead of silently falling back.
+    pub fn build(&self) -> Result<SearchBackend, WebError> {
+        match self.backend {
+            BackendKind::Ddg => Ok(SearchBackend::DdgScrape),
+            BackendKind::GoogleCse => {
+                let g = self
+                    .google_cse
+                    .as_ref()
+                    .ok_or_else(|| WebError::BackendConfig {
+                        backend: "google_cse".to_string(),
+                        detail: "missing [web_search.google_cse] section".to_string(),
+                    })?;
+                if g.api_key.trim().is_empty() {
+                    return Err(WebError::MissingApiKey("google_cse".to_string()));
+                }
+                if g.cx.trim().is_empty() {
+                    return Err(WebError::BackendConfig {
+                        backend: "google_cse".to_string(),
+                        detail: "missing `cx` programmable-search-engine id".to_string(),
+                    });
+                }
+                Ok(SearchBackend::GoogleCse {
+                    api_key: g.api_key.clone(),
+                    cx: g.cx.clone(),
+                })
+            }
+            BackendKind::Brave => {
+                let b = self.brave.as_ref().ok_or_else(|| WebError::BackendConfig {
+                    backend: "brave".to_string(),
+                    detail: "missing [web_search.brave] section".to_string(),
+                })?;
+                if b.api_key.trim().is_empty() {
+                    return Err(WebError::MissingApiKey("brave".to_string()));
+                }
+                Ok(SearchBackend::BraveApi {
+                    api_key: b.api_key.clone(),
+                })
+            }
+        }
     }
 }
 
-async fn ddg_search(
+/// Search the web → `Vec<SearchResult>` via the configured dialect.
+///
+/// The default backend scrapes DuckDuckGo's HTML endpoint; API backends
+/// (Google CSE / Brave) go through the same executor + retry.
+pub async fn search(query: &str, opts: SearchOpts) -> Result<Vec<SearchResult>, WebError> {
+    run_dialect(shared_engine(), query, &opts).await
+}
+
+/// Shared executor: build the request from the dialect, fetch it (with transient
+/// retry) via [`Engine::fetch_search`], then parse. Drives any [`SearchDialect`].
+async fn run_dialect(
     engine: &Engine,
     query: &str,
     opts: &SearchOpts,
@@ -383,37 +715,32 @@ async fn ddg_search(
             query: query.to_string(),
         });
     }
-    let url = format!("https://html.duckduckgo.com/html/?q={}", urlencode(query));
+    let dialect = opts.backend.dialect();
+    let req = dialect.build_request(query, opts)?;
 
-    let html = with_retry(
+    let raw = with_retry(
         opts.fetch.max_attempts,
         opts.fetch.backoff,
         WebError::is_transient,
         move |_attempt| {
-            let url = url.clone();
-            async move { engine.fetch_raw(&url).await.map_err(|e| map_engine_err(&url, e)) }
+            let req = req.clone();
+            async move {
+                engine
+                    .fetch_search(&req)
+                    .await
+                    .map_err(|e| map_engine_err(&req.url, e))
+            }
         },
     )
     .await?;
 
-    let results = parse_ddg_html(&html);
-    if !results.is_empty() {
-        return Ok(results);
-    }
-
-    // No rows parsed: distinguish "engine reports zero hits" from "markup changed".
-    let lower = html.to_lowercase();
-    if lower.contains("no results") || lower.contains("no-results") {
-        Err(WebError::EmptyResults {
+    let results = dialect.parse_response(&raw)?;
+    if results.is_empty() {
+        return Err(WebError::EmptyResults {
             query: query.to_string(),
-        })
-    } else {
-        Err(WebError::SearchParse {
-            backend: "ddg".to_string(),
-            detail: "no result rows matched the expected selectors (DDG HTML may have changed)"
-                .to_string(),
-        })
+        });
     }
+    Ok(results)
 }
 
 /// Parse DuckDuckGo HTML-endpoint markup into result rows.
@@ -721,16 +1048,128 @@ mod tests {
         );
     }
 
-    #[tokio::test]
-    async fn brave_backend_is_typed_unsupported() {
-        let opts = SearchOpts {
-            backend: SearchBackend::BraveApi {
-                api_key: "k".to_string(),
-            },
-            ..Default::default()
+    // --- Google CSE dialect: build-request + parse-response ----------------
+
+    const GOOGLE_CSE_FIXTURE: &str = r#"
+    {
+      "kind": "customsearch#search",
+      "items": [
+        { "title": "Rust Programming Language", "link": "https://www.rust-lang.org/", "snippet": "A language empowering everyone." },
+        { "title": "Rust - Wikipedia", "link": "https://en.wikipedia.org/wiki/Rust", "snippet": "Rust is a systems language." }
+      ]
+    }"#;
+
+    #[test]
+    fn google_cse_fixture_parses_into_results() {
+        let d = GoogleCseDialect {
+            api_key: "k".to_string(),
+            cx: "cx1".to_string(),
         };
-        let err = search("anything", opts).await.expect_err("brave not implemented");
-        assert!(matches!(err, WebError::UnsupportedBackend(_)));
+        let results = d.parse_response(GOOGLE_CSE_FIXTURE).unwrap();
+        assert_eq!(results.len(), 2);
+        assert_eq!(results[0].title, "Rust Programming Language");
+        assert_eq!(results[0].url, "https://www.rust-lang.org/");
+        assert_eq!(results[1].snippet, "Rust is a systems language.");
+    }
+
+    #[test]
+    fn google_cse_build_request_encodes_key_cx_query() {
+        let d = GoogleCseDialect {
+            api_key: "KEY".to_string(),
+            cx: "CX".to_string(),
+        };
+        let req = d.build_request("hello world", &SearchOpts::default()).unwrap();
+        assert!(req.url.contains("key=KEY"));
+        assert!(req.url.contains("cx=CX"));
+        assert!(req.url.contains("q=hello+world"));
+        assert!(!req.allow_browser, "API dialect must not escalate to browser");
+    }
+
+    #[test]
+    fn google_cse_missing_key_is_typed() {
+        let d = GoogleCseDialect {
+            api_key: "  ".to_string(),
+            cx: "cx".to_string(),
+        };
+        assert!(matches!(
+            d.build_request("q", &SearchOpts::default()),
+            Err(WebError::MissingApiKey(_))
+        ));
+    }
+
+    // --- Brave dialect -----------------------------------------------------
+
+    const BRAVE_FIXTURE: &str = r#"
+    {
+      "web": {
+        "results": [
+          { "title": "Example Domain", "url": "https://example.com/", "description": "Illustrative example." }
+        ]
+      }
+    }"#;
+
+    #[test]
+    fn brave_fixture_parses_and_sets_auth_header() {
+        let d = BraveApiDialect {
+            api_key: "secret".to_string(),
+        };
+        let req = d.build_request("q", &SearchOpts::default()).unwrap();
+        assert!(req
+            .headers
+            .iter()
+            .any(|(k, v)| k == "X-Subscription-Token" && v == "secret"));
+        let results = d.parse_response(BRAVE_FIXTURE).unwrap();
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].url, "https://example.com/");
+        assert_eq!(results[0].snippet, "Illustrative example.");
+    }
+
+    // --- SearchConfig -> SearchBackend builder -----------------------------
+
+    #[test]
+    fn config_default_builds_ddg() {
+        let cfg: SearchConfig = toml::from_str("").unwrap();
+        assert!(matches!(cfg.build(), Ok(SearchBackend::DdgScrape)));
+    }
+
+    #[test]
+    fn config_google_cse_from_toml_builds() {
+        let cfg: SearchConfig = toml::from_str(
+            r#"
+            backend = "google_cse"
+            [google_cse]
+            cx = "my-cx"
+            api_key = "injected-key"
+            "#,
+        )
+        .unwrap();
+        match cfg.build().unwrap() {
+            SearchBackend::GoogleCse { api_key, cx } => {
+                assert_eq!(api_key, "injected-key");
+                assert_eq!(cx, "my-cx");
+            }
+            other => panic!("expected GoogleCse, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn config_google_cse_missing_key_is_typed() {
+        // Consumer selected google_cse but injected no key.
+        let cfg: SearchConfig = toml::from_str(
+            r#"
+            backend = "google_cse"
+            [google_cse]
+            cx = "my-cx"
+            "#,
+        )
+        .unwrap();
+        assert!(matches!(cfg.build(), Err(WebError::MissingApiKey(_))));
+    }
+
+    #[test]
+    fn config_brave_missing_section_is_typed() {
+        let cfg: SearchConfig = toml::from_str(r#"backend = "brave""#).unwrap();
+        assert!(matches!(cfg.build(), Err(WebError::BackendConfig { .. })));
     }
 
     #[tokio::test]

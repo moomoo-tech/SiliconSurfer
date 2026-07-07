@@ -211,6 +211,20 @@ impl Engine {
         }
     }
 
+    /// Drive one search dialect's [`crate::web::SearchRequest`]: an API request
+    /// (custom headers, no escalation) goes straight through the reqwest client;
+    /// a scrape request reuses [`Engine::fetch_raw`]'s fastest-first escalation.
+    pub(crate) async fn fetch_search(
+        &self,
+        req: &crate::web::SearchRequest,
+    ) -> Result<String, EngineError> {
+        if req.allow_browser && req.headers.is_empty() {
+            self.fetch_raw(&req.url).await
+        } else {
+            Ok(self.t0.get_raw_with_headers(&req.url, &req.headers, 30).await?)
+        }
+    }
+
     /// Start the T1 browser daemon (call once at startup).
     pub async fn start_browser(&self) -> Result<(), crate::browser::BrowserError> {
         self.t1.start().await

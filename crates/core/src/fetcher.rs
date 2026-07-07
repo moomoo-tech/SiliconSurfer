@@ -113,6 +113,29 @@ impl Fetcher {
         Ok(resp.text().await?)
     }
 
+    /// Raw GET with caller-supplied headers (undistilled body). Used by the search
+    /// API dialects (Google CSE / Brave) that authenticate via a header or need
+    /// `Accept: application/json`. Reuses the shared client + typed [`FetchError`].
+    pub async fn get_raw_with_headers(
+        &self,
+        url: &str,
+        headers: &[(String, String)],
+        timeout_secs: u64,
+    ) -> Result<String, FetchError> {
+        let mut req = self
+            .client
+            .get(url)
+            .timeout(std::time::Duration::from_secs(timeout_secs));
+        for (k, v) in headers {
+            req = req.header(k.as_str(), v.as_str());
+        }
+        let resp = req.send().await?;
+        if !resp.status().is_success() {
+            return Err(FetchError::Status(resp.status().as_u16()));
+        }
+        Ok(resp.text().await?)
+    }
+
     async fn fetch_inner(&self, opts: FetchOptions, fast: bool) -> Result<FetchResult, FetchError> {
         let mut req = self.client.get(&opts.url);
 
