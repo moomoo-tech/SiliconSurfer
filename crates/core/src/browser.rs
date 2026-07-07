@@ -501,3 +501,110 @@ impl BrowserPool {
         self.start().await
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Mutex;
+
+    // --- BrowserError transient/restart classifier -------------------------
+
+    #[test]
+    fn crash_is_transient_and_needs_restart() {
+        let e = BrowserError::Crashed("ws dropped".to_string());
+        assert!(e.is_transient(), "a crashed process should be retried");
+        assert!(e.needs_restart(), "a crash must relaunch before retry");
+    }
+
+    #[test]
+    fn timeout_and_not_started_are_transient_without_restart() {
+        for e in [
+            BrowserError::Timeout("nav".to_string()),
+            BrowserError::NotStarted,
+        ] {
+            assert!(e.is_transient(), "{e:?} should be transient");
+            assert!(!e.needs_restart(), "{e:?} must not force a restart");
+        }
+    }
+
+    #[test]
+    fn no_browser_launch_and_page_are_permanent() {
+        for e in [
+            BrowserError::NoBrowser {
+                hint: "none".to_string(),
+            },
+            BrowserError::Launch("bad build".to_string()),
+            BrowserError::Page("js exception".to_string()),
+        ] {
+            assert!(!e.is_transient(), "{e:?} must be permanent");
+            assert!(!e.needs_restart());
+        }
+    }
+
+    // --- find_chromium override resolution ---------------------------------
+
+    // find_chromium reads process-global env; serialize the env-mutating tests.
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    /// Snapshot + restore CHROME_PATH / CHROME around an env-mutating closure so
+    /// these tests never leak state into the rest of the suite.
+    fn with_clean_browser_env(f: impl FnOnce()) {
+        let _g = ENV_LOCK.lock().unwrap_or_else(|p| p.into_inner());
+        let saved: Vec<(&str, Option<String>)> = ["CHROME_PATH", "CHROME"]
+            .iter()
+            .map(|k| (*k, std::env::var(k).ok()))
+            .collect();
+        // SAFETY: serialized by ENV_LOCK; no other test reads these vars concurrently.
+        unsafe {
+            for (k, _) in &saved {
+                std::env::remove_var(k);
+            }
+        }
+        f();
+        unsafe {
+            for (k, v) in saved {
+                match v {
+                    Some(val) => std::env::set_var(k, val),
+                    None => std::env::remove_var(k),
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn chrome_path_override_wins() {
+        with_clean_browser_env(|| {
+            // Point CHROME_PATH at a file that certainly exists (this test binary).
+            let real_file = std::env::current_exe().expect("current_exe");
+            // SAFETY: guarded by ENV_LOCK inside with_clean_browser_env.
+            unsafe {
+                std::env::set_var("CHROME_PATH", &real_file);
+            }
+            let found = find_chromium().expect("CHROME_PATH override should resolve");
+            assert_eq!(
+                found, real_file,
+                "an existing CHROME_PATH must win over PATH/well-known scan"
+            );
+        });
+    }
+
+    #[test]
+    fn nonexistent_chrome_path_does_not_resolve_to_it() {
+        with_clean_browser_env(|| {
+            // SAFETY: guarded by ENV_LOCK inside with_clean_browser_env.
+            unsafe {
+                std::env::set_var("CHROME_PATH", "/nonexistent/definitely-not-a-browser");
+            }
+            // A bogus override is ignored (path.exists() is false); find_chromium
+            // must NOT hand back the non-existent override.
+            let found = find_chromium();
+            assert_ne!(
+                found.as_deref(),
+                Some(std::path::Path::new(
+                    "/nonexistent/definitely-not-a-browser"
+                )),
+                "a non-existent CHROME_PATH must not be returned"
+            );
+        });
+    }
+}

@@ -147,6 +147,85 @@ match mode {
 
 双引擎：`scraper`（DOM AST）用于精确提取，`lol_html`（流式）用于高速批量处理（6.76ms/500KB）。
 
+## Rust 库 API（`sisurf-core`）
+
+两个干净的原语，供下游直接链接——无需 server、无需 MCP。两者都返回单一类型化错误
+（`WebError`），并在内部对瞬时失败自动重试。
+
+### `fetch(url) → Page`
+
+```rust
+use sisurf_core::{fetch, FetchOpts, Page, Tier, WebError};
+
+let page: Page = fetch("https://example.com", FetchOpts::default()).await?;
+// Page { url, title: Option<String>, content: String, content_length, tier: Tier }
+// tier == Tier::Static  → reqwest 直出，不启动浏览器
+// tier == Tier::Browser → 已升级到无头 Chromium
+```
+
+**最快优先升级（调用方永不选择层级）。** `fetch` 先走静态 reqwest 路径，只有当页面在
+站点 profile 中被标记为纯 JS（`force_t1`），**或**静态正文返回未渲染的空壳（空 /
+`Loading…` 占位）时，才升级到无头 Chromium。若需要升级但没有可用浏览器，则**回退到
+静态结果**而非报错。
+
+**`NoBrowser` 与 Chromium 依赖。** JS 渲染页面需要 Chromium 家族浏览器
+（Chrome / Chromium / Edge / Brave）。sisurf 会在 `PATH` 和常见安装位置自动探测；用
+**`CHROME_PATH`** 覆盖指定。当页面确实需要浏览器层而又无法启动时，错误是类型化的
+`WebError::NoBrowser { hint }`——据此回退或提示用户安装浏览器。瞬时故障（超时、5xx、
+连接重置、会话中浏览器崩溃）会带退避重试；永久故障（4xx、非法 URL、`NoBrowser`）不
+重试。
+
+### `search(query) → Vec<SearchResult>`
+
+```rust
+use sisurf_core::{search, SearchOpts, SearchResult};
+
+let hits: Vec<SearchResult> = search("rust async runtime", SearchOpts::default()).await?;
+// SearchResult { title: String, url: String, snippet: String }
+```
+
+**「每个搜索引擎都是一种方言」。** `SearchDialect` trait 把每个引擎拆成两步——
+`build_request`（组装 HTTP 请求）与 `parse_response`（原始正文 → 结果）；共享执行器用同
+一套 fetch/升级/重试栈驱动任意方言，新增引擎只需一个小 `impl`。`parse_response` 区分
+「引擎确实零结果」（`Ok(vec![])`）与「站点改版/schema 变了」（`Err(WebError::SearchParse)`）
+——绝不返回静默空集。
+
+### 后端与 `[web_search]` 配置 schema
+
+sisurf **拥有**「有哪些后端、各自需要什么字段」（`SearchConfig` serde schema）；而
+**由消费者反序列化 TOML 并注入解析后的 API key**——sisurf 是库，自己从不读环境变量或
+文件。
+
+| 后端（`backend = …`） | 需要 key？ | 何时用 |
+|---|---|---|
+| `"ddg"` *(默认)* | 无 | 无密钥的 DuckDuckGo HTML 抓取，零配置。 |
+| `"google_cse"` | API key + `cx` | **推荐。** Google Programmable Search JSON API，每天 100 次免费。 |
+| `"brave"` | API key | Brave Search API。 |
+
+```toml
+[web_search]
+backend = "google_cse"          # "ddg"（默认）| "google_cse" | "brave"
+
+[web_search.google_cse]
+cx = "0123abc..."               # Programmable Search Engine id——可提交，非密钥
+# api_key 由消费者在加载时注入（永不提交）
+
+[web_search.brave]
+# api_key 由消费者注入
+```
+
+```rust
+use sisurf_core::{SearchConfig, SearchOpts};
+
+// 消费者反序列化 [web_search] 段、注入 key，然后：
+let backend = cfg.build()?;      // 配置错误时类型化返回 MissingApiKey / BackendConfig
+let hits = search("query", SearchOpts { backend, ..Default::default() }).await?;
+```
+
+`SearchConfig::build()` 类型化失败——选中的后端缺 key 时 `WebError::MissingApiKey`，缺
+段（`[web_search.google_cse]`）或缺 `cx` 时 `WebError::BackendConfig`——配置错误因此是清
+晰报错，绝不静默回退。
+
 ## 技术选型
 
 | 组件 | 选型 | 理由 |

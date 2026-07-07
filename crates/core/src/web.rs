@@ -1192,4 +1192,252 @@ mod tests {
         ));
         assert!(validate_url("https://example.com").is_ok());
     }
+
+    // --- WebError transient/permanent taxonomy -----------------------------
+
+    #[test]
+    fn web_error_transient_classification() {
+        // Transient: 5xx and recoverable browser faults bubble up as transient.
+        assert!(WebError::Fetch(FetchError::Status(503)).is_transient());
+        assert!(WebError::Browser(BrowserError::Crashed("x".into())).is_transient());
+        assert!(WebError::Browser(BrowserError::Timeout("x".into())).is_transient());
+
+        // Permanent: 4xx, invalid URL, NoBrowser, and search-level errors never retry.
+        assert!(WebError::Fetch(FetchError::Status(404)).is_permanent());
+        assert!(WebError::Http {
+            url: "u".into(),
+            status: 404,
+        }
+        .is_permanent());
+        assert!(WebError::InvalidUrl { url: "u".into() }.is_permanent());
+        assert!(WebError::NoBrowser { hint: "h".into() }.is_permanent());
+        assert!(WebError::Browser(BrowserError::NoBrowser { hint: "h".into() }).is_permanent());
+        assert!(WebError::MissingApiKey("google_cse".into()).is_permanent());
+        assert!(WebError::SearchParse {
+            backend: "ddg".into(),
+            detail: "d".into(),
+        }
+        .is_permanent());
+        assert!(WebError::EmptyResults { query: "q".into() }.is_permanent());
+    }
+
+    // --- map_engine_err lifts 4xx / NoBrowser into dedicated variants -------
+
+    #[test]
+    fn map_engine_err_lifts_4xx_to_http() {
+        let mapped = map_engine_err("https://x/", EngineError::T0(FetchError::Status(404)));
+        assert!(matches!(mapped, WebError::Http { status: 404, .. }));
+        assert!(mapped.is_permanent());
+    }
+
+    #[test]
+    fn map_engine_err_keeps_5xx_as_transient_fetch() {
+        let mapped = map_engine_err("https://x/", EngineError::T0(FetchError::Status(503)));
+        assert!(matches!(mapped, WebError::Fetch(_)));
+        assert!(mapped.is_transient(), "5xx must stay retryable through the map");
+    }
+
+    #[test]
+    fn map_engine_err_lifts_t1_no_browser() {
+        let mapped = map_engine_err(
+            "https://x/",
+            EngineError::T1(BrowserError::NoBrowser { hint: "none".into() }),
+        );
+        assert!(matches!(mapped, WebError::NoBrowser { .. }));
+    }
+
+    // --- DDG: real-empty (Ok) vs markup-changed (Err) ----------------------
+
+    #[test]
+    fn ddg_no_results_page_is_ok_empty() {
+        // DDG's own "no results" marker → legitimately zero hits, not a parse error.
+        let html = r#"<html><body><div class="no-results">No results found.</div></body></html>"#;
+        let out = DdgScrapeDialect.parse_response(html).unwrap();
+        assert!(out.is_empty(), "explicit no-results page must be Ok(vec![])");
+    }
+
+    #[test]
+    fn ddg_unexpected_markup_is_search_parse_error() {
+        // No result rows AND no "no results" marker → the selectors went stale.
+        let html = r#"<html><body><div class="totally-different-layout">hi</div></body></html>"#;
+        let err = DdgScrapeDialect
+            .parse_response(html)
+            .expect_err("stale markup must be a typed parse error, not silent empty");
+        match err {
+            WebError::SearchParse { backend, .. } => assert_eq!(backend, "ddg"),
+            other => panic!("expected SearchParse, got {other:?}"),
+        }
+    }
+
+    // --- Malformed / edge payloads → typed error, never panic --------------
+
+    #[test]
+    fn google_cse_malformed_json_is_search_parse() {
+        let d = GoogleCseDialect {
+            api_key: "k".into(),
+            cx: "cx".into(),
+        };
+        let err = d.parse_response("{ this is not json").expect_err("malformed");
+        assert!(matches!(err, WebError::SearchParse { .. }));
+    }
+
+    #[test]
+    fn google_cse_api_error_body_is_backend_config() {
+        // A structured Google API error (bad key/quota) → typed BackendConfig, not a
+        // silent empty result set.
+        let body = r#"{"error":{"code":403,"message":"API key not valid"}}"#;
+        let d = GoogleCseDialect {
+            api_key: "k".into(),
+            cx: "cx".into(),
+        };
+        match d.parse_response(body).expect_err("api error") {
+            WebError::BackendConfig { backend, detail } => {
+                assert_eq!(backend, "google_cse");
+                assert!(detail.contains("API key not valid"));
+            }
+            other => panic!("expected BackendConfig, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn google_cse_valid_but_no_items_is_ok_empty() {
+        let d = GoogleCseDialect {
+            api_key: "k".into(),
+            cx: "cx".into(),
+        };
+        let out = d
+            .parse_response(r#"{"kind":"customsearch#search","searchInformation":{}}"#)
+            .unwrap();
+        assert!(out.is_empty(), "valid response with no items → Ok(vec![])");
+    }
+
+    #[test]
+    fn google_cse_build_request_missing_cx_is_backend_config() {
+        let d = GoogleCseDialect {
+            api_key: "KEY".into(),
+            cx: "  ".into(),
+        };
+        assert!(matches!(
+            d.build_request("q", &SearchOpts::default()),
+            Err(WebError::BackendConfig { .. })
+        ));
+    }
+
+    #[test]
+    fn brave_malformed_json_is_search_parse() {
+        let d = BraveApiDialect {
+            api_key: "k".into(),
+        };
+        assert!(matches!(
+            d.parse_response("<html>not json</html>"),
+            Err(WebError::SearchParse { .. })
+        ));
+    }
+
+    #[test]
+    fn brave_no_web_results_is_ok_empty() {
+        let d = BraveApiDialect {
+            api_key: "k".into(),
+        };
+        let out = d.parse_response(r#"{"query":{"original":"q"}}"#).unwrap();
+        assert!(out.is_empty(), "no web.results → Ok(vec![])");
+    }
+
+    #[test]
+    fn brave_missing_key_build_request_is_typed() {
+        let d = BraveApiDialect {
+            api_key: String::new(),
+        };
+        assert!(matches!(
+            d.build_request("q", &SearchOpts::default()),
+            Err(WebError::MissingApiKey(_))
+        ));
+    }
+
+    // --- SearchConfig::build remaining branches ----------------------------
+
+    #[test]
+    fn config_brave_with_key_builds() {
+        let cfg: SearchConfig = toml::from_str(
+            r#"
+            backend = "brave"
+            [brave]
+            api_key = "brave-key"
+            "#,
+        )
+        .unwrap();
+        match cfg.build().unwrap() {
+            SearchBackend::BraveApi { api_key } => assert_eq!(api_key, "brave-key"),
+            other => panic!("expected BraveApi, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn config_google_cse_empty_cx_is_backend_config() {
+        // Key injected, but the `cx` engine id is present-and-blank → build() must
+        // fail typed BackendConfig (not silently proceed with an empty cx).
+        let cfg: SearchConfig = toml::from_str(
+            r#"
+            backend = "google_cse"
+            [google_cse]
+            cx = ""
+            api_key = "injected-key"
+            "#,
+        )
+        .unwrap();
+        match cfg.build() {
+            Err(WebError::BackendConfig { backend, .. }) => assert_eq!(backend, "google_cse"),
+            other => panic!("expected BackendConfig for empty cx, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn config_google_cse_missing_section_is_backend_config() {
+        let cfg: SearchConfig = toml::from_str(r#"backend = "google_cse""#).unwrap();
+        assert!(matches!(cfg.build(), Err(WebError::BackendConfig { .. })));
+    }
+
+    #[test]
+    fn config_brave_missing_key_is_missing_api_key() {
+        let cfg: SearchConfig = toml::from_str(
+            r#"
+            backend = "brave"
+            [brave]
+            api_key = ""
+            "#,
+        )
+        .unwrap();
+        assert!(matches!(cfg.build(), Err(WebError::MissingApiKey(_))));
+    }
+
+    // --- requires_t1 routes straight to the browser tier -------------------
+
+    #[tokio::test]
+    async fn requires_t1_url_goes_straight_to_browser() {
+        // Depends on the committed force_t1 profile (xueqiu). If profiles didn't load
+        // in this cwd, the premise isn't met — skip rather than assert a false thing.
+        let t1_url = "https://xueqiu.com/S/SH600000";
+        if !profiles::requires_t1(t1_url) {
+            eprintln!("skip: xueqiu force_t1 profile not loaded in this cwd");
+            return;
+        }
+        // Browser tier can never launch → a requires_t1 URL must surface NoBrowser
+        // (proving it bypassed the static path and went straight to the browser).
+        let engine = Engine::with_browser_pool(BrowserPool::with_executable(
+            "/nonexistent/definitely-not-a-browser",
+        ));
+        let opts = FetchOpts {
+            max_attempts: 1,
+            backoff: Duration::ZERO,
+            ..Default::default()
+        };
+        let err = engine
+            .fetch_page(t1_url, &opts)
+            .await
+            .expect_err("no browser available for a force_t1 URL");
+        assert!(
+            matches!(err, WebError::NoBrowser { .. }),
+            "force_t1 URL with no browser must be typed NoBrowser, got {err:?}"
+        );
+    }
 }

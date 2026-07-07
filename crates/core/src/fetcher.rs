@@ -196,3 +196,32 @@ impl Fetcher {
         })
     }
 }
+
+#[cfg(test)]
+mod transient_tests {
+    use super::FetchError;
+
+    #[test]
+    fn server_5xx_is_transient() {
+        assert!(FetchError::Status(500).is_transient());
+        assert!(FetchError::Status(502).is_transient());
+        assert!(FetchError::Status(503).is_transient());
+        assert!(FetchError::Status(599).is_transient());
+    }
+
+    #[test]
+    fn client_4xx_is_permanent() {
+        assert!(!FetchError::Status(400).is_transient());
+        assert!(!FetchError::Status(404).is_transient());
+        assert!(!FetchError::Status(429).is_transient());
+        assert!(!FetchError::Status(499).is_transient());
+    }
+
+    #[test]
+    fn success_and_3xx_boundaries_are_not_transient() {
+        // 5xx window is exactly [500, 600): 600 is out.
+        assert!(!FetchError::Status(600).is_transient());
+        assert!(!FetchError::Status(301).is_transient());
+        assert!(!FetchError::Status(200).is_transient());
+    }
+}
